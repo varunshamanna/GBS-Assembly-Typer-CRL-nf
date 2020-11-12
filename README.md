@@ -15,7 +15,7 @@ git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 ```
 4. Pull Docker image
 ```
-docker pull sangerpathogens/gbs-typer-sanger-nf:latest
+docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.1
 ```
 
 ### Pipeline test

@@ -8,7 +8,7 @@ nextflow.enable.dsl=2
 
 // Import modules
 include {printHelp} from './modules/help.nf'
-include {unzipReads} from './modules/process_reads.nf'
+include {serotyping} from './modules/serotyping.nf'
 
 // Help message
 if (params.help){
@@ -32,6 +32,10 @@ if (params.contigs == ""){
     System.exit(1)
 }
 
+// Import Serotyping DB
+params.db = "./db/$params.dbversion"
+params.db_serotyping = "$params.db/GBS_seroT_Gene-DB/GBS_seroT_Gene-DB_Final.fasta"
+
 // Main workflow
 workflow {
 
@@ -45,6 +49,8 @@ workflow {
         .ifEmpty { error "Cannot find any contigs matching: ${params.contigs}" }
         .set { contigs_ch }
 
-    unzipReads(read_pairs_ch, contigs_ch)
+    // Serotyping
+    sero_gene_db = file(params.db_serotyping)
+    serotyping(read_pairs_ch, sero_gene_db)
 
 }
