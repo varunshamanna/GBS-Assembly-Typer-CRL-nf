@@ -40,6 +40,7 @@ params.db_gbs_res_typer = "$params.db/GBS_resTyper_Gene-DB/GBS_Res_Gene-DB_Final
 params.db_argannot = "$params.db/ARGannot-DB/ARGannot_r1.fasta"
 params.db_resfinder = "$params.db/ResFinder-DB/ResFinder.fasta"
 
+
 // Main workflow
 workflow {
 

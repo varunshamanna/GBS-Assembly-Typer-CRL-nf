@@ -307,7 +307,7 @@ sub freebayes_prior_fix {
 chdir "$outDir";
 my $Res_output = "${outName}_Res_Results.txt";
 open(my $fh,'>',$Res_output) or die "Could not open file '$Res_output' $!";
-my $BIN_res_out = "BIN_Res_Results.txt";
+my $BIN_res_out = "${outName}_BIN_Res_Results.txt";
 open(my $bh,'>',$BIN_res_out) or die "Could not open file '$BIN_res_out' $!";
 my @Bin_Res_arr = (0) x 19;
 #print $fh "Resistance_Group\tTarget\n";
@@ -315,6 +315,8 @@ my @Bin_Res_arr = (0) x 19;
 my $outNameRES = "RES_".$outName;
 my $out_nameARG = "ARG_".$outName;
 my $out_nameRESFI = "RESFI_".$outName;
+### Note: srst2 can log shell errors if the db fasta file headers contain brackets (e.g. resfinder)... ###
+### see https://github.com/katholt/srst2/issues/55 ###
 system("srst2 --samtools_args '\\-A' --input_pe $fastq1 $fastq2 --output $outNameRES --log --save_scores --min_coverage 99.9 --max_divergence 5 --gene_db $res_DB");
 ###Type ARG-ANNOT Resistance Genes###
 system("srst2 --samtools_args '\\-A' --input_pe $fastq1 $fastq2 --output $out_nameARG --log --save_scores --min_coverage 70 --max_divergence 30 --gene_db $argannot_DB");
