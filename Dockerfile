@@ -5,8 +5,6 @@
 FROM ubuntu:18.04
 WORKDIR /opt
 
-ARG TAG="0.0.1"
-
 ARG DEBIAN_FRONTEND=noninteractive
 
 ##########################
