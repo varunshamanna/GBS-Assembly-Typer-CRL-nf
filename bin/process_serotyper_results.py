@@ -32,7 +32,9 @@ def write_outfile(gene_dict, out_file):
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Modify fullgenes output of SRST2.')
-    parser.add_argument('--input', '-i', dest='input', required=True,
+    parser.add_argument('--srst2_output', '-s', dest='id', required=True,
+                        help='Input fullgenes results tab file.')
+    parser.add_argument('--sero_db', '-b', dest='db', required=True,
                         help='Input fullgenes results tab file.')
     parser.add_argument('--output', '-o', dest='output', required=True,
                         help='Output filename.')
@@ -43,7 +45,9 @@ def get_arguments():
 
 def main():
     args = get_arguments().parse_args()
-    gene_dict = make_gene_dict(args.input, args.depth)
+    db_name = ' '.join(args.db.split('.')[:-1])
+    fullgenes_file = args.id + '__fullgenes__' + db_name + '__results.txt'
+    gene_dict = make_gene_dict(fullgenes_file, args.depth)
     write_outfile(gene_dict, args.output)
 
 
