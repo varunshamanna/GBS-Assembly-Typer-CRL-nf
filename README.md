@@ -24,9 +24,3 @@ cd GBS-Typer-sanger-nf
 nextflow run main.nf --reads 'data/example_{1,2}.fastq.gz' --contigs 'data/example_contigs.fa'
 ```
 Two fastq files should be found a new results directory.
-
-### Running unit tests
-```
-cd tests
-nosetests
-```
