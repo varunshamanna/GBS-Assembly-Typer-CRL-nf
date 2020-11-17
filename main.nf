@@ -33,13 +33,6 @@ if (params.contigs == ""){
     System.exit(1)
 }
 
-// Import databases
-params.db = "./db/$params.dbversion"
-params.db_serotyping = "$params.db/GBS_seroT_Gene-DB/GBS_seroT_Gene-DB_Final.fasta"
-params.db_gbs_res_typer = "$params.db/GBS_resTyper_Gene-DB/GBS_Res_Gene-DB_Final.fasta"
-params.db_argannot = "$params.db/ARGannot-DB/ARGannot_r1.fasta"
-params.db_resfinder = "$params.db/ResFinder-DB/ResFinder.fasta"
-
 
 // Main workflow
 workflow {
@@ -59,9 +52,10 @@ workflow {
     serotyping(read_pairs_ch, sero_gene_db)
 
     // Resistance Typer
-    res_typer_gene_db = file(params.db_gbs_res_typer)
-    argannot_db = file(params.db_argannot)
-    resfinder_db = file(params.db_resfinder)
-    res_typer(read_pairs_ch, res_typer_gene_db, argannot_db, resfinder_db)
+    res_typer(
+        read_pairs_ch,
+        file(params.db_restyper),
+        file(params.db_argannot),
+        file(params.db_resfinder))
 
 }
