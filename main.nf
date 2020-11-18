@@ -10,6 +10,7 @@ nextflow.enable.dsl=2
 include {printHelp} from './modules/help.nf'
 include {serotyping} from './modules/serotyping.nf'
 include {res_typer} from './modules/res_typer.nf'
+include {combine_results} from './modules/combine.nf'
 
 // Help message
 if (params.help){
@@ -19,7 +20,7 @@ if (params.help){
 
 // Check parameters
 params.reads = ""
-params.contigs = ""
+params.output = ""
 
 if (params.reads == ""){
     println("Please specify reads with --reads")
@@ -27,8 +28,8 @@ if (params.reads == ""){
     System.exit(1)
 }
 
-if (params.contigs == ""){
-    println("Please specify reads with --contigs")
+if (params.output == ""){
+    println("Please specify and output file with --output")
     println("Print help with --help")
     System.exit(1)
 }
@@ -45,14 +46,12 @@ params.db_resfinder = "$params.db/ResFinder-DB/ResFinder.fasta"
 workflow {
 
     // Create read pairs channel
-    Channel.fromFilePairs( params.reads )
-        .ifEmpty { error "Cannot find any reads matching: ${params.reads}" }
+    Channel.fromFilePairs( params.reads, checkIfExists: true )
         .set { read_pairs_ch }
 
-    // Create contigs channel
-    Channel.fromPath( params.contigs )
-        .ifEmpty { error "Cannot find any contigs matching: ${params.contigs}" }
-        .set { contigs_ch }
+    // Create new genotypes file
+    Channel.fromPath( params.output )
+        .set { output_ch }
 
     // Serotyping
     sero_gene_db = file(params.db_serotyping)
@@ -64,4 +63,14 @@ workflow {
     resfinder_db = file(params.db_resfinder)
     res_typer(read_pairs_ch, res_typer_gene_db, argannot_db, resfinder_db)
 
+    sero_res_ch = serotyping.out.join(res_typer.out)
+
+    // Combine results
+    combine_results(sero_res_ch)
+
+    // Combine samples
+    combine_results.out
+        .collectFile() { item ->
+            [ file(params.output), item + '\n']
+        }
 }
