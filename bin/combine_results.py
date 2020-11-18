@@ -3,7 +3,7 @@ from __future__ import print_function
 import argparse, sys
 
 
-def print_sample_line(id, sero_file, res_file):
+def get_sample_line(id, sero_file, res_file):
     with open(sero_file, 'r') as sero:
         next(sero) # Skip header row
         count = 0
@@ -11,14 +11,14 @@ def print_sample_line(id, sero_file, res_file):
             if count:
                 type = type + ";" + line.split('\t')[2]
             else:
-                type = line.split('\t')[2]
+                type = id + '\t' + line.split('\t')[2]
             count += 1
 
     with open(res_file, 'r') as res:
         for line in res:
             res_incidence = '\t'.join(line.split(','))
 
-    print(type + '\t' + res_incidence, end = '')
+    return(type + '\t' + res_incidence)
 
 
 def get_arguments():
@@ -33,8 +33,7 @@ def get_arguments():
 
 def main():
     args = get_arguments().parse_args()
-    print_sample_line(args.id, args.sero, args.res)
-
+    print(get_sample_line(args.id, args.sero, args.res), end = '')
 
 if __name__ == "__main__":
     sys.exit(main())
