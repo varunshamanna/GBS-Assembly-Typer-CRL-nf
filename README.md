@@ -24,9 +24,11 @@ cd GBS-Typer-sanger-nf
 run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt'
 ```
 With samples 26237_7#5, 26077_6#118 and 25292_2#85, should get isolate results:
+```
 III	0	0	0	1	0	0	0	0	0	0	0	0	0	1	0	0	0	0	1
 II	0	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
 III	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+```
 
 To resume pipeline if incomplete:
 ```
