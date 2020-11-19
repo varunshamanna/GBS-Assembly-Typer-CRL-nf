@@ -47,6 +47,8 @@ workflow {
         .ifEmpty { error "Cannot find any contigs matching: ${params.contigs}" }
         .set { contigs_ch }
 
+    println("Using database version ${params.dbversion}")
+
     // Serotyping
     sero_gene_db = file(params.db_serotyping)
     serotyping(read_pairs_ch, sero_gene_db)
