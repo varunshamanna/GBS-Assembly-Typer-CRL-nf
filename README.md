@@ -37,6 +37,5 @@ run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_re
 
 ### Run unit tests
 ```
-cd tests
 nosetests
 ```
