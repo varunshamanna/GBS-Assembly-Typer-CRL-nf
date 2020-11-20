@@ -1,9 +1,11 @@
 import argparse
 import unittest
 import os
+from unittest.mock import patch, call
 
 from bin.process_res_typer_results import get_arguments, codon2aa, extract_seq_by_id, derive_presence_absence_targets, \
-    derive_presence_absence_targets_for_arg_res, six_frame_translate, drugRes_Col, Res_Targets, EOL_SEP
+    derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, drugRes_Col, Res_Targets, \
+    get_seq_diffs, update_Bin_Res_arr, update_drugRes_Col, EOL_SEP, geneToRef, geneToTargetSeq, Bin_Res_arr, drugToClass
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -13,6 +15,8 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
     TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
     TEST_FASTA_FILE = "test_data/test-db.fasta"
+    TEST_RES_BAM_FILE = "test_data/RES_" + TEST_LANE + "__26189_8#5.GBS_Res_Gene-DB_Final.sorted.bam"
+    TEST_RES_DB = "test_data/GBS_Res_Gene-DB_Final_0.0.1.fasta"
 
     def test_extract_seq_by_id(self):
         self.assertEqual("465__DfrB2_Tmt__DfrB2__1230" +
@@ -167,3 +171,107 @@ class TestProcessResTyperResults(unittest.TestCase):
                                             srst2_resfinder_output='srst2_resfinder',
                                             output='output',
                                             output_bin='output_bin'))
+
+    def test_find_amino_acid_mismatches(self):
+        actual = find_mismatches([], 'HPHGDSSIYDAMVRMSS', geneToRef['PARC'])
+        self.assertEqual(actual, ['Q17S'])
+
+        actual = find_mismatches([], 'HHHGDSSIYDAMVRMSS', geneToRef['PARC'])
+        self.assertEqual(actual, ['P2H', 'Q17S'])
+
+        actual = find_mismatches([], 'MMGKYHPHGDSSIYEAMVRMAQWW', geneToRef['GYRA'])
+        self.assertEqual(actual, ['V1M'])
+
+        actual = find_mismatches([], 'GGSSQLSQFMDQHNPLSELSHKRRLSALGPGGL', geneToRef['RPOB1'])
+        self.assertEqual(actual, ['F1G'])
+
+        actual = find_mismatches([], 'SSQLVRSPGV', geneToRef['RPOB2'])
+        self.assertEqual(actual, ['V1S'])
+
+        actual = find_mismatches([], 'TTVAQANSKLNEDGTFAEEIVMGRHQGNNQEFPSSI', geneToRef['RPOB3'])
+        self.assertEqual(actual, ['F1T'])
+
+        actual = find_mismatches([], 'IIDPKAPYVGT', geneToRef['RPOB4'])
+        self.assertEqual(actual, ['L1I'])
+
+    def test_find_nucleotide_mismatches(self):
+        actual = find_mismatches([], 'ATTACCCGCGACAGGACGGAAAGACCCCATGGAG', geneToRef['23S1'])
+        self.assertEqual(actual, ['G1A'])
+
+        actual = find_mismatches([], 'ATTACCCGCGACAGGACGGAAAGACCCCATGGAT', geneToRef['23S1'])
+        self.assertEqual(actual, ['G1A', 'G34T'])
+
+        actual = find_mismatches([], 'GGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG', geneToRef['23S3'])
+        self.assertEqual(actual, ['C1G'])
+
+    @patch('bin.process_res_typer_results.six_frame_translate')
+    def test_get_seq_diffs(self, mock_six_frame_translate):
+        mock_six_frame_translate.return_value = 'HPHGDSSIYDAMVRMSQ'
+        get_seq_diffs('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', geneToTargetSeq['PARC'], geneToRef['PARC'])
+        self.assertEqual(mock_six_frame_translate.call_args_list, [call('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', 1)])
+
+    def test_update_Bin_Res_arr(self):
+        actual = update_Bin_Res_arr('PARC', ['Q17S'], Bin_Res_arr)
+        self.assertEqual(actual, {
+            'PARC':'PARC-Q17S',
+            'GYRA': '',
+            '23S1': '',
+            '23S3': '',
+            'RPOB1': '',
+            'RPOB2': '',
+            'RPOB3': '',
+            'RPOB4': ''
+        })
+
+        actual = update_Bin_Res_arr('PARC', ['Q18S'], Bin_Res_arr)
+        self.assertEqual(actual, {
+            'PARC':'PARC-Q18S',
+            'GYRA': '',
+            '23S1': '',
+            '23S3': '',
+            'RPOB1': '',
+            'RPOB2': '',
+            'RPOB3': '',
+            'RPOB4': ''
+        })
+
+        actual = update_Bin_Res_arr('GYRA', [], Bin_Res_arr)
+        self.assertEqual(actual, {
+            'PARC':'PARC-Q18S',
+            'GYRA': 'GYRA',
+            '23S1': '',
+            '23S3': '',
+            'RPOB1': '',
+            'RPOB2': '',
+            'RPOB3': '',
+            'RPOB4': ''
+        })
+
+        actual = update_Bin_Res_arr('23S1', ['G1A', 'G34T'], Bin_Res_arr)
+        self.assertEqual(actual, {
+            'PARC':'PARC-Q18S',
+            'GYRA': 'GYRA',
+            '23S1': '23S1-G1A,G34T',
+            '23S3': '',
+            'RPOB1': '',
+            'RPOB2': '',
+            'RPOB3': '',
+            'RPOB4': ''
+        })
+
+    def test_update_drugRes_Col(self):
+        actual = update_drugRes_Col('PARC', ['Q17S'], drugRes_Col, drugToClass)
+        self.assertEqual(actual, {
+            'TET': 'TETM',
+            'EC': 'neg',
+            'FQ': 'PARC-Q17S',
+            'OTHER': 'TetM_Tet:tet(M):tet(M):tet(M)'
+        })
+
+        actual = update_drugRes_Col('RPOB1', ['F1G'], drugRes_Col, drugToClass)
+        self.assertEqual(actual, {
+            'TET': 'TETM',
+            'EC': 'neg',
+            'FQ': 'PARC-Q17S',
+            'OTHER': 'TetM_Tet:tet(M):tet(M):tet(M):RPOB1-F1G'
+        })

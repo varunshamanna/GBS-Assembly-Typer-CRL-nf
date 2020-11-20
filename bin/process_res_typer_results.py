@@ -6,17 +6,34 @@ import re
 import glob
 import subprocess
 from Bio import SeqIO
+from collections import defaultdict
 
 # TODO Add column headings to the BIN file
 # TODO it does the variant resistance typing (v2) but no obvious output.
 #      The one that looked vaguely similar was the file genes_ResFinder_results and the same for ARGANNOT.
 #      we should think of a way to output in a table if not done already
 
+class nSeq(str): # Nucleotide sequence
+    pass
+
+class aSeq(str): # Amino acid sequence
+    pass
+
 drugRes_Col = {
     'TET': 'neg',
     'EC': 'neg',
     'FQ': 'neg',
     'OTHER': 'neg',
+}
+
+drugToClass = {
+    'PARC': 'FQ',
+    'GYRA': 'FQ',
+    '23S1': 'EC',
+    '23S3': 'EC',
+    'RPOB1': 'OTHER',
+    'RPOB2': 'OTHER',
+    'RPOB3': 'OTHER'
 }
 
 Res_Targets = {
@@ -35,6 +52,41 @@ Res_Targets = {
     'RPOB3': 'neg',
     'RPOB4': 'neg',
 }
+
+Bin_Res_arr = {
+    '23S1': '', #0
+    '23S3': '', #1
+    'RPOB1': '', #6
+    'RPOB2': '', #7
+    'RPOB3': '', #8
+    'RPOB4': '', #9,
+    'GYRA': '', #10
+    'PARC': '' #14
+}
+
+geneToRef = defaultdict(lambda: '')
+geneToRef.update({
+    'PARC': aSeq('HPHGDSSIYDAMVRMSQ'),
+    'GYRA': aSeq('VMGKYHPHGDSSIYEAMVRMAQWW'),
+    '23S1': nSeq('GTTACCCGCGACAGGACGGAAAGACCCCATGGAG'),
+    '23S3': nSeq('CGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG'),
+    'RPOB1': aSeq('FGSSQLSQFMDQHNPLSELSHKRRLSALGPGGL'),
+    'RPOB2': aSeq('VSQLVRSPGV'),
+    'RPOB3': aSeq('FTVAQANSKLNEDGTFAEEIVMGRHQGNNQEFPSSI'),
+    'RPOB4': aSeq('LIDPKAPYVGT')
+})
+
+geneToTargetSeq = defaultdict(lambda: '')
+geneToTargetSeq.update({
+    'PARC': '7__PARCGBS__PARCGBS-1__7',
+    'GYRA': '5__GYRAGBS__GYRAGBS-1__5',
+    '23S1': '11__23S1__23S1-1__11',
+    '23S3': '12__23S3__23S3-3__12',
+    'RPOB1': '16__RPOBgbs__RPOBgbs-1__16',
+    'RPOB2': '17__RPOBgbs__RPOBgbs-2__17',
+    'RPOB3': '18__RPOBgbs__RPOBgbs-3__18',
+    'RPOB4': '19__RPOBgbs__RPOBgbs-4__19'
+})
 
 EOL_SEP = "\n"
 
@@ -263,6 +315,49 @@ def derive_presence_absence_targets_for_arg_res(input_file):
                         drugRes_Col["OTHER"] = gene
                     else:
                         drugRes_Col["OTHER"] = drugRes_Col["OTHER"] + ":" + gene
+
+
+def find_mismatches(seq_diffs, query_Seq, ref_Seq):
+    for resi in range(len(query_Seq)):
+        if query_Seq[resi] != ref_Seq[resi]:
+            seq_diffs.append(ref_Seq[resi] + str(resi+1) + query_Seq[resi])
+    return seq_diffs
+
+
+def get_seq_diffs(query_Seq, target_seq, ref_Seq):
+    if type(ref_Seq) == aSeq:
+        query_Seq = six_frame_translate(query_Seq, 1)
+    seq_diffs = []
+    if query_Seq != ref_Seq:
+        seq_diffs = find_mismatches(seq_diffs, query_Seq, ref_Seq)
+    return seq_diffs
+
+
+def update_Bin_Res_arr(gene_name, seq_diffs, bin_res_arr):
+    if seq_diffs:
+        bin_res_arr[gene_name] = gene_name + '-' + ','.join(seq_diffs)
+    else:
+        bin_res_arr[gene_name] = gene_name
+    return bin_res_arr
+
+
+def update_drugRes_Col(gene_name, seq_diffs, drugRes_Col, drugToClass):
+    drugClass = drugToClass[gene_name]
+    gene_var = gene_name + '-' + ','.join(seq_diffs)
+    if drugRes_Col[drugClass] == 'neg':
+        drugRes_Col[drugClass] = gene_var
+    else:
+        new_value = drugRes_Col[drugClass] + ':' + gene_var
+        drugRes_Col[drugClass] = new_value
+    return drugRes_Col
+
+
+def get_variants(Res_Targets, gene_names, query_seqs, geneToTargetSeq, geneToRef, bin_res_arr, drugRes_Col, drugToClass):
+    for gene_name in gene_names:
+        if Res_Targets[gene_name] == "pos" and geneToTargetSeq[gene_name] and geneToRef[gene_name]:
+            seq_diffs = get_seq_diffs(query_seqs[gene_name], geneToTargetSeq[gene_name], geneToRef[gene_name])
+            bin_res_arr = update_Bin_Res_arr(gene_name, seq_diffs, bin_res_arr)
+            drugRes_Col = update_drugRes_Col(gene_name, seq_diffs, drugRes_Col, drugToClass)
 
 
 def run(srst2_gbs_output, srst2_argannot_output, srst2_resfinder_output):
