@@ -1,8 +1,9 @@
 import argparse
 import unittest
+from unittest.mock import patch, call, ANY
 
 from bin.process_res_typer_results import get_arguments, codon2aa, extract_seq_by_id, derive_presence_absence_targets, \
-    derive_presence_absence_targets_for_arg_res, six_frame_translate, extract_frame_aa, drugRes_Col, Res_Targets, \
+    derive_presence_absence_targets_for_arg_res, six_frame_translate, extract_frame_aa, \
     update_presence_absence_target, update_presence_absence_target_for_arg_res, EOL_SEP, MIN_DEPTH
 
 
@@ -511,35 +512,37 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         # ============== Test OTHER ==================
         drug_res_col_dict = {"OTHER": "neg"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "CAT"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        res_target_dict = {}
+        update_presence_absence_target_for_arg_res("GENE1", "***FOO***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({}, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE2", "***FOO***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({}, res_target_dict)
 
-        drug_res_col_dict = {"OTHER": "ERM"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "ERM:CAT"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        # ============== Test depth ==================
+        drug_res_col_dict = {}
+        res_target_dict = {}
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
+        self.assertEqual({}, drug_res_col_dict)
+        self.assertEqual({}, res_target_dict)
 
-        drug_res_col_dict = {"OTHER": "CAT"}
-        res_target_dict = {"CAT": "pos"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "CAT"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+    @patch('bin.process_res_typer_results.update_presence_absence_target')
+    def test_derive_presence_absence_targets(self, mock):
 
-
-    def test_derive_presence_absence_targets(self):
-
+        calls = [call("23S1", "23S1-1", 1135.571, ANY, ANY), call("23S3", "23S3-3", 1265.721, ANY, ANY)]
         derive_presence_absence_targets(self.TEST_GBS_FULLGENES_RESULTS_FILE)
-        print(drugRes_Col)
-        print(Res_Targets)
-        derive_presence_absence_targets_for_arg_res(self.TEST_ARGANNOT_FULLGENES_RESULTS_FILE)
-        print(drugRes_Col)
-        print(Res_Targets)
+        mock.assert_has_calls(calls, any_order=False)
+
+    @patch('bin.process_res_typer_results.update_presence_absence_target_for_arg_res')
+    def derive_presence_absence_targets_for_arg_res(self, mock):
+        calls = [
+            call("tet(M)", "tet(M)_12", 132.04, ANY, ANY),
+            call("tet(M)", "tet(M)_4", 185.331, ANY, ANY),
+            call("tet(M)", "tet(M)_10", 120.412, ANY, ANY),
+        ]
         derive_presence_absence_targets_for_arg_res(self.TEST_RESFINDER_FULLGENES_RESULTS_FILE)
-        print(drugRes_Col)
-        print(Res_Targets)
+        mock.assert_has_calls(calls, any_order=False)
 
     def test_arguments_short_options(self):
         actual = get_arguments().parse_args(

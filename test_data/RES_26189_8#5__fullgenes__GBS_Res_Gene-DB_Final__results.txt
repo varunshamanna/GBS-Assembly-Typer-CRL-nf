@@ -1,10 +1,3 @@
 Sample	DB	gene	allele	coverage	depth	diffs	uncertainty	divergence	length	maxMAF	clusterid	seqid	annotation
 26189_8#5	GBS_Res_Gene-DB_Final	23S1	23S1-1	100.0	1135.571			0.0	34	0.005	11	11	
-26189_8#5	GBS_Res_Gene-DB_Final	23S3	23S3-3	100.0	1265.721			0.0	60	0.009	12	12	
-26189_8#5	GBS_Res_Gene-DB_Final	RPOBgbs	RPOBgbs-2	100.0	174.065			0.0	30	0.006	17	17	
-26189_8#5	GBS_Res_Gene-DB_Final	RPOBgbs	RPOBgbs-1	100.0	214.56			0.0	99	0.019	16	16	
-26189_8#5	GBS_Res_Gene-DB_Final	RPOBgbs	RPOBgbs-4	100.0	179.971			0.0	33	0.005	19	19	
-26189_8#5	GBS_Res_Gene-DB_Final	RPOBgbs	RPOBgbs-3	100.0	211.092			0.0	108	0.021	18	18	
-26189_8#5	GBS_Res_Gene-DB_Final	GYRAGBS	GYRAGBS-1	100.0	163.274			0.0	72	0.019	5	5	
-26189_8#5	GBS_Res_Gene-DB_Final	PARCGBS	PARCGBS-1	100.0	148.808	1snp		1.961	51	0.022	7	7	
-26189_8#5	GBS_Res_Gene-DB_Final	TETM	TETM-1	100.0	183.149			0.0	100	0.021	9	9	
+26189_8#5	GBS_Res_Gene-DB_Final	23S3	23S3-3	100.0	1265.721			0.0	60	0.009	12	12
