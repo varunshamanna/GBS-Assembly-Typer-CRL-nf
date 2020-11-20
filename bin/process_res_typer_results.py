@@ -6,6 +6,7 @@ import re
 import glob
 import subprocess
 from Bio import SeqIO
+from Bio.Seq import Seq
 
 # TODO Add column headings to the BIN file
 # TODO it does the variant resistance typing (v2) but no obvious output.
@@ -37,9 +38,10 @@ Res_Targets = {
 }
 
 EOL_SEP = "\n"
+MIN_DEPTH = 10
 
 
-def extract_seq_by_id(lookup, fasta_file):
+def extract_seq_by_id(lookup: str, fasta_file: str) -> str:
     """ Extract a sequence from the given fasta file by feature id """
 
     rf = None
@@ -54,7 +56,7 @@ def extract_seq_by_id(lookup, fasta_file):
     return None
 
 
-def freebayes_prior_fix(bam_file, ref_file, target):
+def freebayes_prior_fix(bam_file: str, ref_file: str, target: str) -> str:
     sam_file = bam_file.replace('.bam', '.sam')
 
     os.system("samtools view -h " + bam_file + " > " + samfile)
@@ -83,7 +85,7 @@ def freebayes_prior_fix(bam_file, ref_file, target):
     return extract_seq.rstrip(EOL_SEP)
 
 
-def codon2aa(codon):
+def codon2aa(codon: str) -> str:
 
     codon = codon.upper()
 
@@ -117,80 +119,186 @@ def codon2aa(codon):
             result = 'S'
         else:
             result = 'x'
-            print("Bad codon " + codon + "!!\n")
+            print("Bad codon " + codon + "!!")
 
     return result
 
 
-def six_frame_translate(seq_input, opt_f):
-    pass
+def extract_frame_aa(sequence: str, frame: int) -> str:
+    """
+    :param sequence: dna bases
+    :param frame: frame number to extract
+    :return: Amino acid translates frame
+    """
+
+    bases = sequence
+    if frame > 3:
+        seq = Seq(sequence)
+        bases = str(seq.reverse_complement())
+        frame -= 3
+
+    i = frame - 1
+    protein = ""
+    while i < len(bases)-2:
+        protein += codon2aa(bases[i:i+3])
+        i += 3
+
+    return protein
 
 
-def derive_presence_absence_targets(input_file):
+def six_frame_translate(seq_input: str, frame: int) -> str:
+    """
+    :param seq_input: Fasta feature including id and sequence lines
+    :param frame: Codon number:
+    :return: protein translation
+    """
+
+    if frame < 1 or frame > 6:
+        raise IndexError("Frame number argument is out of bounds: " + str(frame))
+
+    lines = seq_input.splitlines()
+    dna = ""
+    for line in lines:
+        if line.startswith('>'):
+            continue
+        else:
+            dna += line.strip()
+
+    return extract_frame_aa(dna, frame)
+
+
+def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_target_dict):
+    if depth >= MIN_DEPTH:
+        if re.search(r"ERM|LNUB|LSA|MEF", allele):
+            if drug_res_col_dict["EC"] == "neg":
+                drug_res_col_dict["EC"] = gene
+            else:
+                new_val = drug_res_col_dict["EC"] + ":" + gene
+                drug_res_col_dict["EC"] = new_val
+
+        if re.search(r"TET", allele):
+            if drug_res_col_dict["TET"] == "neg":
+                drug_res_col_dict["TET"] = gene
+            else:
+                new_val = drug_res_col_dict["TET"] + ":" + gene
+                drug_res_col_dict["TET"] = new_val
+
+        if re.search(r"CAT", allele):
+            if drug_res_col_dict["OTHER"] == "neg":
+                drug_res_col_dict["OTHER"] = gene
+            else:
+                new_val = drug_res_col_dict["OTHER"] + ":" + gene
+                drug_res_col_dict["OTHER"] = new_val
+
+        if re.search(r"ERM", allele):
+            res_target_dict["ERM"] = "pos"
+        elif re.search(r"LNUB", allele):
+            res_target_dict["LNUB"] = "pos"
+        elif re.search(r"LSA", allele):
+            res_target_dict["LSA"] = "pos"
+        elif re.search(r"MEF", allele):
+            res_target_dict["MEF"] = "pos"
+        elif re.search(r"TET", allele):
+            res_target_dict["TET"] = "pos"
+        elif re.search(r"CAT", allele):
+            res_target_dict["CAT"] = "pos"
+        elif re.search(r"PARC", allele):
+            res_target_dict["PARC"] = "pos"
+        elif re.search(r"GYRA", allele):
+            res_target_dict["GYRA"] = "pos"
+        elif re.search(r"23S1", allele):
+            res_target_dict["23S1"] = "pos"
+        elif re.search(r"23S3", allele):
+            res_target_dict["23S3"] = "pos"
+        elif re.search(r"RPOB1", allele):
+            res_target_dict["RPOB1"] = "pos"
+        elif re.search(r"RPOBN", allele):
+            res_target_dict["RPOB2"] = "pos"
+        # TODO The next bit must be a bug - RPOB4 will never get set?
+        elif re.search(r"RPOBN", allele):
+            res_target_dict["RPOB3"] = "pos"
+        elif re.search(r"RPOBN", allele):
+            res_target_dict["RPOB4"] = "pos"
+
+
+def derive_presence_absence_targets(input_file: str):
     with open(input_file, 'r') as fd:
         # Skip header row
         next(fd)
+
         # Process file lines
         for line in fd:
             fields = line.split('\t')
             gene = fields[2]
             allele = fields[3]
             depth = float(fields[5])
-
-            if depth >= 10:
-                if re.search(r"ERM|LNUB|LSA|MEF", allele):
-                    if drugRes_Col["EC"] == "neg":
-                        drugRes_Col["EC"] = gene
-                    else:
-                        new_val = drugRes_Col["EC"] + ":" + gene
-                        drugRes_Col["EC"] = new_val
-
-                if re.search(r"TET", allele):
-                    if drugRes_Col["TET"] == "neg":
-                        drugRes_Col["TET"] = gene
-                    else:
-                        new_val = drugRes_Col["TET"] + ":" + gene
-                        drugRes_Col["TET"] = new_val
-
-                if re.search(r"OTHER", allele):
-                    if drugRes_Col["OTHER"] == "neg":
-                        drugRes_Col["OTHER"] = gene
-                    else:
-                        new_val = drugRes_Col["OTHER"] + ":" + gene
-                        drugRes_Col["OTHER"] = new_val
-
-                if re.search(r"ERM", allele):
-                    Res_Targets["ERM"] = "pos"
-                elif re.search(r"LNUB", allele):
-                    Res_Targets["LNUB"] = "pos"
-                elif re.search(r"LSA", allele):
-                    Res_Targets["LSA"] = "pos"
-                elif re.search(r"MEF", allele):
-                    Res_Targets["MEF"] = "pos"
-                elif re.search(r"TET", allele):
-                    Res_Targets["TET"] = "pos"
-                elif re.search(r"CAT", allele):
-                    Res_Targets["CAT"] = "pos"
-                elif re.search(r"PARC", allele):
-                    Res_Targets["PARC"] = "pos"
-                elif re.search(r"GYRA", allele):
-                    Res_Targets["GYRA"] = "pos"
-                elif re.search(r"23S1", allele):
-                    Res_Targets["23S1"] = "pos"
-                elif re.search(r"23S3", allele):
-                    Res_Targets["23S3"] = "pos"
-                elif re.search(r"RPOB1", allele):
-                    Res_Targets["RPOB1"] = "pos"
-                elif re.search(r"RPOBN", allele):
-                    Res_Targets["RPOB2"] = "pos"
-
-            elif re.search(r"RPOBN", allele):
-                Res_Targets["RPOB3"] = "pos"
-            elif re.search(r"RPOBN", allele):
-                Res_Targets["RPOB4"] = "pos"
+            update_presence_absence_target(gene, allele, depth, drugRes_Col, Res_Targets)
 
 
-def derive_presence_absence_targets_for_arg_res(input_file):
+def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict):
+    if depth >= MIN_DEPTH:
+        if re.search(r"ERM", allele):
+            if res_target_dict["ERM"] == "neg":
+                if drug_res_col_dict["EC"] == "neg":
+                    drug_res_col_dict["EC"] = "ERM"
+                else:
+                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":ERM"
+
+                res_target_dict["ERM"] = "pos"
+
+        elif re.search(r"LNU", allele):
+            if res_target_dict["LNUB"] == "neg":
+                if drug_res_col_dict["EC"] == "neg":
+                    drug_res_col_dict["EC"] = "LNU"
+                else:
+                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":LNU"
+
+                res_target_dict["LNUB"] = "pos"
+
+        elif re.search(r"LSA", allele):
+            if res_target_dict["LSA"] == "neg":
+                if drug_res_col_dict["EC"] == "neg":
+                    drug_res_col_dict["EC"] = "LSA"
+                else:
+                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":LSA"
+
+                res_target_dict["LSA"] = "pos"
+
+        elif re.search(r"MEF", allele):
+            if res_target_dict["MEF"] == "neg":
+                if drug_res_col_dict["EC"] == "neg":
+                    drug_res_col_dict["EC"] = "MEF"
+                else:
+                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":MEF"
+
+                res_target_dict["MEF"] = "pos"
+
+        elif re.search(r"TET", allele):
+            if res_target_dict["TET"] == "neg":
+                if drug_res_col_dict["TET"] == "neg":
+                    drug_res_col_dict["TET"] = "TET"
+                else:
+                    drug_res_col_dict["TET"] = drug_res_col_dict["TET"] + ":TET"
+
+                res_target_dict["TET"] = "pos"
+
+        elif re.search(r"CAT", allele):
+            if res_target_dict["CAT"] == "neg":
+                if drug_res_col_dict["OTHER"] == "neg":
+                    drug_res_col_dict["OTHER"] = "CAT"
+                else:
+                    drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":CAT";
+
+                res_target_dict["CAT"] = "pos"
+
+        else:
+            if drug_res_col_dict["OTHER"] == "neg":
+                drug_res_col_dict["OTHER"] = gene
+            else:
+                drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + gene
+
+
+def derive_presence_absence_targets_for_arg_res(input_file: str):
     """ For ARG-ANNOT / ResFinder """
 
     with open(input_file, 'r') as fd:
@@ -202,67 +310,7 @@ def derive_presence_absence_targets_for_arg_res(input_file):
             gene = fields[2]
             allele = fields[3]
             depth = float(fields[5])
-
-            if depth >= 10:
-                if re.search(r"ERM", allele):
-                    if Res_Targets["ERM"] == "neg":
-                        if drugRes_Col["EC"] == "neg":
-                            drugRes_Col["EC"] = "ERM"
-                        else:
-                            drugRes_Col["EC"] = drugRes_Col["EC"] + ":ERM"
-
-                        Res_Targets["ERM"] = "pos";
-
-                elif re.search(r"LNU", allele):
-                    if Res_Targets["LNUB"] == "neg":
-                        if drugRes_Col["EC"] == "neg":
-                            drugRes_Col["EC"] = "LNU"
-                        else:
-                            drugRes_Col["EC"] = drugRes_Col["EC"] + ":LNU"
-
-                        Res_Targets["LNUB"] = "pos"
-
-                elif re.search(r"LSA", allele):
-                    if Res_Targets["LSA"] == "neg":
-                        if drugRes_Col["EC"] == "neg":
-                            drugRes_Col["EC"] = "LSA"
-                        else:
-                            drugRes_Col["EC"] = drugRes_Col["EC"] + ":LSA"
-
-                        Res_Targets["LSA"] = "pos"
-
-                elif re.search(r"MEF", allele):
-                    if Res_Targets["MEF"] == "neg":
-                        if drugRes_Col["EC"] == "neg":
-                            drugRes_Col["EC"] = "MEF"
-                        else:
-                            drugRes_Col["EC"] = drugRes_Col["EC"] + ":MEF"
-
-                        Res_Targets["MEF"] = "pos"
-
-                elif re.search(r"TET", allele):
-                    if Res_Targets["TET"] == "neg":
-                        if drugRes_Col["TET"] == "neg":
-                            drugRes_Col["TET"] = "TET"
-                        else:
-                            drugRes_Col["TET"] = drugRes_Col["TET"] + ":TET"
-
-                        Res_Targets["TET"] = "pos"
-
-                elif re.search(r"CAT", allele):
-                    if Res_Targets["CAT"] == "neg":
-                        if drugRes_Col["OTHER"] == "neg":
-                            drugRes_Col["OTHER"] = "CAT"
-                        else:
-                            drugRes_Col["OTHER"] = drugRes_Col["OTHER"] + ":CAT";
-
-                        Res_Targets["CAT"] = "pos"
-
-                else:
-                    if drugRes_Col["OTHER"] == "neg":
-                        drugRes_Col["OTHER"] = gene
-                    else:
-                        drugRes_Col["OTHER"] = drugRes_Col["OTHER"] + ":" + gene
+            update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
 
 
 def run(srst2_gbs_output, srst2_argannot_output, srst2_resfinder_output):
@@ -285,7 +333,7 @@ def run(srst2_gbs_output, srst2_argannot_output, srst2_resfinder_output):
     os.system("tail -n+2 {} >> {}".format(RESFI_full_name, merged_net))
 
     derive_presence_absence_targets(RES_full_name)
-    print(Res_Targets)
+    derive_presence_absence_targets_for_arg_res(merged_net)
 
 
 def get_arguments():
