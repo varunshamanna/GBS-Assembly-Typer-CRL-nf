@@ -15,8 +15,6 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
     TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
     TEST_FASTA_FILE = "test_data/test-db.fasta"
-    TEST_RES_BAM_FILE = "test_data/RES_" + TEST_LANE + "__26189_8#5.GBS_Res_Gene-DB_Final.sorted.bam"
-    TEST_RES_DB = "test_data/GBS_Res_Gene-DB_Final_0.0.1.fasta"
 
     def test_extract_seq_by_id(self):
         self.assertEqual("465__DfrB2_Tmt__DfrB2__1230" +
