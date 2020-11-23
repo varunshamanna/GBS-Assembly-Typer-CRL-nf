@@ -5,8 +5,8 @@ from unittest.mock import patch, call, ANY
 
 from bin.process_res_typer_results import get_arguments, codon2aa, extract_seq_by_id, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
-    update_presence_absence_target_for_arg_res, drug_res_col_dict, res_target_dict, get_seq_diffs, update_Bin_Res_arr, \
-    update_drug_res_col_dict, EOL_SEP, geneToRef, geneToTargetSeq, Bin_Res_arr, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
+    update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_Bin_Res_arr, update_drug_res_col_dict, \
+    EOL_SEP, geneToRef, geneToTargetSeq, Bin_Res_arr, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -645,7 +645,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         })
 
     def test_update_drug_res_col_dict(self):
-        actual = update_drug_res_col_dict('PARC', ['Q17S'], drug_res_col_dict, drugToClass)
+        actual = update_drug_res_col_dict('PARC', ['Q17S'], drugRes_Col, drugToClass)
         self.assertEqual(actual, {
             'TET': 'neg',
             'EC': 'neg',
@@ -653,7 +653,7 @@ class TestProcessResTyperResults(unittest.TestCase):
             'OTHER': 'neg'
         })
 
-        actual = update_drug_res_col_dict('RPOB1', ['F1G'], drug_res_col_dict, drugToClass)
+        actual = update_drug_res_col_dict('RPOB1', ['F1G'], drugRes_Col, drugToClass)
         self.assertEqual(actual, {
             'TET': 'neg',
             'EC': 'neg',

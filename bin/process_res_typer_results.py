@@ -20,7 +20,7 @@ class nSeq(str): # Nucleotide sequence
 class aSeq(str): # Amino acid sequence
     pass
 
-drug_res_col_dict = {
+drugRes_Col = {
     'TET': 'neg',
     'EC': 'neg',
     'FQ': 'neg',
@@ -37,7 +37,7 @@ drugToClass = {
     'RPOB3': 'OTHER'
 }
 
-res_target_dict = {
+Res_Targets = {
     'ERM': 'neg',
     'LNUB': 'neg',
     'LSA': 'neg',
@@ -429,6 +429,7 @@ def run(srst2_gbs_output, srst2_argannot_output, srst2_resfinder_output):
 
     derive_presence_absence_targets(RES_full_name)
     derive_presence_absence_targets_for_arg_res(merged_net)
+    # Call get_variants
 
 
 def get_arguments():
