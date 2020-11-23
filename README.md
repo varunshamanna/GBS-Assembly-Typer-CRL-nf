@@ -21,7 +21,7 @@ docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.1
 ### Pipeline test
 ```
 cd GBS-Typer-sanger-nf
-run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt'
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt'
 ```
 With samples 26237_7#5, 26077_6#118 and 25292_2#85, should get isolate results:
 ```
@@ -32,7 +32,7 @@ With samples 26237_7#5, 26077_6#118 and 25292_2#85, should get isolate results:
 
 To resume pipeline if incomplete:
 ```
-run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' -resume
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' -resume
 ```
 
 ### Run unit tests
