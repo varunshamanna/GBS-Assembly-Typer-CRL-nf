@@ -20,7 +20,7 @@ class nSeq(str): # Nucleotide sequence
 class aSeq(str): # Amino acid sequence
     pass
 
-drugRes_Col = {
+drug_res_col_dict = {
     'TET': 'neg',
     'EC': 'neg',
     'FQ': 'neg',
@@ -37,7 +37,7 @@ drugToClass = {
     'RPOB3': 'OTHER'
 }
 
-Res_Targets = {
+res_target_dict = {
     'ERM': 'neg',
     'LNUB': 'neg',
     'LSA': 'neg',
@@ -389,7 +389,7 @@ def update_Bin_Res_arr(gene_name, seq_diffs, bin_res_arr):
     return bin_res_arr
 
 
-def update_drugRes_Col(gene_name, seq_diffs, drugRes_Col, drugToClass):
+def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass):
     drugClass = drugToClass[gene_name]
     gene_var = gene_name + '-' + ','.join(seq_diffs)
     if drugRes_Col[drugClass] == 'neg':
@@ -405,7 +405,7 @@ def get_variants(Res_Targets, gene_names, query_seqs, geneToTargetSeq, geneToRef
         if Res_Targets[gene_name] == "pos" and geneToTargetSeq[gene_name] and geneToRef[gene_name]:
             seq_diffs = get_seq_diffs(query_seqs[gene_name], geneToTargetSeq[gene_name], geneToRef[gene_name])
             bin_res_arr = update_Bin_Res_arr(gene_name, seq_diffs, bin_res_arr)
-            drugRes_Col = update_drugRes_Col(gene_name, seq_diffs, drugRes_Col, drugToClass)
+            drugRes_Col = update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass)
 
 
 def run(srst2_gbs_output, srst2_argannot_output, srst2_resfinder_output):
