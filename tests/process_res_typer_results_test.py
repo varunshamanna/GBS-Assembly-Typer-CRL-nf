@@ -1,11 +1,12 @@
 import argparse
 import unittest
 import os
-from unittest.mock import patch, call
+from unittest.mock import patch, call, ANY
 
 from bin.process_res_typer_results import get_arguments, codon2aa, extract_seq_by_id, derive_presence_absence_targets, \
-    derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, drugRes_Col, Res_Targets, \
-    get_seq_diffs, update_Bin_Res_arr, update_drugRes_Col, EOL_SEP, geneToRef, geneToTargetSeq, Bin_Res_arr, drugToClass
+    derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
+    update_presence_absence_target_for_arg_res, drugRes_Col, Res_Targets, get_seq_diffs, update_Bin_Res_arr, \
+    update_drugRes_Col, EOL_SEP, geneToRef, geneToTargetSeq, Bin_Res_arr, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -40,7 +41,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertIsNone(extract_seq_by_id("FRED", self.TEST_FASTA_FILE))
 
     def test_codon2aa(self):
-
+        self.assertEqual('S', codon2aa('tca'))
         self.assertEqual('S', codon2aa('TCA'))
         self.assertEqual('S', codon2aa('TCC'))
         self.assertEqual('S', codon2aa('TCG'))
@@ -118,23 +119,174 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         self.assertEqual('x', codon2aa('+++'))
 
-    def do_six_frame_translate(self, opt):
-        """ Helper method """
-        actual = six_frame_translate(
-            "5__GYRAGBS__GYRAGBS-1__5" +
-            EOL_SEP +
-            "GTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
-            EOL_SEP +
-            "GCACAATGGTGG",
-            opt
+    def test_extract_frame_aa(self):
+        self.assertEqual("IHMVIHL", extract_frame_aa("ATCCACATGGTGATTCATCTA", 1))
+        self.assertEqual("IHMVIHL", extract_frame_aa("atccacatggtgattcatcta", 1))
+        self.assertEqual("STW*FI", extract_frame_aa("ATCCACATGGTGATTCATCTA", 2))
+        self.assertEqual("PHGDSS", extract_frame_aa("ATCCACATGGTGATTCATCTA", 3))
+        self.assertEqual("*MNHHVD", extract_frame_aa("ATCCACATGGTGATTCATCTA", 4))
+        self.assertEqual("*MNHHVD", extract_frame_aa("atccacatggtgattcatcta", 4))
+        self.assertEqual("R*ITMW", extract_frame_aa("ATCCACATGGTGATTCATCTA", 5))
+        self.assertEqual("DESPCG", extract_frame_aa("ATCCACATGGTGATTCATCTA", 6))
+
+    def test_six_frame_translate__frame1(self):
+        self.assertEqual(
+            "VMGKYHPHGDSSIYEAMVRMAQWW",
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "GTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGG",
+                1
+            )
         )
 
-        self.assertEqual("", actual)
+        self.assertEqual(
+            "HPHGDSSIYDAMVRMSQ",
+            six_frame_translate(
+                ">7__PARCGBS__PARCGBS-1__7" +
+                EOL_SEP +
+                "CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA",
+                1
+            )
+        )
 
-    def test_six_frame_translate(self):
+    def test_six_frame_translate__frame2(self):
+        self.assertEqual(
+            "LWVNTIHMVIHLFTKQWCVWHNG",
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "TTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGG",
+                2
+            )
+        )
 
-        for i in range(0, 5):
-            self.do_six_frame_translate(i)
+        self.assertEqual(
+            "ILMGIPLSMTRWFVCL",
+            six_frame_translate(
+                ">7__PARCGBS__PARCGBS-1__7" +
+                EOL_SEP +
+                "AATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA",
+                2
+            )
+        )
+
+    def test_six_frame_translate__frame3(self):
+        self.assertEqual(
+            "YG*IPSTW*FIYLRSNGAYGTMVEKK",
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "TTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGGAAAAAAAAAA",
+                3
+            )
+        )
+
+        self.assertEqual(
+            "SSWGFLYL*RDGSYVS",
+            six_frame_translate(
+                ">7__PARCGBS__PARCGBS-1__7" +
+                EOL_SEP +
+                "AATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA",
+                3
+            )
+        )
+
+    def test_six_frame_translate__frame4(self):
+        self.assertEqual(
+            "FFFSTIVPYAPLLRK*MNHHVDGIYP*",
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "TTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGGAAAAAAAAAA",
+                4
+            )
+        )
+
+        self.assertEqual(
+            "LRHTNHRVIDRGIPMRI",
+            six_frame_translate(
+                ">7__PARCGBS__PARCGBS-1__7" +
+                EOL_SEP +
+                "AATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA",
+                4
+            )
+        )
+
+    def test_six_frame_translate__frame5(self):
+        self.assertEqual(
+            "FFFPPLCHTHHCFVNR*ITMWMVFTHK",
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "TTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGGAAAAAAAAAA",
+                5
+            )
+        )
+
+        self.assertEqual(
+            "*DIRTIAS*IEESP*G",
+            six_frame_translate(
+                ">7__PARCGBS__PARCGBS-1__7" +
+                EOL_SEP +
+                "AATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA",
+                5
+            )
+        )
+
+    def test_six_frame_translate__frame6(self):
+        self.assertEqual(
+            "FFFHHCAIRTIAS*IDESPCGWYLPI",
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "TTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGGAAAAAAAAAA",
+                6
+            )
+        )
+
+        self.assertEqual(
+            "ETYEPSRHR*RNPHED",
+            six_frame_translate(
+                ">7__PARCGBS__PARCGBS-1__7" +
+                EOL_SEP +
+                "AATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA",
+                6
+            )
+        )
+
+    def test_six_frame_translate__frame_range_error(self):
+        with self.assertRaises(IndexError):
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "TTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGGAAAAAAAAAA",
+                7
+            )
+
+        with self.assertRaises(IndexError):
+            six_frame_translate(
+                ">5__GYRAGBS__GYRAGBS-1__5" +
+                EOL_SEP +
+                "TTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATG" +
+                EOL_SEP +
+                "GCACAATGGTGGAAAAAAAAAA",
+                0
+            )
 
     def test_arguments(self):
         actual = get_arguments().parse_args(
@@ -147,17 +299,252 @@ class TestProcessResTyperResults(unittest.TestCase):
                                             output='output',
                                             output_bin='output_bin'))
 
-    def test_derive_presence_absence_targets(self):
+    def test_update_presence_absence_target(self):
+        depth = MIN_DEPTH+1
 
+        # ============== Test ERM ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"ERM": "neg"}
+        update_presence_absence_target("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({"ERM": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE2", "***ERM***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({"ERM": "pos"}, res_target_dict)
+
+        # Check low depth
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"ERM": "neg"}
+        update_presence_absence_target("GENE2", "***ERM***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "neg"}, drug_res_col_dict)
+        self.assertEqual({"ERM": "neg"}, res_target_dict)
+
+        # ============== Test TET ==================
+        drug_res_col_dict = {"TET": "neg"}
+        res_target_dict = {"TET": "neg"}
+        update_presence_absence_target("GENE1", "***TET***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"TET": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({"TET": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE2", "***TET***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"TET": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({"TET": "pos"}, res_target_dict)
+
+        # ============== Test CAT ==================
+        drug_res_col_dict = {"OTHER": "neg"}
+        res_target_dict = {"CAT": "neg"}
+        update_presence_absence_target("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE2", "***CAT***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({"CAT": "pos"}, res_target_dict)
+
+        # ============== Test LNUB ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"LNUB": "neg"}
+        update_presence_absence_target("GENE1", "***LNUB***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({"LNUB": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE2", "***LNUB***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({"LNUB": "pos"}, res_target_dict)
+
+        # ============== Test LSA ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"LSA": "neg"}
+        update_presence_absence_target("GENE1", "***LSA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({"LSA": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE2", "***LSA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({"LSA": "pos"}, res_target_dict)
+
+        # ============== Test MEF ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"MEF": "neg"}
+        update_presence_absence_target("GENE1", "***MEF***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({"MEF": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE2", "***MEF***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({"MEF": "pos"}, res_target_dict)
+
+        # ============== Test misc ==================
+        misc_list = ["PARC", "GYRA", "23S1", "23S3", "RPOB1"]
+        for allele in misc_list:
+            drug_res_col_dict = {}
+            res_target_dict = {allele: "neg"}
+
+            update_presence_absence_target("GENE1", "***"+allele+"***", depth, drug_res_col_dict, res_target_dict)
+            self.assertEqual({}, drug_res_col_dict)
+            self.assertEqual({allele: "pos"}, res_target_dict)
+
+        # ============== Test RPOBN ==================
+        drug_res_col_dict = {}
+        res_target_dict = {"RPOB2": "neg"}
+        update_presence_absence_target("GENE1", "***RPOBN***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({}, drug_res_col_dict)
+        self.assertEqual({"RPOB2": "pos"}, res_target_dict)
+
+        # ============== Test depth ==================
+        drug_res_col_dict = {}
+        res_target_dict = {}
+        update_presence_absence_target("GENE1", "***RPOBN***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict)
+        self.assertEqual({}, drug_res_col_dict)
+        self.assertEqual({}, res_target_dict)
+
+        # TODO there is a suspected bug in this perl code - see Python module
+
+    def test_update_presence_absence_target_for_arg_res(self):
+        depth = MIN_DEPTH+1
+
+        # ============== Test ERM ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"ERM": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM"}, drug_res_col_dict)
+        self.assertEqual({"ERM": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "LNU"}
+        res_target_dict = {"ERM": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "LNU:ERM"}, drug_res_col_dict)
+        self.assertEqual({"ERM": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "ERM"}
+        res_target_dict = {"ERM": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM"}, drug_res_col_dict)
+        self.assertEqual({"ERM": "pos"}, res_target_dict)
+
+        # ============== Test LNU ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"LNUB": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***LNU***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "LNU"}, drug_res_col_dict)
+        self.assertEqual({"LNUB": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "ERM"}
+        res_target_dict = {"LNUB": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***LNU***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM:LNU"}, drug_res_col_dict)
+        self.assertEqual({"LNUB": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "ERM"}
+        res_target_dict = {"LNUB": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***LNU***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM"}, drug_res_col_dict)
+        self.assertEqual({"LNUB": "pos"}, res_target_dict)
+
+        # ============== Test LSA ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"LSA": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***LSA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "LSA"}, drug_res_col_dict)
+        self.assertEqual({"LSA": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "ERM"}
+        res_target_dict = {"LSA": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***LSA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM:LSA"}, drug_res_col_dict)
+        self.assertEqual({"LSA": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "ERM"}
+        res_target_dict = {"LSA": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***LSA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM"}, drug_res_col_dict)
+        self.assertEqual({"LSA": "pos"}, res_target_dict)
+
+        # ============== Test MEF ==================
+        drug_res_col_dict = {"EC": "neg"}
+        res_target_dict = {"MEF": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***MEF***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "MEF"}, drug_res_col_dict)
+        self.assertEqual({"MEF": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "ERM"}
+        res_target_dict = {"MEF": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***MEF***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM:MEF"}, drug_res_col_dict)
+        self.assertEqual({"MEF": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"EC": "ERM"}
+        res_target_dict = {"MEF": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***MEF***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERM"}, drug_res_col_dict)
+        self.assertEqual({"MEF": "pos"}, res_target_dict)
+
+        # ============== Test TET ==================
+        drug_res_col_dict = {"TET": "neg"}
+        res_target_dict = {"TET": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***TET***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"TET": "TET"}, drug_res_col_dict)
+        self.assertEqual({"TET": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"TET": "ERM"}
+        res_target_dict = {"TET": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***TET***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"TET": "ERM:TET"}, drug_res_col_dict)
+        self.assertEqual({"TET": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"TET": "ERM"}
+        res_target_dict = {"TET": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***TET***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"TET": "ERM"}, drug_res_col_dict)
+        self.assertEqual({"TET": "pos"}, res_target_dict)
+
+        # ============== Test CAT ==================
+        drug_res_col_dict = {"OTHER": "neg"}
+        res_target_dict = {"CAT": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "CAT"}, drug_res_col_dict)
+        self.assertEqual({"CAT": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "ERM"}
+        res_target_dict = {"CAT": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "ERM:CAT"}, drug_res_col_dict)
+        self.assertEqual({"CAT": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "CAT"}
+        res_target_dict = {"CAT": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "CAT"}, drug_res_col_dict)
+        self.assertEqual({"CAT": "pos"}, res_target_dict)
+
+        # ============== Test OTHER ==================
+        drug_res_col_dict = {"OTHER": "neg"}
+        res_target_dict = {}
+        update_presence_absence_target_for_arg_res("GENE1", "***FOO***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1"}, drug_res_col_dict)
+        self.assertEqual({}, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE2", "***FOO***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1:GENE2"}, drug_res_col_dict)
+        self.assertEqual({}, res_target_dict)
+
+        # ============== Test depth ==================
+        drug_res_col_dict = {}
+        res_target_dict = {}
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
+        self.assertEqual({}, drug_res_col_dict)
+        self.assertEqual({}, res_target_dict)
+
+    @patch('bin.process_res_typer_results.update_presence_absence_target')
+    def test_derive_presence_absence_targets(self, mock):
+
+        calls = [call("23S1", "23S1-1", 1135.571, ANY, ANY), call("23S3", "23S3-3", 1265.721, ANY, ANY)]
         derive_presence_absence_targets(self.TEST_GBS_FULLGENES_RESULTS_FILE)
-        print(drugRes_Col)
-        print(Res_Targets)
-        derive_presence_absence_targets_for_arg_res(self.TEST_ARGANNOT_FULLGENES_RESULTS_FILE)
-        print(drugRes_Col)
-        print(Res_Targets)
+        mock.assert_has_calls(calls, any_order=False)
+
+    @patch('bin.process_res_typer_results.update_presence_absence_target_for_arg_res')
+    def derive_presence_absence_targets_for_arg_res(self, mock):
+        calls = [
+            call("tet(M)", "tet(M)_12", 132.04, ANY, ANY),
+            call("tet(M)", "tet(M)_4", 185.331, ANY, ANY),
+            call("tet(M)", "tet(M)_10", 120.412, ANY, ANY),
+        ]
         derive_presence_absence_targets_for_arg_res(self.TEST_RESFINDER_FULLGENES_RESULTS_FILE)
-        print(drugRes_Col)
-        print(Res_Targets)
+        mock.assert_has_calls(calls, any_order=False)
 
     def test_arguments_short_options(self):
         actual = get_arguments().parse_args(
@@ -260,16 +647,16 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_update_drugRes_Col(self):
         actual = update_drugRes_Col('PARC', ['Q17S'], drugRes_Col, drugToClass)
         self.assertEqual(actual, {
-            'TET': 'TETM',
+            'TET': 'neg',
             'EC': 'neg',
             'FQ': 'PARC-Q17S',
-            'OTHER': 'TetM_Tet:tet(M):tet(M):tet(M)'
+            'OTHER': 'neg'
         })
 
         actual = update_drugRes_Col('RPOB1', ['F1G'], drugRes_Col, drugToClass)
         self.assertEqual(actual, {
-            'TET': 'TETM',
+            'TET': 'neg',
             'EC': 'neg',
             'FQ': 'PARC-Q17S',
-            'OTHER': 'TetM_Tet:tet(M):tet(M):tet(M):RPOB1-F1G'
+            'OTHER': 'RPOB1-F1G'
         })
