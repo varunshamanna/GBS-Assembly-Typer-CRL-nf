@@ -9,7 +9,7 @@ nextflow.enable.dsl=2
 // Import modules
 include {printHelp} from './modules/help.nf'
 include {serotyping} from './modules/serotyping.nf'
-include {res_typer; srst2_for_res_typing} from './modules/res_typer.nf'
+include {res_typer; srst2_for_res_typing; extract_target_seq} from './modules/res_typer.nf'
 include {combine_results} from './modules/combine.nf'
 
 // Help message
@@ -60,13 +60,14 @@ workflow {
     // Resistance Typer
     res_typer_gene_db = file(params.db_gbs_res_typer)
     srst2_for_res_typing(read_pairs_ch, res_typer_gene_db, 'RES', 99.9, 5)
+    extract_target_seq(srst2_for_res_typing.out)
 
-    argannot_db = file(params.db_argannot)
-    srst2_for_res_typing(read_pairs_ch, argannot_db, 'ARG', 70, 30)
+    //argannot_db = file(params.db_argannot) - Have to put this in a different workflow
+    //srst2_for_res_typing(read_pairs_ch, argannot_db, 'ARG', 70, 30)
 
-    resfinder_db = file(params.db_resfinder)
-    srst2_for_res_typing(read_pairs_ch, resfinder_db, 'ARG', 70, 30)
-    
+    //resfinder_db = file(params.db_resfinder)
+    //srst2_for_res_typing(read_pairs_ch, resfinder_db, 'ARG', 70, 30)
+
     //res_typer(read_pairs_ch, res_typer_gene_db, argannot_db, resfinder_db)
 
     //sero_res_ch = serotyping.out.join(res_typer.out)
