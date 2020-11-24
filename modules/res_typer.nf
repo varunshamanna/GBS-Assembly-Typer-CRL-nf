@@ -84,4 +84,5 @@ process freebayes {
         cat CHECK_\${target}_ref.fna | vcf-consensus CHECK_\${target}_${pair_id}_seq.vcf.gz > ${pair_id}_\${target}_consensus_seq.fna
     done
     """
+
 }

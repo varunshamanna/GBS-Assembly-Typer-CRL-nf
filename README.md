@@ -37,6 +37,5 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_
 
 ### Run unit tests
 ```
-cd tests
 nosetests
 ```
