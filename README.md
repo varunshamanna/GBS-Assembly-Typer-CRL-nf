@@ -18,21 +18,25 @@ git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.1
 ```
 
-### Pipeline test
+### Pipeline test (serotyping only)
 ```
 cd GBS-Typer-sanger-nf
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt'
-```
-With samples 26237_7#5, 26077_6#118 and 25292_2#85, should get isolate results:
-```
-26077_6#118	II	0	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
-26237_7#5	III	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
-25292_2#85	III	0	0	0	1	0	0	0	0	0	0	0	0	0	1	0	0	0	0	1
 ```
 
 To resume pipeline if incomplete:
 ```
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' -resume
+```
+
+The reference resistance database for the resistance typing can be specified with --custom_res, --argannot and/or --resfinder, e.g. to run with ARGANNOT only:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' --argannot
+```
+
+To use all databases specify --all, e.g.
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' --all
 ```
 
 ### Run unit tests

@@ -122,9 +122,16 @@ workflow {
             ResFinder(read_pairs_ch, rt_ResFinder)
 
         res_typer_ch = rt_ARG.join(rt_ResFinder.join(rt_RES))
-        res_typer(res_typer_ch)
+        //res_typer(res_typer_ch)
 
+        //sero_res_ch = serotyping.out.join(res_typer.out)
 
+        // Combine results
+        //combine_results(sero_res_ch)
 
-
+        // Combine samples
+        //combine_results.out
+        //    .collectFile() { item ->
+        //        [ file(params.output), item + '\n']
+        //    }
 }
