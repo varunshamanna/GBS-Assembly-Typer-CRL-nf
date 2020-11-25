@@ -9,11 +9,6 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from collections import defaultdict
 
-# TODO Add column headings to the BIN file
-# TODO it does the variant resistance typing (v2) but no obvious output.
-#      The one that looked vaguely similar was the file genes_ResFinder_results and the same for ARGANNOT.
-#      we should think of a way to output in a table if not done already
-
 class nSeq(str): # Nucleotide sequence
     pass
 
@@ -28,41 +23,51 @@ drugRes_Col = {
 }
 
 drugToClass = {
+    'ERM': 'EC',
+    'LNU': 'EC',
+    'LSA': 'EC',
+    'MEF': 'EC',
+    'TET': 'TET',
+    'CAT': 'OTHER',
     'PARC': 'FQ',
     'GYRA': 'FQ',
     '23S1': 'EC',
     '23S3': 'EC',
-    'RPOB1': 'OTHER',
-    'RPOB2': 'OTHER',
-    'RPOB3': 'OTHER'
+    'RPOBGBS-1': 'OTHER',
+    'RPOBGBS-2': 'OTHER',
+    'RPOBGBS-3': 'OTHER',
+    'RPOBGBS-4': 'OTHER',
 }
 
 Res_Targets = {
     'ERM': 'neg',
-    'LNUB': 'neg',
+    'LNU': 'neg',
     'LSA': 'neg',
     'MEF': 'neg',
     'TET': 'neg',
     'CAT': 'neg',
+}
+
+GBS_Res_Targets = {
     'GYRA': 'neg',
     'PARC': 'neg',
     '23S1': 'neg',
     '23S3': 'neg',
-    'RPOB1': 'neg',
-    'RPOB2': 'neg',
-    'RPOB3': 'neg',
-    'RPOB4': 'neg',
+    'RPOBGBS-1': 'neg',
+    'RPOBGBS-2': 'neg',
+    'RPOBGBS-3': 'neg',
+    'RPOBGBS-4': 'neg',
 }
 
-Bin_Res_arr = {
+GBS_Res_var = {
+    'GYRA': '', #10
+    'PARC': '', #14
     '23S1': '', #0
     '23S3': '', #1
-    'RPOB1': '', #6
-    'RPOB2': '', #7
-    'RPOB3': '', #8
-    'RPOB4': '', #9,
-    'GYRA': '', #10
-    'PARC': '' #14
+    'RPOBGBS-1': '', #6
+    'RPOBGBS-2': '', #7
+    'RPOBGBS-3': '', #8
+    'RPOBGBS-4': '', #9,
 }
 
 geneToRef = defaultdict(lambda: '')
@@ -71,10 +76,10 @@ geneToRef.update({
     'GYRA': aSeq('VMGKYHPHGDSSIYEAMVRMAQWW'),
     '23S1': nSeq('GTTACCCGCGACAGGACGGAAAGACCCCATGGAG'),
     '23S3': nSeq('CGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG'),
-    'RPOB1': aSeq('FGSSQLSQFMDQHNPLSELSHKRRLSALGPGGL'),
-    'RPOB2': aSeq('VSQLVRSPGV'),
-    'RPOB3': aSeq('FTVAQANSKLNEDGTFAEEIVMGRHQGNNQEFPSSI'),
-    'RPOB4': aSeq('LIDPKAPYVGT')
+    'RPOBGBS-1': aSeq('FGSSQLSQFMDQHNPLSELSHKRRLSALGPGGL'),
+    'RPOBGBS-2': aSeq('VSQLVRSPGV'),
+    'RPOBGBS-3': aSeq('FTVAQANSKLNEDGTFAEEIVMGRHQGNNQEFPSSI'),
+    'RPOBGBS-4': aSeq('LIDPKAPYVGT')
 })
 
 geneToTargetSeq = defaultdict(lambda: '')
@@ -83,10 +88,10 @@ geneToTargetSeq.update({
     'GYRA': '5__GYRAGBS__GYRAGBS-1__5',
     '23S1': '11__23S1__23S1-1__11',
     '23S3': '12__23S3__23S3-3__12',
-    'RPOB1': '16__RPOBgbs__RPOBgbs-1__16',
-    'RPOB2': '17__RPOBgbs__RPOBgbs-2__17',
-    'RPOB3': '18__RPOBgbs__RPOBgbs-3__18',
-    'RPOB4': '19__RPOBgbs__RPOBgbs-4__19'
+    'RPOBGBS-1': '16__RPOBgbs__RPOBgbs-1__16',
+    'RPOBGBS-2': '17__RPOBgbs__RPOBgbs-2__17',
+    'RPOBGBS-3': '18__RPOBgbs__RPOBgbs-3__18',
+    'RPOBGBS-4': '19__RPOBgbs__RPOBgbs-4__19'
 })
 
 EOL_SEP = "\n"
@@ -219,150 +224,83 @@ def six_frame_translate(seq_input: str, frame: int) -> str:
     return extract_frame_aa(dna, frame)
 
 
-def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_target_dict):
+def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict):
     if depth >= MIN_DEPTH:
-        if re.search(r"ERM|LNUB|LSA|MEF", allele):
-            if drug_res_col_dict["EC"] == "neg":
-                drug_res_col_dict["EC"] = gene
-            else:
-                new_val = drug_res_col_dict["EC"] + ":" + gene
-                drug_res_col_dict["EC"] = new_val
 
-        if re.search(r"TET", allele):
-            if drug_res_col_dict["TET"] == "neg":
-                drug_res_col_dict["TET"] = gene
-            else:
-                new_val = drug_res_col_dict["TET"] + ":" + gene
-                drug_res_col_dict["TET"] = new_val
+        for gene_name in res_target_dict.keys():
+            if re.search(gene_name, allele.upper()):
+                drugCat = drugToClass[gene_name]
 
-        if re.search(r"CAT", allele):
-            if drug_res_col_dict["OTHER"] == "neg":
-                drug_res_col_dict["OTHER"] = gene
-            else:
-                new_val = drug_res_col_dict["OTHER"] + ":" + gene
-                drug_res_col_dict["OTHER"] = new_val
+                if drug_res_col_dict[drugCat] == "neg":
+                    drug_res_col_dict[drugCat] = gene + '(' + allele + ')'
+                else:
+                    new_val = drug_res_col_dict[drugCat] + ":" + gene + '(' + allele + ')'
+                    drug_res_col_dict[drugCat] = new_val
 
-        if re.search(r"ERM", allele):
-            res_target_dict["ERM"] = "pos"
-        elif re.search(r"LNUB", allele):
-            res_target_dict["LNUB"] = "pos"
-        elif re.search(r"LSA", allele):
-            res_target_dict["LSA"] = "pos"
-        elif re.search(r"MEF", allele):
-            res_target_dict["MEF"] = "pos"
-        elif re.search(r"TET", allele):
-            res_target_dict["TET"] = "pos"
-        elif re.search(r"CAT", allele):
-            res_target_dict["CAT"] = "pos"
-        elif re.search(r"PARC", allele):
-            res_target_dict["PARC"] = "pos"
-        elif re.search(r"GYRA", allele):
-            res_target_dict["GYRA"] = "pos"
-        elif re.search(r"23S1", allele):
-            res_target_dict["23S1"] = "pos"
-        elif re.search(r"23S3", allele):
-            res_target_dict["23S3"] = "pos"
-        elif re.search(r"RPOB1", allele):
-            res_target_dict["RPOB1"] = "pos"
-        elif re.search(r"RPOBN", allele):
-            res_target_dict["RPOB2"] = "pos"
-        # TODO The next bit must be a bug - RPOB4 will never get set?
-        elif re.search(r"RPOBN", allele):
-            res_target_dict["RPOB3"] = "pos"
-        elif re.search(r"RPOBN", allele):
-            res_target_dict["RPOB4"] = "pos"
+                res_target_dict[gene_name] = "pos"
+
+        for gene_name in gbs_res_target_dict.keys():
+            if re.search(gene_name, allele):
+
+                gbs_res_target_dict[gene_name] = "pos"
 
 
 def derive_presence_absence_targets(input_file: str):
-    with open(input_file, 'r') as fd:
-        # Skip header row
-        next(fd)
+    try:
+        with open(input_file, 'r') as fd:
+            # Skip header row
+            next(fd)
 
-        # Process file lines
-        for line in fd:
-            fields = line.split('\t')
-            gene = fields[2]
-            allele = fields[3]
-            depth = float(fields[5])
-            update_presence_absence_target(gene, allele, depth, drugRes_Col, Res_Targets)
+            # Process file lines
+            for line in fd:
+                fields = line.split('\t')
+                gene = fields[2]
+                allele = fields[3]
+                depth = float(fields[5])
+                update_presence_absence_target(gene, allele, depth, drugRes_Col, Res_Targets, GBS_Res_Targets)
+    except IOError:
+        print('Cannot open {}.'.format(filename))
 
 
 def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict):
     if depth >= MIN_DEPTH:
-        if re.search(r"ERM", allele):
-            if res_target_dict["ERM"] == "neg":
-                if drug_res_col_dict["EC"] == "neg":
-                    drug_res_col_dict["EC"] = "ERM"
-                else:
-                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":ERM"
 
-                res_target_dict["ERM"] = "pos"
+        other = 1
+        for gene_name in res_target_dict.keys():
+            if re.search(gene_name, allele.upper()):
+                other = 0
+                drugCat = drugToClass[gene_name]
+                if res_target_dict[gene_name] == "neg":
+                    if drug_res_col_dict[drugCat] == "neg":
+                        drug_res_col_dict[drugCat] = gene + '(' + allele + ')'
+                    else:
+                        drug_res_col_dict[drugCat] = drug_res_col_dict[drugCat] + ':' + gene + '(' + allele + ')'
 
-        elif re.search(r"LNU", allele):
-            if res_target_dict["LNUB"] == "neg":
-                if drug_res_col_dict["EC"] == "neg":
-                    drug_res_col_dict["EC"] = "LNU"
-                else:
-                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":LNU"
+                    res_target_dict[gene_name] = "pos"
 
-                res_target_dict["LNUB"] = "pos"
-
-        elif re.search(r"LSA", allele):
-            if res_target_dict["LSA"] == "neg":
-                if drug_res_col_dict["EC"] == "neg":
-                    drug_res_col_dict["EC"] = "LSA"
-                else:
-                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":LSA"
-
-                res_target_dict["LSA"] = "pos"
-
-        elif re.search(r"MEF", allele):
-            if res_target_dict["MEF"] == "neg":
-                if drug_res_col_dict["EC"] == "neg":
-                    drug_res_col_dict["EC"] = "MEF"
-                else:
-                    drug_res_col_dict["EC"] = drug_res_col_dict["EC"] + ":MEF"
-
-                res_target_dict["MEF"] = "pos"
-
-        elif re.search(r"TET", allele):
-            if res_target_dict["TET"] == "neg":
-                if drug_res_col_dict["TET"] == "neg":
-                    drug_res_col_dict["TET"] = "TET"
-                else:
-                    drug_res_col_dict["TET"] = drug_res_col_dict["TET"] + ":TET"
-
-                res_target_dict["TET"] = "pos"
-
-        elif re.search(r"CAT", allele):
-            if res_target_dict["CAT"] == "neg":
-                if drug_res_col_dict["OTHER"] == "neg":
-                    drug_res_col_dict["OTHER"] = "CAT"
-                else:
-                    drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":CAT";
-
-                res_target_dict["CAT"] = "pos"
-
-        else:
+        if other:
             if drug_res_col_dict["OTHER"] == "neg":
-                drug_res_col_dict["OTHER"] = gene
+                drug_res_col_dict["OTHER"] = gene + '(' + allele + ')'
             else:
-                drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + gene
+                drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + gene + '(' + allele + ')'
 
 
-def derive_presence_absence_targets_for_arg_res(input_file: str):
+def derive_presence_absence_targets_for_arg_res(input_files: list):
     """ For ARG-ANNOT / ResFinder """
-
-    with open(input_file, 'r') as fd:
-        # Skip header row
-        next(fd)
-        # Process file lines
-        for line in fd:
-            fields = line.split('\t')
-            gene = fields[2]
-            allele = fields[3]
-            depth = float(fields[5])
-            update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
+    for input_file in input_files:
+        try:
+            with open(input_file, 'r') as fd:
+                # Skip header row
+                next(fd)
+                # Process file lines
+                for line in fd:
+                    fields = line.split('\t')
+                    gene = fields[2]
+                    allele = fields[3]
+                    depth = float(fields[5])
+                    update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
+        except IOError:
+            print('Cannot open {}.'.format(filename))
 
 
 def find_mismatches(seq_diffs, query_Seq, ref_Seq):
@@ -372,7 +310,7 @@ def find_mismatches(seq_diffs, query_Seq, ref_Seq):
     return seq_diffs
 
 
-def get_seq_diffs(query_Seq, target_seq, ref_Seq):
+def get_seq_diffs(query_Seq, ref_Seq):
     if type(ref_Seq) == aSeq:
         query_Seq = six_frame_translate(query_Seq, 1)
     seq_diffs = []
@@ -381,76 +319,118 @@ def get_seq_diffs(query_Seq, target_seq, ref_Seq):
     return seq_diffs
 
 
-def update_Bin_Res_arr(gene_name, seq_diffs, bin_res_arr):
+def update_GBS_Res_var(gene_name, seq_diffs, bin_res_arr):
     if seq_diffs:
         bin_res_arr[gene_name] = gene_name + '-' + ','.join(seq_diffs)
     else:
         bin_res_arr[gene_name] = gene_name
-    return bin_res_arr
 
 
 def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass):
     drugClass = drugToClass[gene_name]
-    gene_var = gene_name + '-' + ','.join(seq_diffs)
+    if seq_diffs:
+        gene_var = gene_name + '-' + ','.join(seq_diffs)
+    else:
+        gene_var = gene_name
     if drugRes_Col[drugClass] == 'neg':
         drugRes_Col[drugClass] = gene_var
     else:
         new_value = drugRes_Col[drugClass] + ':' + gene_var
         drugRes_Col[drugClass] = new_value
-    return drugRes_Col
 
 
-def get_variants(Res_Targets, gene_names, query_seqs, geneToTargetSeq, geneToRef, bin_res_arr, drugRes_Col, drugToClass):
+def get_consensus_seqs(consensus_seqs_file):
+    consensus_seq_dict = defaultdict(lambda: '')
+    try:
+        with open(consensus_seqs_file, 'r') as fd:
+            for line in fd:
+                if line[0] == '>':
+                    seq_name = line.split('>')[1].split('\n')[0]
+                else:
+                    consensus_seq_dict[seq_name] = line.split('\n')[0]
+    except IOError:
+        print('Cannot open {}.'.format(filename))
+
+    return consensus_seq_dict
+
+
+def get_gene_names_from_consensus(consensus_seq_dict):
+    gene_names = []
+    for gene_name in geneToTargetSeq.keys():
+        if geneToTargetSeq[gene_name] in consensus_seq_dict.keys():
+            gene_names.append(gene_name)
+    return gene_names
+
+
+def get_variants(consensus_seqs: str):
+
+    consensus_seq_dict = get_consensus_seqs(consensus_seqs)
+    gene_names = get_gene_names_from_consensus(consensus_seq_dict)
     for gene_name in gene_names:
-        if Res_Targets[gene_name] == "pos" and geneToTargetSeq[gene_name] and geneToRef[gene_name]:
-            seq_diffs = get_seq_diffs(query_seqs[gene_name], geneToTargetSeq[gene_name], geneToRef[gene_name])
-            bin_res_arr = update_Bin_Res_arr(gene_name, seq_diffs, bin_res_arr)
-            drugRes_Col = update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass)
+        if GBS_Res_Targets[gene_name] == "pos" and geneToTargetSeq[gene_name] and geneToRef[gene_name]:
+            seq_diffs = get_seq_diffs(consensus_seq_dict[geneToTargetSeq[gene_name]], geneToRef[gene_name])
+            update_GBS_Res_var(gene_name, seq_diffs, GBS_Res_var)
+            update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass)
 
 
-def run(srst2_gbs_output, srst2_argannot_output, srst2_resfinder_output):
-    TEMP_RES_bam = glob.glob("RES_*.sorted.bam")
-    TEMP_RES_fullgene = glob.glob("RES_*__fullgenes__*__results.txt")
-    RES_bam = TEMP_RES_bam[0]
-    RES_full_name = TEMP_RES_fullgene[0]
-    print("res bam is: " + RES_bam + ", res full gene is " + RES_full_name)
-    RES_vcf = RES_bam.replace(".bam", ".vcf")
-    RES_bai = RES_bam.replace(".bam", ".bai")
+def write_output(output_pref):
+    try:
+        with open(output_pref + '_res_incidence.txt', 'w') as out_inc:
+            out_inc.write('\t'.join(Res_Targets.keys()) + '\t' + '\t'.join(GBS_Res_Targets.keys()) + '\n')
+            out_inc.write('\t'.join(Res_Targets.values()) + '\t' + '\t'.join(GBS_Res_Targets.values()) + '\n')
 
-    TEMP_ARG_fullgene = glob.glob("ARG_*__fullgenes__*__results.txt")
-    ARG_full_name = TEMP_ARG_fullgene[0]
-    TEMP_RESFI_fullgene = glob.glob("RESFI_*__fullgenes__*__results.txt")
-    RESFI_full_name = TEMP_RESFI_fullgene[0]
-    merged_net = "ARG-RESFI_fullgenes_results.txt"
+        with open(output_pref + '_res_gbs_variants.txt', 'w') as out_var:
+            out_var.write('\t'.join(GBS_Res_var.keys()) + '\n')
+            out_var.write('\t'.join(GBS_Res_var.values()) + '\n')
 
-    # Merge the arg-annot and resfinder results
-    os.system("tail -n+2 {} > {}".format(ARG_full_name, merged_net))
-    os.system("tail -n+2 {} >> {}".format(RESFI_full_name, merged_net))
+        with open(output_pref + '_res_alleles.txt', 'w') as out_allele:
+            out_allele.write('\t'.join(drugRes_Col.keys()) + '\n')
+            out_allele.write('\t'.join(drugRes_Col.values()) + '\n')
+    except IOError:
+        print('Cannot open filename starting "{}"'.format(output_pref))
 
-    derive_presence_absence_targets(RES_full_name)
-    derive_presence_absence_targets_for_arg_res(merged_net)
-    # Call get_variants
+
+def run(args):
+    # Get presence/absence of genes
+    if args.srst2_gbs_fg_output is not None:
+        print("Running GBS presence/absence...")
+        derive_presence_absence_targets(args.srst2_gbs_fg_output)
+
+    if args.srst2_argannot_fg_output is not None and args.srst2_resfinder_fg_output is not None:
+        print("Running ARGANNOT/ResFinder presence/absence...")
+        derive_presence_absence_targets_for_arg_res([args.srst2_argannot_fg_output, args.srst2_resfinder_fg_output])
+    elif args.srst2_argannot_fg_output is not None:
+        derive_presence_absence_targets_for_arg_res([args.srst2_argannot_fg_output])
+    elif args.srst2_resfinder_fg_output is not None:
+        derive_presence_absence_targets_for_arg_res([args.srst2_resfinder_fg_output])
+
+    # Get alleles
+    if args.srst2_gbs_cs_output is not None:
+        print("Running GBS variants...")
+        get_variants(args.srst2_gbs_cs_output)
+
+    write_output(args.output)
 
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Modify SRST2 sequence typing output files.')
-    parser.add_argument('--srst2_gbs', '-g', dest='srst2_gbs_output', required=True,
-                        help='Input SRST2 output for the GBS reference database.')
-    parser.add_argument('--srst2_argannot', '-a', dest='srst2_argannot_output', required=True,
-                        help='Input SRST2 output for the ARG-ANNOT reference database.')
-    parser.add_argument('--srst2_resfinder', '-r', dest='srst2_resfinder_output', required=True,
-                        help='Input SRST2 output for the ResFinder reference database.')
-    parser.add_argument('--output', '-o', dest='output', required=True,
-                        help='Output results filename.')
-    parser.add_argument('--output_bin', '-b', dest='output_bin', required=True,
-                        help='Output BIN results filename.')
+    parser.add_argument('--srst2_gbs_fullgenes', dest='srst2_gbs_fg_output', required=False,
+                        help='Input SRST2 fullgenes output for the GBS reference database.')
+    parser.add_argument('--srst2_gbs_consensus', dest='srst2_gbs_cs_output', required=False,
+                        help='Input freebayes consensus sequence output for the GBS reference database.')
+    parser.add_argument('--srst2_argannot_fullgenes', dest='srst2_argannot_fg_output', required=False,
+                        help='Input SRST2 fullgenes output for the ARG-ANNOT reference database.')
+    parser.add_argument('--srst2_resfinder_fullgenes', dest='srst2_resfinder_fg_output', required=False,
+                        help='Input SRST2 fullgenes output for the ResFinder reference database.')
+    parser.add_argument('--output_prefix', dest='output', required=True,
+                        help='Output prefix of filename.')
 
     return parser
 
 
 def main():
     args = get_arguments().parse_args()
-    run(args.srst2_gbs_output, args.srst2_argannot_output, args.srst2_resfinder_output)
+    run(args)
 
 
 if __name__ == "__main__":

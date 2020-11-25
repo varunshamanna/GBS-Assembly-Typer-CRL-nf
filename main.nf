@@ -47,7 +47,6 @@ workflow RES {
 
     take:
         reads
-        rt_RES
 
     main:
         res_typer_gene_db = file(params.db_gbs_res_typer)
@@ -61,22 +60,21 @@ workflow RES {
         freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out)
 
     emit:
-        rt_RES = srst2_for_res_typing.out.genes_files.join(freebayes.out)
+        srst2_for_res_typing.out.genes_files.join(freebayes.out)
 }
 
-// Resistance typing with the ARGANNOT database
+// Resistance typing with the ARG-ANNOT database
 workflow ARGANNOT {
 
     take:
         reads
-        rt_ARG
 
     main:
         argannot_db = file(params.db_argannot)
         srst2_for_res_typing(reads, argannot_db, 'ARG', 70, 30)
 
     emit:
-        rt_ARG = srst2_for_res_typing.out.genes_files
+        srst2_for_res_typing.out.genes_files
 }
 
 // Resistance typing with the ResFinder database
@@ -84,14 +82,13 @@ workflow ResFinder {
 
     take:
         reads
-        rt_ResFinder
 
     main:
         resfinder_db = file(params.db_resfinder)
         srst2_for_res_typing(reads, resfinder_db, 'ARG', 70, 30)
 
     emit:
-        rt_ResFinder = srst2_for_res_typing.out.genes_files
+        srst2_for_res_typing.out.genes_files
 }
 
 workflow {
@@ -104,25 +101,20 @@ workflow {
     Channel.fromFilePairs( params.reads, checkIfExists: true )
         .set { read_pairs_ch }
 
-    // Create empty resistance typing channels
-    rt_RES = channel.empty()
-    rt_ARG = channel.empty()
-    rt_ResFinder = channel.empty()
-
     main:
         serotyping(read_pairs_ch, file(params.db_serotyping))
 
         if( params.all | params.custom_res)
-            RES(read_pairs_ch, rt_RES)
+            RES(read_pairs_ch)
 
         if( params.all | params.argannot)
-            ARGANNOT(read_pairs_ch, rt_ARG)
+            ARGANNOT(read_pairs_ch)
 
         if( params.all | params.resfinder)
-            ResFinder(read_pairs_ch, rt_ResFinder)
+            ResFinder(read_pairs_ch)
 
-        res_typer_ch = rt_ARG.join(rt_ResFinder.join(rt_RES))
-        //res_typer(res_typer_ch)
+        res_typer_ch = ARGANNOT.out.join(ResFinder.out.join(RES.out))
+        res_typer(res_typer_ch)
 
         //sero_res_ch = serotyping.out.join(res_typer.out)
 
