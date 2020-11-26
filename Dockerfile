@@ -55,6 +55,10 @@ RUN apt-get update -y -qq && apt-get install -y -qq \
       && touch /usr/share/locale/locale.alias \
       && locale-gen
 
+# Biopython
+RUN wget -q http://biopython.org/DIST/biopython-1.76.tar.gz \
+    && pip install biopython-1.76.tar.gz
+
 # Perl locales
 ENV LANG en_GB.UTF-8
 ENV LANGUAGE en_GB:en
