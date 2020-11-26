@@ -5,7 +5,6 @@ import os
 import re
 import glob
 import subprocess
-from Bio import SeqIO
 from Bio.Seq import Seq
 from collections import defaultdict
 
@@ -98,51 +97,7 @@ EOL_SEP = "\n"
 MIN_DEPTH = 10
 
 
-def extract_seq_by_id(lookup: str, fasta_file: str) -> str:
-    """ Extract a sequence from the given fasta file by feature id """
-
-    rf = None
-    try:
-        rf = open(fasta_file, "r")
-        for record in SeqIO.parse(rf, 'fasta'):
-            if record.id == lookup:
-                return lookup + EOL_SEP + record.seq.strip() + EOL_SEP
-    finally:
-        rf.close()
-
-    return None
-
-
-def freebayes_prior_fix(bam_file: str, ref_file: str, target: str) -> str:
-    sam_file = bam_file.replace('.bam', '.sam')
-
-    os.system("samtools view -h " + bam_file + " > " + samfile)
-    os.system("cat " + sam_file + " | grep -E \"^\@HD|^\@SQ.*" + target + "|^\@PG\" > CHECK_target_seq.sam")
-    os.system("awk -F'\t' '\$3 == \"" + target + "\" {print \$0}' " + sam_file + " >> CHECK_target_seq.sam")
-    os.system("samtools view -bS CHECK_target_seq.sam > CHECK_target_seq.bam")
-    os.system("samtools index CHECK_target_seq.bam CHECK_target_seq.bai")
-
-    ref_seq = extract_seq_by_id(target, ref_file)
-
-    rf = None
-    try:
-        rf = open("CHECK_target_ref.fna", "w")
-        rf.write(ref_seq + EOL_SEP)
-    finally:
-        rf.close()
-
-    os.system("freebayes -q 20 -p 1 -f CHECK_target_ref.fna CHECK_target_seq.bam -v CHECK_target_seq.vcf")
-    os.system("bgzip CHECK_target_seq.vcf")
-
-    os.system("tabix -p vcf CHECK_target_seq.vcf.gz")
-    extract_seq = subprocess.check_output("echo \"" + ref_seq + "\" | vcf-consensus CHECK_target_seq.vcf.gz", shell=True)
-
-    os.system("rm CHECK_target*")
-
-    return extract_seq.rstrip(EOL_SEP)
-
-
-def codon2aa(codon: str) -> str:
+def codon2aa(codon):
 
     codon = codon.upper()
 
@@ -181,7 +136,7 @@ def codon2aa(codon: str) -> str:
     return result
 
 
-def extract_frame_aa(sequence: str, frame: int) -> str:
+def extract_frame_aa(sequence, frame):
     """
     :param sequence: dna bases
     :param frame: frame number to extract
@@ -203,7 +158,7 @@ def extract_frame_aa(sequence: str, frame: int) -> str:
     return protein
 
 
-def six_frame_translate(seq_input: str, frame: int) -> str:
+def six_frame_translate(seq_input, frame):
     """
     :param seq_input: Fasta feature including id and sequence lines
     :param frame: Codon number:
@@ -245,7 +200,7 @@ def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_t
                 gbs_res_target_dict[gene_name] = "pos"
 
 
-def derive_presence_absence_targets(input_file: str):
+def derive_presence_absence_targets(input_file):
     try:
         with open(input_file, 'r') as fd:
             # Skip header row
@@ -285,7 +240,7 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
                 drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + gene + '(' + allele + ')'
 
 
-def derive_presence_absence_targets_for_arg_res(input_files: list):
+def derive_presence_absence_targets_for_arg_res(input_files):
     """ For ARG-ANNOT / ResFinder """
     for input_file in input_files:
         try:
@@ -362,7 +317,7 @@ def get_gene_names_from_consensus(consensus_seq_dict):
     return gene_names
 
 
-def get_variants(consensus_seqs: str):
+def get_variants(consensus_seqs):
 
     consensus_seq_dict = get_consensus_seqs(consensus_seqs)
     gene_names = get_gene_names_from_consensus(consensus_seq_dict)

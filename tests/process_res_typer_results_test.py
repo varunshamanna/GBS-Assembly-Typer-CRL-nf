@@ -3,7 +3,7 @@ import unittest
 import os
 from unittest.mock import patch, call, ANY
 
-from bin.process_res_typer_results import get_arguments, codon2aa, extract_seq_by_id, derive_presence_absence_targets, \
+from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
     EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
@@ -16,29 +16,6 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
     TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
     TEST_FASTA_FILE = "test_data/test-db.fasta"
-
-    def test_extract_seq_by_id(self):
-        self.assertEqual("465__DfrB2_Tmt__DfrB2__1230" +
-            EOL_SEP +
-            "ATGGGTCAAAGTAGCGATGAAGCCAACGCTCCCGTTGCAGGGCAGTTTGCGCTTCCCCTG" +
-            EOL_SEP,
-            extract_seq_by_id("465__DfrB2_Tmt__DfrB2__1230", self.TEST_FASTA_FILE))
-
-        self.assertEqual(
-            "465__DfrB2_Tmt__DfrB3__1231" +
-            EOL_SEP +
-            "ATGGACCAACACAACAATGGAGTCAGTACTCTAGTTGCTGGCCAGTTTGCGCTCCCATCGAAG" +
-            EOL_SEP,
-            extract_seq_by_id("465__DfrB2_Tmt__DfrB3__1231", self.TEST_FASTA_FILE))
-
-        self.assertEqual(
-            "466__DfrB4_Tmt__DfrB4__1236" +
-            EOL_SEP +
-            "ATGAATGAAGGAAAAAATGAGGTCAGTACTTCAGCTGCTGGCCGGTTCGCATTCCCATCAAACGCCACGTTTGCCTTGGGGGATCGCGTACGCAAGAAGTCTGGCGCTGCTTGGCAGG" +
-            EOL_SEP,
-            extract_seq_by_id("466__DfrB4_Tmt__DfrB4__1236", self.TEST_FASTA_FILE))
-
-        self.assertIsNone(extract_seq_by_id("FRED", self.TEST_FASTA_FILE))
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
