@@ -268,13 +268,12 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_arguments(self):
         actual = get_arguments().parse_args(
             ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
-            '--srst2_argannot_fullgenes', 'srst2_argannot_fullgenes', '--srst2_resfinder_fullgenes', 'srst2_resfinder_fullgenes',
+            '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
             '--output_prefix', 'output'])
         self.assertEqual(actual,
                          argparse.Namespace(srst2_gbs_fg_output='srst2_gbs_fullgenes',
                                             srst2_gbs_cs_output='srst2_gbs_consensus',
-                                            srst2_argannot_fg_output='srst2_argannot_fullgenes',
-                                            srst2_resfinder_fg_output='srst2_resfinder_fullgenes',
+                                            srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
                                             output='output'))
 
     def test_update_presence_absence_target(self):
