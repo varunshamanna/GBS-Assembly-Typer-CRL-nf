@@ -9,7 +9,8 @@ nextflow.enable.dsl=2
 // Import modules
 include {printHelp} from './modules/help.nf'
 include {serotyping} from './modules/serotyping.nf'
-include {res_typer; srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_typer.nf'
+include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_alignments.nf'
+include {res_typer} from './modules/res_typer.nf'
 include {combine_results} from './modules/combine.nf'
 
 // Help message
@@ -29,7 +30,7 @@ if (params.reads == ""){
 }
 
 if (params.output == ""){
-    println("Please specify and output file with --output")
+    println("Please specify and output prefix with --output")
     println("Print help with --help")
     System.exit(1)
 }
@@ -41,6 +42,11 @@ params.db_gbs_res_typer = "$params.db/GBS_resTyper_Gene-DB/GBS_Res_Gene-DB_Final
 params.db_res_targets = "$params.db/GBS_resTyper_Gene-DB/seqs_of_interest.txt"
 params.db_argannot = "$params.db/ARGannot-DB/ARGannot_r1.fasta"
 params.db_resfinder = "$params.db/ResFinder-DB/ResFinder.fasta"
+
+// Output files
+params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
+params.variants_out =  "${params.output}_gbs_res_variants.txt"
+params.alleles_out = "${params.output}_drug_cat_alleles.txt"
 
 // Resistance typing with the RES database
 workflow RES {
@@ -104,26 +110,23 @@ workflow {
     main:
         serotyping(read_pairs_ch, file(params.db_serotyping))
 
-        if( params.all | params.custom_res)
-            RES(read_pairs_ch)
-
-        if( params.all | params.argannot)
-            ARGANNOT(read_pairs_ch)
-
-        if( params.all | params.resfinder)
-            ResFinder(read_pairs_ch)
-
+        ResFinder(read_pairs_ch)
+        ARGANNOT(read_pairs_ch)
+        RES(read_pairs_ch)
         res_typer_ch = ARGANNOT.out.join(ResFinder.out.join(RES.out))
         res_typer(res_typer_ch)
 
-        //sero_res_ch = serotyping.out.join(res_typer.out)
-
         // Combine results
-        //combine_results(sero_res_ch)
+        sero_res_ch = serotyping.out.join(res_typer.out)
+        combine_results(sero_res_ch)
 
         // Combine samples
-        //combine_results.out
-        //    .collectFile() { item ->
-        //        [ file(params.output), item + '\n']
-        //    }
+        combine_results.out.sero_res_incidence
+            .collectFile(name: file(params.sero_res_incidence_out), keepHeader: true)
+
+        combine_results.out.res_alleles
+            .collectFile(name: file(params.alleles_out), keepHeader: true)
+
+        combine_results.out.res_variants
+            .collectFile(name: file(params.variants_out), keepHeader: true)
 }

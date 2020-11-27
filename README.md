@@ -15,28 +15,18 @@ git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 ```
 4. Pull Docker image
 ```
-docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.1
+docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.2
 ```
 
 ### Pipeline test (serotyping only)
 ```
 cd GBS-Typer-sanger-nf
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt'
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results'
 ```
 
 To resume pipeline if incomplete:
 ```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' -resume
-```
-
-The reference resistance database for the resistance typing can be specified with --custom_res, --argannot and/or --resfinder, e.g. to run with ARGANNOT only:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' --argannot
-```
-
-To use all databases specify --all, e.g.
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'Isolate_Sero_Res_Typing_results.txt' --all
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results' -resume
 ```
 
 ### Run unit tests

@@ -328,55 +328,65 @@ def get_variants(consensus_seqs):
             update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass)
 
 
-def write_output(output_pref):
+def write_output(content, output_filename):
     try:
-        with open(output_pref + '_res_incidence.txt', 'w') as out_inc:
-            out_inc.write('\t'.join(Res_Targets.keys()) + '\t' + '\t'.join(GBS_Res_Targets.keys()) + '\n')
-            out_inc.write('\t'.join(Res_Targets.values()) + '\t' + '\t'.join(GBS_Res_Targets.values()) + '\n')
-
-        with open(output_pref + '_res_gbs_variants.txt', 'w') as out_var:
-            out_var.write('\t'.join(GBS_Res_var.keys()) + '\n')
-            out_var.write('\t'.join(GBS_Res_var.values()) + '\n')
-
-        with open(output_pref + '_res_alleles.txt', 'w') as out_allele:
-            out_allele.write('\t'.join(drugRes_Col.keys()) + '\n')
-            out_allele.write('\t'.join(drugRes_Col.values()) + '\n')
+        with open(output_filename, 'w') as out:
+            out.write(content)
     except IOError:
         print('Cannot open filename starting "{}"'.format(output_pref))
 
 
+def create_output_contents(final_dict):
+    final = sorted(final_dict.items(), key=lambda item: item[0], reverse=False)
+    content = ''
+    for n, item in enumerate(final):
+        if n == len(final)-1:
+            content += item[0] + '\n'
+        else:
+            content += item[0] + '\t'
+    for n, item in enumerate(final):
+        if n == len(final)-1:
+            content += item[1] + '\n'
+        else:
+            content += item[1] + '\t'
+    return content
+
+
 def run(args):
     # Get presence/absence of genes
-    if args.srst2_gbs_fg_output is not None:
-        print("Running GBS presence/absence...")
-        derive_presence_absence_targets(args.srst2_gbs_fg_output)
+    derive_presence_absence_targets(args.srst2_gbs_fg_output)
 
-    if args.srst2_argannot_fg_output is not None and args.srst2_resfinder_fg_output is not None:
-        print("Running ARGANNOT/ResFinder presence/absence...")
-        derive_presence_absence_targets_for_arg_res([args.srst2_argannot_fg_output, args.srst2_resfinder_fg_output])
-    elif args.srst2_argannot_fg_output is not None:
-        derive_presence_absence_targets_for_arg_res([args.srst2_argannot_fg_output])
-    elif args.srst2_resfinder_fg_output is not None:
-        derive_presence_absence_targets_for_arg_res([args.srst2_resfinder_fg_output])
+    if args.srst2_other_fg_output is not None:
+        derive_presence_absence_targets_for_arg_res(args.srst2_other_fg_output)
+        Res_Targets.update(GBS_Res_Targets)
+        inc_out = create_output_contents(Res_Targets)
+    else:
+        inc_out = create_output_contents(GBS_Res_Targets)
 
-    # Get alleles
-    if args.srst2_gbs_cs_output is not None:
-        print("Running GBS variants...")
-        get_variants(args.srst2_gbs_cs_output)
+    # Get variants
+    get_variants(args.srst2_gbs_cs_output)
+    var_out = create_output_contents(GBS_Res_var)
 
-    write_output(args.output)
+    # Get alleles for all drug classes
+    allele_out = create_output_contents(drugRes_Col)
+
+    # Write incidence output
+    write_output(inc_out, args.output + '_res_incidence.txt')
+    # Write gbs variant output
+    write_output(var_out, args.output + "_res_gbs_variants.txt")
+    # Write allele output
+    write_output(allele_out, args.output + "_res_alleles.txt")
 
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Modify SRST2 sequence typing output files.')
-    parser.add_argument('--srst2_gbs_fullgenes', dest='srst2_gbs_fg_output', required=False,
+    parser.add_argument('--srst2_gbs_fullgenes', dest='srst2_gbs_fg_output', required=True,
                         help='Input SRST2 fullgenes output for the GBS reference database.')
-    parser.add_argument('--srst2_gbs_consensus', dest='srst2_gbs_cs_output', required=False,
+    parser.add_argument('--srst2_gbs_consensus', dest='srst2_gbs_cs_output', required=True,
                         help='Input freebayes consensus sequence output for the GBS reference database.')
-    parser.add_argument('--srst2_argannot_fullgenes', dest='srst2_argannot_fg_output', required=False,
-                        help='Input SRST2 fullgenes output for the ARG-ANNOT reference database.')
-    parser.add_argument('--srst2_resfinder_fullgenes', dest='srst2_resfinder_fg_output', required=False,
-                        help='Input SRST2 fullgenes output for the ResFinder reference database.')
+    parser.add_argument('--srst2_other_fullgenes', dest='srst2_other_fg_output', required=False,
+                        help='Input SRST2 fullgenes outputs for other references databases.',
+                        nargs = '*')
     parser.add_argument('--output_prefix', dest='output', required=True,
                         help='Output prefix of filename.')
 
