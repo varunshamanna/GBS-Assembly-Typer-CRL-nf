@@ -39,7 +39,7 @@ def get_sero_res_contents(id, sero_file, res_file):
         count = 0
         for line in res:
             if count:
-                results = line.split('\t')
+                results = line.split('\n')[0].split('\t')
                 results_out = []
                 for result in results:
                     if result == 'pos':
