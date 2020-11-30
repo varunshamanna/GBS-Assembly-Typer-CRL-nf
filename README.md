@@ -2,7 +2,7 @@
 An updated NextFlow version of Ben Metcalf's GBS Typer pipeline.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/master/LICENSE)   
-![build](https://github.com/actions/sanger-pathogens/GBS-Typer-sanger-nf/workflows/build/badge.svg)  
+![build](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/workflows/build/badge.svg)  
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/sangerpathogens/gbs-typer-sanger-nf)   
 [![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/ci-branch/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)   
 
@@ -33,5 +33,5 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results' -resume
 
 ### Run unit tests
 ```
-nosetests
+python3 -m pytest
 ```
