@@ -6,7 +6,7 @@ from unittest.mock import patch, call, ANY
 from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
-    get_consensus_seqs, get_gene_names_from_consensus, get_variants, \
+    get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, \
     EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, GBS_Res_Targets, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
@@ -18,6 +18,7 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
     TEST_FASTA_FILE = "test_data/test-db.fasta"
     TEST_CONSENSUS_SEQ_FILE = "test_data/" + TEST_LANE + "_consensus_seq.fna"
+    TEST_OUTPUT = "test_data/" + TEST_LANE + "_output.txt"
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
@@ -706,7 +707,10 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual(mock_update_drug_res_col_dict.call_args_list, [])
 
     def test_write_output(self):
-        pass
+        write_output('foobar', self.TEST_OUTPUT)
+        f = open(self.TEST_OUTPUT, "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, """foobar""")
 
     def test_create_output_contents(self):
         pass
