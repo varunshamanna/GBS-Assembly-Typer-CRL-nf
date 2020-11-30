@@ -713,9 +713,9 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual(actual, """foobar""")
 
     def test_create_output_contents(self):
-        final_dict = {'AN_ITEM': 'pos', '1ITEM': 'neg', 'A_ITEM': 'neg'}
+        final_dict = {'B_ITEM': 'pos', '1ITEM': 'neg', 'A_ITEM': 'neg'}
         actual = create_output_contents(final_dict)
-        self.assertEqual(actual, '1ITEM\tA_ITEM\tAN_ITEM\nneg\tneg\tpos\n')
+        self.assertEqual(actual, '1ITEM\tA_ITEM\tB_ITEM\nneg\tneg\tpos\n')
 
     def test_run(self):
         pass
