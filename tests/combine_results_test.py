@@ -3,7 +3,7 @@ import unittest
 import argparse
 from unittest.mock import patch, call, ANY
 
-from bin.combine_results import get_content_with_id, get_sero_res_contents, get_arguments, main
+from bin.combine_results import write_output, get_content_with_id, get_sero_res_contents, get_arguments, main
 
 class TestCombineResults(unittest.TestCase):
 
@@ -12,6 +12,13 @@ class TestCombineResults(unittest.TestCase):
     TEST_DATA_RES_INCIDENCE = 'test_data/' + TEST_LANE + '_res_incidence.txt'
     TEST_DATA_RES_ALLELES = 'test_data/' + TEST_LANE + '_res_alleles.txt'
     TEST_DATA_RES_VARIANTS = 'test_data/' + TEST_LANE + '_res_gbs_variants.txt'
+    TEST_OUTPUT = "test_data/" + TEST_LANE + "_output.txt"
+
+    def test_write_output(self):
+        write_output('foobar', self.TEST_OUTPUT)
+        f = open(self.TEST_OUTPUT, "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, """foobar""")
 
     def test_should_get_content_with_id_alleles(self):
         actual = get_content_with_id(self.TEST_LANE, self.TEST_DATA_RES_ALLELES)
