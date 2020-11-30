@@ -9,12 +9,12 @@ jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@master
     - name: Get Version
     - id: get-version
-      run: echo ::set-output name=version::${${GITHUB_REF#refs/tags/}:1}
-
+      run: |
+        echo ::set-output name=version::${${GITHUB_REF#refs/tags/}:1}
     - name: Update version numbers
-    - uses: actions/checkout@master
       run: |
         echo Branch name is ${GITHUB_REF##*/}
         git config --local user.name "Pathogen Informatics CI"
