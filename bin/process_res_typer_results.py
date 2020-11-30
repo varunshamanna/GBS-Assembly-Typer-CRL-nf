@@ -322,7 +322,6 @@ def get_gene_names_from_consensus(consensus_seq_dict):
 
 
 def get_variants(consensus_seqs):
-
     consensus_seq_dict = get_consensus_seqs(consensus_seqs)
     gene_names = get_gene_names_from_consensus(consensus_seq_dict)
     for gene_name in gene_names:

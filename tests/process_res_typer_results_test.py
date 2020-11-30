@@ -6,8 +6,8 @@ from unittest.mock import patch, call, ANY
 from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
-    get_consensus_seqs, get_gene_names_from_consensus, \
-    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
+    get_consensus_seqs, get_gene_names_from_consensus, get_variants, \
+    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, GBS_Res_Targets, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -680,8 +680,30 @@ class TestProcessResTyperResults(unittest.TestCase):
         actual = get_gene_names_from_consensus(consensus_seq_dict)
         self.assertEqual(actual, ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4'])
 
-    def test_get_variants(self):
-        pass
+    @patch('bin.process_res_typer_results.get_consensus_seqs')
+    @patch('bin.process_res_typer_results.get_gene_names_from_consensus')
+    @patch('bin.process_res_typer_results.get_seq_diffs')
+    @patch('bin.process_res_typer_results.update_GBS_Res_var')
+    @patch('bin.process_res_typer_results.update_drug_res_col_dict')
+    def test_get_variants(self, mock_update_drug_res_col_dict, mock_update_GBS_Res_var, mock_get_seq_diffs, mock_get_gene_names_from_consensus, mock_get_consensus_seqs):
+        mock_get_consensus_seqs.return_value = {
+            '11__23S1__23S1-1__11': 'GTTACCCGCGACAGGACGGAAAGACCCCATGGAG',
+            '12__23S3__23S3-3__12': 'CGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG',
+            '16__RPOBgbs__RPOBgbs-1__16': 'TTTGGTTCATCACAGCTGTCACAATTCATGGACCAACACAACCCTCTATCAGAATTGTCGCACAAACGCCGTCTCTCTGCCTTAGGACCTGGTGGTTTG',
+            '17__RPOBgbs__RPOBgbs-2__17': 'GTTTCACAATTAGTCCGTTCTCCTGGTGTT',
+            '18__RPOBgbs__RPOBgbs-3__18': 'TTTACAGTTGCACAAGCCAACTCTAAGCTTAACGAAGACGGTACATTTGCAGAAGAAATCGTTATGGGTCGTCATCAAGGTAATAACCAAGAGTTTCCTTCAAGCATT',
+            '19__RPOBgbs__RPOBgbs-4__19': 'TTGATTGATCCAAAAGCACCATATGTTGGTACT',
+            '5__GYRAGBS__GYRAGBS-1__5': 'GTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATGGCACAATGGTGG',
+            '7__PARCGBS__PARCGBS-1__7': 'CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA'
+        }
+        mock_get_gene_names_from_consensus.return_value = ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4']
+        mock_get_seq_diffs.return_value = ['Q17S']
+        get_variants(self.TEST_CONSENSUS_SEQ_FILE)
+        self.assertEqual(mock_get_consensus_seqs.call_args_list, [call(self.TEST_CONSENSUS_SEQ_FILE)])
+        self.assertEqual(mock_get_gene_names_from_consensus.call_args_list, [call(mock_get_consensus_seqs.return_value)])
+        self.assertEqual(mock_get_seq_diffs.call_args_list, [])
+        self.assertEqual(mock_update_GBS_Res_var.call_args_list, [])
+        self.assertEqual(mock_update_drug_res_col_dict.call_args_list, [])
 
     def test_write_output(self):
         pass
