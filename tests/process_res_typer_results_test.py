@@ -6,7 +6,7 @@ from unittest.mock import patch, call, ANY
 from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
-    get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, \
+    get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, create_output_contents, \
     EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, GBS_Res_Targets, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
@@ -713,7 +713,9 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual(actual, """foobar""")
 
     def test_create_output_contents(self):
-        pass
+        final_dict = {'AN_ITEM': 'pos', '1ITEM': 'neg', 'A_ITEM': 'neg'}
+        actual = create_output_contents(final_dict)
+        self.assertEqual(actual, '1ITEM\tA_ITEM\tAN_ITEM\nneg\tneg\tpos\n')
 
     def test_run(self):
         pass
