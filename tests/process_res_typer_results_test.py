@@ -268,17 +268,6 @@ class TestProcessResTyperResults(unittest.TestCase):
                 0
             )
 
-    def test_arguments(self):
-        actual = get_arguments().parse_args(
-            ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
-            '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
-            '--output_prefix', 'output'])
-        self.assertEqual(actual,
-                         argparse.Namespace(srst2_gbs_fg_output='srst2_gbs_fullgenes',
-                                            srst2_gbs_cs_output='srst2_gbs_consensus',
-                                            srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
-                                            output='output'))
-
     def test_update_presence_absence_target(self):
         depth = MIN_DEPTH+1
 
@@ -742,6 +731,17 @@ class TestProcessResTyperResults(unittest.TestCase):
             call(ANY, args.output + "_res_gbs_variants.txt"),
             call(ANY, args.output + "_res_alleles.txt")
         ], any_order = False)
+
+    def test_arguments(self):
+        actual = get_arguments().parse_args(
+            ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
+            '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
+            '--output_prefix', 'output'])
+        self.assertEqual(actual,
+                         argparse.Namespace(srst2_gbs_fg_output='srst2_gbs_fullgenes',
+                                            srst2_gbs_cs_output='srst2_gbs_consensus',
+                                            srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
+                                            output='output'))
 
     def test_main(self):
         pass
