@@ -6,7 +6,7 @@ from unittest.mock import patch, call, ANY
 from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
-    get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, create_output_contents, run, \
+    get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, create_output_contents, run, main, \
     EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, Res_Targets, GBS_Res_Targets, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
@@ -743,5 +743,9 @@ class TestProcessResTyperResults(unittest.TestCase):
                                             srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
                                             output='output'))
 
-    def test_main(self):
-        pass
+    @patch('bin.process_res_typer_results.get_arguments')
+    @patch('bin.process_res_typer_results.run')
+    def test_main(self, mock_run, mock_get_arguments):
+        args = mock_get_arguments.return_value.parse_args()
+        main()
+        self.assertEqual(ANY, [call(args)])
