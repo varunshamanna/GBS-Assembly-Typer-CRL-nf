@@ -1,0 +1,24 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get Version
+    - id: get-version
+      run: echo ::set-output name=version::${${GITHUB_REF#refs/tags/}:1}
+
+    - name: Update version numbers
+    - uses: actions/checkout@master
+      run: |
+        echo Branch name is ${GITHUB_REF##*/}
+        git config --local user.name "Pathogen Informatics CI"
+        git config --local user.email "pathdev@sanger.ac.uk"
+        sed -i "s@^process.container\s*=\s*'sangerpathogens/gbs-typer-sanger-nf:.*$@process.container = sangerpathogens/gbs-typer-sanger-nf:${{ steps.get-version.outputs.version }}@g" nextflow.config
+#        git commit -am "Updated the version number to ${{ steps.get-version.outputs.version }}"
+#        git push
