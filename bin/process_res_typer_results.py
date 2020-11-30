@@ -302,7 +302,11 @@ def get_consensus_seqs(consensus_seqs_file):
                 if line[0] == '>':
                     seq_name = line.split('>')[1].split('\n')[0]
                 else:
-                    consensus_seq_dict[seq_name] = line.split('\n')[0]
+                    if consensus_seq_dict[seq_name] == '':
+                        consensus_seq_dict[seq_name] = line.split('\n')[0]
+                    else:
+                        tmp_seq = consensus_seq_dict[seq_name] + line.split('\n')[0]
+                        consensus_seq_dict[seq_name] = tmp_seq
     except IOError:
         print('Cannot open {}.'.format(filename))
 

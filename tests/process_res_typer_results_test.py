@@ -6,7 +6,7 @@ from unittest.mock import patch, call, ANY
 from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
-    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
+    get_consensus_seqs, EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -16,6 +16,7 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
     TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
     TEST_FASTA_FILE = "test_data/test-db.fasta"
+    TEST_CONSENSUS_SEQ_FILE = "test_data/" + TEST_LANE + "_consensus_seq.fna"
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
@@ -650,3 +651,37 @@ class TestProcessResTyperResults(unittest.TestCase):
             'FQ': 'PARC-Q17S',
             'OTHER': 'RPOBGBS-1-F1G'
         })
+
+    def test_get_consensus_seqs(self):
+        actual = get_consensus_seqs(self.TEST_CONSENSUS_SEQ_FILE)
+        self.assertEqual(actual, {
+            '11__23S1__23S1-1__11': 'GTTACCCGCGACAGGACGGAAAGACCCCATGGAG',
+            '12__23S3__23S3-3__12': 'CGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG',
+            '16__RPOBgbs__RPOBgbs-1__16': 'TTTGGTTCATCACAGCTGTCACAATTCATGGACCAACACAACCCTCTATCAGAATTGTCGCACAAACGCCGTCTCTCTGCCTTAGGACCTGGTGGTTTG',
+            '17__RPOBgbs__RPOBgbs-2__17': 'GTTTCACAATTAGTCCGTTCTCCTGGTGTT',
+            '18__RPOBgbs__RPOBgbs-3__18': 'TTTACAGTTGCACAAGCCAACTCTAAGCTTAACGAAGACGGTACATTTGCAGAAGAAATCGTTATGGGTCGTCATCAAGGTAATAACCAAGAGTTTCCTTCAAGCATT',
+            '19__RPOBgbs__RPOBgbs-4__19': 'TTGATTGATCCAAAAGCACCATATGTTGGTACT',
+            '5__GYRAGBS__GYRAGBS-1__5': 'GTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATGGCACAATGGTGG',
+            '7__PARCGBS__PARCGBS-1__7': 'CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA'
+        })
+
+    def test_get_gene_names_from_consensus(self):
+        pass
+
+    def test_get_variants(self):
+        pass
+
+    def test_write_output(self):
+        pass
+
+    def test_create_output_contents(self):
+        pass
+
+    def test_run(self):
+        pass
+
+    def test_get_arguments(self):
+        pass
+
+    def test_main(self):
+        pass
