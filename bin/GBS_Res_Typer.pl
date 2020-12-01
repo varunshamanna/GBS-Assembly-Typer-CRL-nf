@@ -424,11 +424,11 @@ while(<MYINPUTFILE>) {
             $Res_Targets{"RPOB1"} = "pos";
         } elsif ($miscR_fullgene[3] =~ m/RPOBN/) {
             $Res_Targets{"RPOB2"} = "pos";
-	} elsif ($miscR_fullgene[3] =~ m/RPOBN/) {
-	    $Res_Targets{"RPOB3"} = "pos";
-	} elsif ($miscR_fullgene[3] =~ m/RPOBN/) {
-	    $Res_Targets{"RPOB4"} = "pos";
-	}
+	    } elsif ($miscR_fullgene[3] =~ m/RPOBN/) {
+	        $Res_Targets{"RPOB3"} = "pos";
+	    } elsif ($miscR_fullgene[3] =~ m/RPOBN/) {
+	        $Res_Targets{"RPOB4"} = "pos";
+	    }
     }
 }
 

@@ -15,12 +15,21 @@ git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 ```
 4. Pull Docker image
 ```
-docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.1
+docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.2
 ```
 
-### Pipeline test
+### Pipeline test (serotyping only)
 ```
 cd GBS-Typer-sanger-nf
-nextflow run main.nf --reads 'data/example_{1,2}.fastq.gz' --contigs 'data/example_contigs.fa'
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results'
 ```
-Two fastq files should be found a new results directory.
+
+To resume pipeline if incomplete:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results' -resume
+```
+
+### Run unit tests
+```
+nosetests
+```
