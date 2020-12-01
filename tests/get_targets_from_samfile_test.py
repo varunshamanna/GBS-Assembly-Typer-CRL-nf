@@ -3,7 +3,7 @@ import io
 import unittest
 from unittest.mock import patch, call, ANY
 
-from bin.get_targets_from_samfile import get_targets, in_line, write_sam_file, write_target_sam_files
+from bin.get_targets_from_samfile import get_targets, in_line, write_sam_file, write_target_sam_files, get_arguments
 
 class TestProcessResults(unittest.TestCase):
 
@@ -75,3 +75,10 @@ class TestProcessResults(unittest.TestCase):
             call(self.TEST_SAM, '18__RPOBgbs__RPOBgbs-3__18', '26189_8#5', 'test_data/CHECK_'),
             call(self.TEST_SAM, '19__RPOBgbs__RPOBgbs-4__19', '26189_8#5', 'test_data/CHECK_')
             ], any_order = False)
+
+    def test_arguments(self):
+        actual = get_arguments().parse_args(
+            ['--sam_file', 'sam_file', '--target_file', 'target_file',
+            '--id', 'id', '--output_prefix', 'output'])
+        self.assertEqual(actual,
+                         argparse.Namespace(sam='sam_file', target='target_file', id='id', output='output'))
