@@ -1,8 +1,9 @@
 import argparse
 import io
 import unittest
+from unittest.mock import patch, call, ANY
 
-from bin.get_targets_from_samfile import get_targets, in_line, write_sam_file
+from bin.get_targets_from_samfile import get_targets, in_line, write_sam_file, write_target_sam_files
 
 class TestProcessResults(unittest.TestCase):
 
@@ -51,3 +52,26 @@ class TestProcessResults(unittest.TestCase):
         f = open('test_data/CHECK_12__23S3__23S3-3__12_26189_8#5_seq.sam', "r")
         actual = "".join(f.readlines())
         self.assertEqual(actual, """@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:12__23S3__23S3-3__12\tLN:60\n@PG\tID:bowtie2\nHX4_26077:6:2110:21704:24005\t153\t12__23S3__23S3-3__12\t1\n""")
+
+
+    @patch('bin.get_targets_from_samfile.write_sam_file')
+    def test_write_target_sam_files(self, mock_write_sam_file):
+        targets = ['7__PARCGBS__PARCGBS-1__7',
+            '5__GYRAGBS__GYRAGBS-1__5',
+            '11__23S1__23S1-1__11',
+            '12__23S3__23S3-3__12',
+            '16__RPOBgbs__RPOBgbs-1__16',
+            '17__RPOBgbs__RPOBgbs-2__17',
+            '18__RPOBgbs__RPOBgbs-3__18',
+            '19__RPOBgbs__RPOBgbs-4__19']
+        write_target_sam_files(targets, self.TEST_SAM, '26189_8#5', 'test_data/CHECK_')
+        mock_write_sam_file.assert_has_calls([
+            call(self.TEST_SAM, '7__PARCGBS__PARCGBS-1__7', '26189_8#5', 'test_data/CHECK_'),
+            call(self.TEST_SAM, '5__GYRAGBS__GYRAGBS-1__5', '26189_8#5', 'test_data/CHECK_'),
+            call(self.TEST_SAM, '11__23S1__23S1-1__11', '26189_8#5', 'test_data/CHECK_'),
+            call(self.TEST_SAM, '12__23S3__23S3-3__12', '26189_8#5', 'test_data/CHECK_'),
+            call(self.TEST_SAM, '16__RPOBgbs__RPOBgbs-1__16', '26189_8#5', 'test_data/CHECK_'),
+            call(self.TEST_SAM, '17__RPOBgbs__RPOBgbs-2__17', '26189_8#5', 'test_data/CHECK_'),
+            call(self.TEST_SAM, '18__RPOBgbs__RPOBgbs-3__18', '26189_8#5', 'test_data/CHECK_'),
+            call(self.TEST_SAM, '19__RPOBgbs__RPOBgbs-4__19', '26189_8#5', 'test_data/CHECK_')
+            ], any_order = False)
