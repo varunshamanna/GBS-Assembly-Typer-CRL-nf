@@ -21,6 +21,6 @@ jobs:
         echo Branch name is ${GITHUB_REF##*/}
         git config --local user.name "Pathogen Informatics CI"
         git config --local user.email "pathdev@sanger.ac.uk"
-        sed -i "s@^process.container\s*=\s*'sangerpathogens/gbs-typer-sanger-nf:.*$@process.container = sangerpathogens/gbs-typer-sanger-nf:${{ steps.get-version.outputs.version }}@g" nextflow.config
+        sed -i "s@gbs-typer-sanger-nf:.*@gbs-typer-sanger-nf:${{ steps.get-version.outputs.version }}'@g" nextflow.config
 #        git commit -am "Updated the version number to ${{ steps.get-version.outputs.version }}"
 #        git push
