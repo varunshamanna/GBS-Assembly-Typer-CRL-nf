@@ -1,9 +1,11 @@
+# Update config version numbers on release tagging.
+
 name: tag
 
 on:
   push:
-    tags:
-      - "v*"
+    tags: "v*"
+    branches: ci-branch
 
 jobs:
   tag:
@@ -18,9 +20,12 @@ jobs:
         echo "::set-output name=version::$vernum"
     - name: Update version numbers
       run: |
-        echo Branch name is ${GITHUB_REF##*/}
+        echo Tag is ${GITHUB_REF##*/}
         git config --local user.name "Pathogen Informatics CI"
         git config --local user.email "pathdev@sanger.ac.uk"
+        git checkout -b tmp-${{ steps.get-version.outputs.version }}
         sed -i "s@gbs-typer-sanger-nf:.*@gbs-typer-sanger-nf:${{ steps.get-version.outputs.version }}'@g" nextflow.config
         git commit -am "Updated the version number to ${{ steps.get-version.outputs.version }}"
-        git push
+        git tag -d v${{ steps.get-version.outputs.version }}
+        git tag v${{ steps.get-version.outputs.version }}
+	git push -q v${{ steps.get-version.outputs.version }}
