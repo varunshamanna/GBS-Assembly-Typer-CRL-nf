@@ -26,7 +26,7 @@ process split_target_RES_sequences {
     file("CHECK_*")
 
     """
-    get_targets_from_res_db.py -f ${fasta_file} -t ${targets_file}
+    get_targets_from_res_db.py -f ${fasta_file} -t ${targets_file} -o CHECK_
     """
 }
 
