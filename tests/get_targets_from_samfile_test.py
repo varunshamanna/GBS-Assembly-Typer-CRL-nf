@@ -2,11 +2,12 @@ import argparse
 import io
 import unittest
 
-from bin.get_targets_from_samfile import get_targets, in_line
+from bin.get_targets_from_samfile import get_targets, in_line, write_sam_file
 
 class TestProcessResults(unittest.TestCase):
 
     TEST_TARGETS = 'test_data/seqs_of_interest.txt'
+    TEST_SAM = 'test_data/get_targets_test.sam'
 
     def test_get_targets(self):
         actual = get_targets(self.TEST_TARGETS)
@@ -44,3 +45,9 @@ class TestProcessResults(unittest.TestCase):
         AA<FFAJFJJJJJJJJJJJJJJJJJJJFJJJJJJJJJJJJJFJJJJJFJJFAFJJJJJJJJJJJJJJJJJJJFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFJJJJJJJJJJJJJJJJJFFFJJFJAFFFAJFJJAJAJ<JJ-	\
         AS:i:142	XN:i:0	XM:i:0	XO:i:0	XG:i:0	NM:i:0	MD:Z:71	YT:Z:UP\n'
         self.assertFalse(in_line(line, target))
+
+    def test_write_sam_file(self):
+        write_sam_file(self.TEST_SAM, '12__23S3__23S3-3__12', '26189_8#5', 'test_data/CHECK_')
+        f = open('test_data/CHECK_12__23S3__23S3-3__12_26189_8#5_seq.sam', "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, """@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:12__23S3__23S3-3__12\tLN:60\n@PG\tID:bowtie2\nHX4_26077:6:2110:21704:24005\t153\t12__23S3__23S3-3__12\t1\n""")
