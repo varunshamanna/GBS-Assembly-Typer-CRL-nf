@@ -35,3 +35,11 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results' -resume
 ```
 python3 -m pytest
 ```
+
+### Making a release
+Once all changes have been pushed to the main branch, confirm that the CI has run successfully and then execute:
+```
+release.sh <version number (without v)>
+```
+This will tag the main branch.
+
