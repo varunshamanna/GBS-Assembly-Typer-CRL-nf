@@ -2,7 +2,7 @@ import argparse
 import io
 import unittest
 
-from bin.get_targets_from_res_db import get_targets
+from bin.get_targets_from_res_db import get_targets, write_line
 
 class TestProcessResults(unittest.TestCase):
 
@@ -18,3 +18,19 @@ class TestProcessResults(unittest.TestCase):
             '17__RPOBgbs__RPOBgbs-2__17',
             '18__RPOBgbs__RPOBgbs-3__18',
             '19__RPOBgbs__RPOBgbs-4__19'])
+
+    def setUp(self) -> None:
+        self.test_stream = io.StringIO()
+
+    def test_write_line(self):
+        line = '>Target\n'
+        actual = write_line(line, 'Target', 0, self.test_stream)
+        self.assertEqual(actual, 1)
+
+        line = 'ACTG'
+        actual = write_line(line, 'Target', 1, self.test_stream)
+        self.assertEqual(actual, 1)
+
+        line = '>Seq'
+        actual = write_line(line, 'Target', 0, self.test_stream)
+        self.assertEqual(actual, 0)
