@@ -3,7 +3,7 @@ import io
 import unittest
 from unittest.mock import patch, call
 
-from bin.get_targets_from_res_db import get_targets, write_line, write_fasta_file, write_target_fasta_files
+from bin.get_targets_from_res_db import get_targets, write_line, write_fasta_file, write_target_fasta_files, get_arguments
 
 class TestProcessResults(unittest.TestCase):
 
@@ -64,3 +64,9 @@ class TestProcessResults(unittest.TestCase):
             call(self.TEST_FASTA, '18__RPOBgbs__RPOBgbs-3__18', 'test_data/CHECK_'),
             call(self.TEST_FASTA, '19__RPOBgbs__RPOBgbs-4__19', 'test_data/CHECK_')
             ], any_order = False)
+
+    def test_arguments(self):
+        actual = get_arguments().parse_args(
+            ['--fasta_file', 'fasta_file', '--target_file', 'target_file', '--output_prefix', 'output'])
+        self.assertEqual(actual,
+                         argparse.Namespace(fasta='fasta_file', target='target_file', output='output'))
