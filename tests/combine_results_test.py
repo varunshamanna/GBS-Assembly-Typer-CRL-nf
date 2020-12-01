@@ -1,8 +1,9 @@
 import io
 import unittest
 import argparse
+from unittest.mock import patch, call, ANY
 
-from bin.combine_results import get_content_with_id, get_sero_res_contents, get_arguments
+from bin.combine_results import write_output, get_content_with_id, get_sero_res_contents, get_arguments, main
 
 class TestCombineResults(unittest.TestCase):
 
@@ -11,6 +12,13 @@ class TestCombineResults(unittest.TestCase):
     TEST_DATA_RES_INCIDENCE = 'test_data/' + TEST_LANE + '_res_incidence.txt'
     TEST_DATA_RES_ALLELES = 'test_data/' + TEST_LANE + '_res_alleles.txt'
     TEST_DATA_RES_VARIANTS = 'test_data/' + TEST_LANE + '_res_gbs_variants.txt'
+    TEST_OUTPUT = "test_data/" + TEST_LANE + "_output.txt"
+
+    def test_write_output(self):
+        write_output('foobar', self.TEST_OUTPUT)
+        f = open(self.TEST_OUTPUT, "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, """foobar""")
 
     def test_should_get_content_with_id_alleles(self):
         actual = get_content_with_id(self.TEST_LANE, self.TEST_DATA_RES_ALLELES)
@@ -34,3 +42,23 @@ class TestCombineResults(unittest.TestCase):
         actual = get_arguments().parse_args(['-i', 'id', '-s', 'sero_file', '-r', 'res_file', '-a', 'allele_file', '-v', 'variants_file', '-o', 'output_prefix'])
         self.assertEqual(actual,
                          argparse.Namespace(id='id', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
+
+    @patch('bin.combine_results.get_arguments')
+    @patch('bin.combine_results.get_sero_res_contents')
+    @patch('bin.combine_results.write_output')
+    @patch('bin.combine_results.get_content_with_id')
+    def test_main(self, mock_get_content_with_id, mock_write_output, mock_get_sero_res_contents, mock_get_arguments):
+        args = mock_get_arguments.return_value.parse_args()
+        mock_get_sero_res_contents.return_value = 'foobar1'
+        mock_get_content_with_id.return_value = ANY
+        main()
+        self.assertEqual(mock_get_sero_res_contents.call_args_list, [call(args.id, args.sero, args.inc)])
+        mock_write_output.assert_has_calls([
+            call(ANY, args.output + "_sero_res_incidence.txt"),
+            call(ANY, args.output + "_id_alleles.txt"),
+            call(ANY, args.output + "_id_variants.txt")
+            ], any_order = False)
+        mock_get_content_with_id.assert_has_calls([
+            call(args.id, args.alleles),
+            call(args.id, args.variants)
+        ], any_order = False)

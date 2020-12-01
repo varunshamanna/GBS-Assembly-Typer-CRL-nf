@@ -6,7 +6,8 @@ from unittest.mock import patch, call, ANY
 from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
-    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
+    get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, create_output_contents, run, main, \
+    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, Res_Targets, GBS_Res_Targets, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -16,6 +17,8 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
     TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
     TEST_FASTA_FILE = "test_data/test-db.fasta"
+    TEST_CONSENSUS_SEQ_FILE = "test_data/" + TEST_LANE + "_consensus_seq.fna"
+    TEST_OUTPUT = "test_data/" + TEST_LANE + "_output.txt"
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
@@ -264,17 +267,6 @@ class TestProcessResTyperResults(unittest.TestCase):
                 "GCACAATGGTGGAAAAAAAAAA",
                 0
             )
-
-    def test_arguments(self):
-        actual = get_arguments().parse_args(
-            ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
-            '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
-            '--output_prefix', 'output'])
-        self.assertEqual(actual,
-                         argparse.Namespace(srst2_gbs_fg_output='srst2_gbs_fullgenes',
-                                            srst2_gbs_cs_output='srst2_gbs_consensus',
-                                            srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
-                                            output='output'))
 
     def test_update_presence_absence_target(self):
         depth = MIN_DEPTH+1
@@ -650,3 +642,110 @@ class TestProcessResTyperResults(unittest.TestCase):
             'FQ': 'PARC-Q17S',
             'OTHER': 'RPOBGBS-1-F1G'
         })
+
+    def test_get_consensus_seqs(self):
+        actual = get_consensus_seqs(self.TEST_CONSENSUS_SEQ_FILE)
+        self.assertEqual(actual, {
+            '11__23S1__23S1-1__11': 'GTTACCCGCGACAGGACGGAAAGACCCCATGGAG',
+            '12__23S3__23S3-3__12': 'CGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG',
+            '16__RPOBgbs__RPOBgbs-1__16': 'TTTGGTTCATCACAGCTGTCACAATTCATGGACCAACACAACCCTCTATCAGAATTGTCGCACAAACGCCGTCTCTCTGCCTTAGGACCTGGTGGTTTG',
+            '17__RPOBgbs__RPOBgbs-2__17': 'GTTTCACAATTAGTCCGTTCTCCTGGTGTT',
+            '18__RPOBgbs__RPOBgbs-3__18': 'TTTACAGTTGCACAAGCCAACTCTAAGCTTAACGAAGACGGTACATTTGCAGAAGAAATCGTTATGGGTCGTCATCAAGGTAATAACCAAGAGTTTCCTTCAAGCATT',
+            '19__RPOBgbs__RPOBgbs-4__19': 'TTGATTGATCCAAAAGCACCATATGTTGGTACT',
+            '5__GYRAGBS__GYRAGBS-1__5': 'GTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATGGCACAATGGTGG',
+            '7__PARCGBS__PARCGBS-1__7': 'CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA'
+        })
+
+    def test_get_gene_names_from_consensus(self):
+        consensus_seq_dict = {
+            '11__23S1__23S1-1__11': 'GTTACCCGCGACAGGACGGAAAGACCCCATGGAG',
+            '12__23S3__23S3-3__12': 'CGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG',
+            '16__RPOBgbs__RPOBgbs-1__16': 'TTTGGTTCATCACAGCTGTCACAATTCATGGACCAACACAACCCTCTATCAGAATTGTCGCACAAACGCCGTCTCTCTGCCTTAGGACCTGGTGGTTTG',
+            '17__RPOBgbs__RPOBgbs-2__17': 'GTTTCACAATTAGTCCGTTCTCCTGGTGTT',
+            '18__RPOBgbs__RPOBgbs-3__18': 'TTTACAGTTGCACAAGCCAACTCTAAGCTTAACGAAGACGGTACATTTGCAGAAGAAATCGTTATGGGTCGTCATCAAGGTAATAACCAAGAGTTTCCTTCAAGCATT',
+            '19__RPOBgbs__RPOBgbs-4__19': 'TTGATTGATCCAAAAGCACCATATGTTGGTACT',
+            '5__GYRAGBS__GYRAGBS-1__5': 'GTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATGGCACAATGGTGG',
+            '7__PARCGBS__PARCGBS-1__7': 'CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA'
+        }
+        actual = get_gene_names_from_consensus(consensus_seq_dict)
+        self.assertEqual(actual, ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4'])
+
+    @patch('bin.process_res_typer_results.get_consensus_seqs')
+    @patch('bin.process_res_typer_results.get_gene_names_from_consensus')
+    @patch('bin.process_res_typer_results.get_seq_diffs')
+    @patch('bin.process_res_typer_results.update_GBS_Res_var')
+    @patch('bin.process_res_typer_results.update_drug_res_col_dict')
+    def test_get_variants(self, mock_update_drug_res_col_dict, mock_update_GBS_Res_var, mock_get_seq_diffs, mock_get_gene_names_from_consensus, mock_get_consensus_seqs):
+        mock_get_consensus_seqs.return_value = {
+            '11__23S1__23S1-1__11': 'GTTACCCGCGACAGGACGGAAAGACCCCATGGAG',
+            '12__23S3__23S3-3__12': 'CGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG',
+            '16__RPOBgbs__RPOBgbs-1__16': 'TTTGGTTCATCACAGCTGTCACAATTCATGGACCAACACAACCCTCTATCAGAATTGTCGCACAAACGCCGTCTCTCTGCCTTAGGACCTGGTGGTTTG',
+            '17__RPOBgbs__RPOBgbs-2__17': 'GTTTCACAATTAGTCCGTTCTCCTGGTGTT',
+            '18__RPOBgbs__RPOBgbs-3__18': 'TTTACAGTTGCACAAGCCAACTCTAAGCTTAACGAAGACGGTACATTTGCAGAAGAAATCGTTATGGGTCGTCATCAAGGTAATAACCAAGAGTTTCCTTCAAGCATT',
+            '19__RPOBgbs__RPOBgbs-4__19': 'TTGATTGATCCAAAAGCACCATATGTTGGTACT',
+            '5__GYRAGBS__GYRAGBS-1__5': 'GTTATGGGTAAATACCATCCACATGGTGATTCATCTATTTACGAAGCAATGGTGCGTATGGCACAATGGTGG',
+            '7__PARCGBS__PARCGBS-1__7': 'CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA'
+        }
+        mock_get_gene_names_from_consensus.return_value = ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4']
+        mock_get_seq_diffs.return_value = ['Q17S']
+        get_variants(self.TEST_CONSENSUS_SEQ_FILE)
+        self.assertEqual(mock_get_consensus_seqs.call_args_list, [call(self.TEST_CONSENSUS_SEQ_FILE)])
+        self.assertEqual(mock_get_gene_names_from_consensus.call_args_list, [call(mock_get_consensus_seqs.return_value)])
+        self.assertEqual(mock_get_seq_diffs.call_args_list, [])
+        self.assertEqual(mock_update_GBS_Res_var.call_args_list, [])
+        self.assertEqual(mock_update_drug_res_col_dict.call_args_list, [])
+
+    def test_write_output(self):
+        write_output('foobar', self.TEST_OUTPUT)
+        f = open(self.TEST_OUTPUT, "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, """foobar""")
+
+    def test_create_output_contents(self):
+        final_dict = {'B_ITEM': 'pos', '1ITEM': 'neg', 'A_ITEM': 'neg'}
+        actual = create_output_contents(final_dict)
+        self.assertEqual(actual, '1ITEM\tA_ITEM\tB_ITEM\nneg\tneg\tpos\n')
+
+    @patch('bin.process_res_typer_results.derive_presence_absence_targets')
+    @patch('bin.process_res_typer_results.derive_presence_absence_targets_for_arg_res')
+    @patch('bin.process_res_typer_results.create_output_contents')
+    @patch('bin.process_res_typer_results.get_variants')
+    @patch('bin.process_res_typer_results.write_output')
+    def test_run(self, mock_write_output, mock_get_variants, mock_create_output_contents, mock_derive_presence_absence_targets_for_arg_res, mock_derive_presence_absence_targets):
+        args = get_arguments().parse_args(
+            ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
+            '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
+            '--output_prefix', 'output'])
+        create_output_contents.return_value = 'foobar'
+        run(args)
+        self.assertEqual(mock_derive_presence_absence_targets.call_args_list, [call(args.srst2_gbs_fg_output)])
+        self.assertEqual(mock_derive_presence_absence_targets_for_arg_res.call_args_list, [call(args.srst2_other_fg_output)])
+        mock_create_output_contents.assert_has_calls([
+            call(Res_Targets),
+            call(GBS_Res_var),
+            call(drugRes_Col)
+        ], any_order = False)
+        self.assertEqual(mock_get_variants.call_args_list, [call(args.srst2_gbs_cs_output)])
+        mock_write_output.assert_has_calls([
+            call(ANY, args.output + '_res_incidence.txt'),
+            call(ANY, args.output + "_res_gbs_variants.txt"),
+            call(ANY, args.output + "_res_alleles.txt")
+        ], any_order = False)
+
+    def test_arguments(self):
+        actual = get_arguments().parse_args(
+            ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
+            '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
+            '--output_prefix', 'output'])
+        self.assertEqual(actual,
+                         argparse.Namespace(srst2_gbs_fg_output='srst2_gbs_fullgenes',
+                                            srst2_gbs_cs_output='srst2_gbs_consensus',
+                                            srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
+                                            output='output'))
+
+    @patch('bin.process_res_typer_results.get_arguments')
+    @patch('bin.process_res_typer_results.run')
+    def test_main(self, mock_run, mock_get_arguments):
+        args = mock_get_arguments.return_value.parse_args()
+        main()
+        self.assertEqual(ANY, [call(args)])

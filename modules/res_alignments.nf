@@ -26,7 +26,7 @@ process split_target_RES_sequences {
     file("CHECK_*")
 
     """
-    get_targets_from_res_db.py -f ${fasta_file} -t ${targets_file}
+    get_targets_from_res_db.py -f ${fasta_file} -t ${targets_file} -o CHECK_
     """
 }
 
@@ -43,7 +43,7 @@ process split_target_RES_seq_from_sam_file {
 
     """
     samtools view -h ${bam_file} > \$(basename ${bam_file} .bam).sam
-    get_targets_from_samfile.py -s \$(basename ${bam_file} .bam).sam -t ${targets_file} -i ${pair_id}
+    get_targets_from_samfile.py -s \$(basename ${bam_file} .bam).sam -t ${targets_file} -i ${pair_id} -o CHECK_
     for check_sam_file in CHECK_*_${pair_id}*.sam; do
         samtools view -bS \${check_sam_file} > \$(basename \${check_sam_file} .sam).bam
         samtools index \$(basename \${check_sam_file} .sam).bam \$(basename \${check_sam_file} .sam).bai

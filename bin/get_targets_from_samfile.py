@@ -18,17 +18,17 @@ def in_line(line, target):
         return False
 
 
-def write_sam_file(sam_file, target, id):
-    with open('CHECK_' + target + '_' + id + '_seq.sam', 'w') as out:
+def write_sam_file(sam_file, target, id, output_prefix):
+    with open(output_prefix + target + '_' + id + '_seq.sam', 'w') as out:
         with open(sam_file, 'r') as sam:
             for line in sam:
                 if in_line(line, target):
                     out.write(line)
 
 
-def write_target_sam_files(targets, sam_file, id):
+def write_target_sam_files(targets, sam_file, id, output_prefix):
     for target in targets:
-        write_sam_file(sam_file, target, id)
+        write_sam_file(sam_file, target, id, output_prefix)
 
 
 def get_arguments():
@@ -39,13 +39,15 @@ def get_arguments():
                         help='Input target text file.')
     parser.add_argument('--id', '-i', dest='id', required=True,
                         help='Read ID.')
+    parser.add_argument('--output_prefix', '-o', dest='output', required=True,
+                        help='Output prefix.')
     return parser
 
 
 def main():
     args = get_arguments().parse_args()
     targets = get_targets(args.target)
-    write_target_sam_files(targets, args.sam, args.id)
+    write_target_sam_files(targets, args.sam, args.id, args.output)
 
 
 if __name__ == "__main__":
