@@ -22,5 +22,5 @@ jobs:
         git config --local user.name "Pathogen Informatics CI"
         git config --local user.email "pathdev@sanger.ac.uk"
         sed -i "s@gbs-typer-sanger-nf:.*@gbs-typer-sanger-nf:${{ steps.get-version.outputs.version }}'@g" nextflow.config
-#        git commit -am "Updated the version number to ${{ steps.get-version.outputs.version }}"
-#        git push
+        git commit -am "Updated the version number to ${{ steps.get-version.outputs.version }}"
+        git push
