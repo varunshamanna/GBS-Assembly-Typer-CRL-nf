@@ -5,7 +5,6 @@ name: tag
 on:
   push:
     tags: "v*"
-    branches: ci-branch
 
 jobs:
   tag:
