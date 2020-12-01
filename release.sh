@@ -19,10 +19,10 @@ function validate_new_version {
 }
 
 function validate_branch {
-    # check branch is master
+    # check branch is main
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [[ "$BRANCH" != "master" ]]; then
-        echo 'Releases can only be made from `master` branch.'
+    if [[ "$BRANCH" != "main" ]]; then
+        echo 'Releases can only be made from `main` branch.'
         exit 1
     fi
 }
@@ -59,7 +59,7 @@ git tag "v${VERSION}"
 
 # make sure origin is up to date
 echo "Pushing version ${VERSION}..."
-git push origin master
+git push origin main
 git push origin "v${VERSION}"
 
 echo "Done."
