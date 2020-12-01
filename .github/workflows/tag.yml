@@ -14,7 +14,7 @@ jobs:
       id: get-version
       run: |
         ver=${GITHUB_REF#refs/tags/}
-	vernum=${ver:1}
+        vernum=${ver:1}
         echo "::set-output name=version::$vernum"
     - name: Update version numbers
       run: |
