@@ -2,11 +2,12 @@ import argparse
 import io
 import unittest
 
-from bin.get_targets_from_res_db import get_targets, write_line
+from bin.get_targets_from_res_db import get_targets, write_line, write_fasta_file
 
 class TestProcessResults(unittest.TestCase):
 
     TEST_TARGETS = 'test_data/seqs_of_interest.txt'
+    TEST_FASTA = 'test_data/GBS_Res_Gene-DB_Final_0.0.1.fasta'
 
     def test_get_targets(self):
         actual = get_targets(self.TEST_TARGETS)
@@ -34,3 +35,9 @@ class TestProcessResults(unittest.TestCase):
         line = '>Seq'
         actual = write_line(line, 'Target', 0, self.test_stream)
         self.assertEqual(actual, 0)
+
+    def test_write_fasta_file(self):
+        write_fasta_file(self.TEST_FASTA, '7__PARCGBS__PARCGBS-1__7', 'test_data/CHECK_')
+        f = open('test_data/CHECK_7__PARCGBS__PARCGBS-1__7_ref.fna', "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, """>7__PARCGBS__PARCGBS-1__7\nCATCCTCATGGGGATTCCTCTATTTATGACGCGATGGTTCGTATGTCTCAA\n""")

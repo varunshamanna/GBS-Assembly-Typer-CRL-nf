@@ -22,17 +22,17 @@ def write_line(line, target, flag, out):
     return flag
 
 
-def write_fasta_file(fasta_file, target):
-    with open('CHECK_' + target + '_ref.fna', 'w') as out:
+def write_fasta_file(fasta_file, target, output_prefix):
+    with open(output_prefix + target + '_ref.fna', 'w') as out:
         with open(fasta_file, 'r') as fasta:
             flag = 0
             for line in fasta:
                 flag = write_line(line, target, flag, out)
 
 
-def write_target_fasta_files(targets, fasta_file):
+def write_target_fasta_files(targets, fasta_file, output_prefix):
     for target in targets:
-        write_fasta_file(fasta_file, target)
+        write_fasta_file(fasta_file, target, output_prefix)
 
 
 def get_arguments():
@@ -41,13 +41,15 @@ def get_arguments():
                         help='Input FASTA file.')
     parser.add_argument('--target_file', '-t', dest='target', required=True,
                         help='Input target text file.')
+    parser.add_argument('--output_prefix', '-o', dest='output', required=True,
+                        help='Output prefix.')
     return parser
 
 
 def main():
     args = get_arguments().parse_args()
     targets = get_targets(args.target)
-    write_target_fasta_files(targets, args.fasta)
+    write_target_fasta_files(targets, args.fasta, args.output)
 
 
 if __name__ == "__main__":
