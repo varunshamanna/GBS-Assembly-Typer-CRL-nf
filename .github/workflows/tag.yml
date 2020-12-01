@@ -27,4 +27,4 @@ jobs:
         git commit -am "Updated the version number to ${{ steps.get-version.outputs.version }}"
         git tag -d v${{ steps.get-version.outputs.version }}
         git tag v${{ steps.get-version.outputs.version }}
-        git push -q v${{ steps.get-version.outputs.version }}
+        git push -q origin v${{ steps.get-version.outputs.version }}
