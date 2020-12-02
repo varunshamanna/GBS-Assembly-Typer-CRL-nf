@@ -2,9 +2,6 @@
 
 # Make a release.
 
-SCRIPT_DIR="$(dirname "$0")"
-source "$SCRIPT_DIR/utils/common.sh"
-
 function validate_new_version {
     local VERSION=${1}
 
