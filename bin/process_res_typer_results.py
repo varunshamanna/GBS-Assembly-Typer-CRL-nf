@@ -14,6 +14,7 @@ class nSeq(str): # Nucleotide sequence
 class aSeq(str): # Amino acid sequence
     pass
 
+# Drug Class Resistance dictionary
 drugRes_Col = {
     'TET': 'neg',
     'EC': 'neg',
@@ -21,7 +22,8 @@ drugRes_Col = {
     'OTHER': 'neg',
 }
 
-drugToClass = {
+# Gene to Drug Class Resistance lookup dictionary
+geneToClass = {
     'ERM': 'EC',
     'LNU': 'EC',
     'LSA': 'EC',
@@ -38,6 +40,7 @@ drugToClass = {
     'RPOBGBS-4': 'OTHER',
 }
 
+# Other Resistance Targets dictionary
 Res_Targets = {
     'ERM': 'neg',
     'LNU': 'neg',
@@ -47,6 +50,7 @@ Res_Targets = {
     'CAT': 'neg',
 }
 
+# GBS Resistance Targets dictionary
 GBS_Res_Targets = {
     'GYRA': 'neg',
     'PARC': 'neg',
@@ -58,6 +62,7 @@ GBS_Res_Targets = {
     'RPOBGBS-4': 'neg',
 }
 
+# GBS Gene Resistance Variants dictionary
 GBS_Res_var = {
     'GYRA': '', #10
     'PARC': '', #14
@@ -69,6 +74,7 @@ GBS_Res_var = {
     'RPOBGBS-4': '', #9,
 }
 
+# Reference sequence dictionary
 geneToRef = defaultdict(lambda: '')
 geneToRef.update({
     'PARC': aSeq('HPHGDSSIYDAMVRMSQ'),
@@ -81,6 +87,7 @@ geneToRef.update({
     'RPOBGBS-4': aSeq('LIDPKAPYVGT')
 })
 
+# Gene to target name lookup dictionary
 geneToTargetSeq = defaultdict(lambda: '')
 geneToTargetSeq.update({
     'PARC': '7__PARCGBS__PARCGBS-1__7',
@@ -98,6 +105,7 @@ MIN_DEPTH = 10
 
 
 def codon2aa(codon):
+    """Translate codons to amino acids"""
 
     codon = codon.upper()
 
@@ -180,11 +188,12 @@ def six_frame_translate(seq_input, frame):
 
 
 def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict):
+    """Update presence/absence for GBS and Other Resistance Targets dictionary"""
     if depth >= MIN_DEPTH:
 
         for gene_name in res_target_dict.keys():
             if re.search(gene_name, allele.upper()):
-                drugCat = drugToClass[gene_name]
+                drugCat = geneToClass[gene_name]
 
                 if drug_res_col_dict[drugCat] == "neg":
                     drug_res_col_dict[drugCat] = gene + '(' + allele + ')'
@@ -201,6 +210,7 @@ def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_t
 
 
 def derive_presence_absence_targets(input_file):
+    """Find gene presence/absence for the GBS resistance database"""
     try:
         with open(input_file, 'r') as fd:
             # Skip header row
@@ -218,13 +228,14 @@ def derive_presence_absence_targets(input_file):
 
 
 def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict):
+    """Update presence/absence for Other Resistance Targets dictionary"""
     if depth >= MIN_DEPTH:
 
         other = 1
         for gene_name in res_target_dict.keys():
             if re.search(gene_name, allele.upper()):
                 other = 0
-                drugCat = drugToClass[gene_name]
+                drugCat = geneToClass[gene_name]
                 if res_target_dict[gene_name] == "neg":
                     if drug_res_col_dict[drugCat] == "neg":
                         drug_res_col_dict[drugCat] = gene + '(' + allele + ')'
@@ -241,7 +252,7 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
 
 
 def derive_presence_absence_targets_for_arg_res(input_files):
-    """ For ARG-ANNOT / ResFinder """
+    """Find gene presence/absence for other resistance databases"""
     for input_file in input_files:
         try:
             with open(input_file, 'r') as fd:
@@ -259,6 +270,7 @@ def derive_presence_absence_targets_for_arg_res(input_files):
 
 
 def find_mismatches(seq_diffs, query_Seq, ref_Seq):
+    """Find mismatches between query and reference sequences"""
     for resi in range(len(query_Seq)):
         if query_Seq[resi] != ref_Seq[resi]:
             seq_diffs.append(ref_Seq[resi] + str(resi+1) + query_Seq[resi])
@@ -266,6 +278,7 @@ def find_mismatches(seq_diffs, query_Seq, ref_Seq):
 
 
 def get_seq_diffs(query_Seq, ref_Seq):
+    """Get SNP variants"""
     if type(ref_Seq) == aSeq:
         query_Seq = six_frame_translate(query_Seq, 1)
     seq_diffs = []
@@ -275,14 +288,16 @@ def get_seq_diffs(query_Seq, ref_Seq):
 
 
 def update_GBS_Res_var(gene_name, seq_diffs, bin_res_arr):
+    """Update GBS Gene Resistance Variants dictionary with gene variants"""
     if seq_diffs:
         bin_res_arr[gene_name] = gene_name + '-' + ','.join(seq_diffs)
     else:
         bin_res_arr[gene_name] = gene_name
 
 
-def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass):
-    drugClass = drugToClass[gene_name]
+def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, geneToClass):
+    """Update Drug Resistance Class dictionary with GBS gene variants"""
+    drugClass = geneToClass[gene_name]
     if seq_diffs:
         gene_var = gene_name + '-' + ','.join(seq_diffs)
     else:
@@ -295,6 +310,7 @@ def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass):
 
 
 def get_consensus_seqs(consensus_seqs_file):
+    """Get consensus sequences from FASTA file into dictionary"""
     consensus_seq_dict = defaultdict(lambda: '')
     try:
         with open(consensus_seqs_file, 'r') as fd:
@@ -314,6 +330,7 @@ def get_consensus_seqs(consensus_seqs_file):
 
 
 def get_gene_names_from_consensus(consensus_seq_dict):
+    """Get the gene name identifiers from the consensus sequence IDs"""
     gene_names = []
     for gene_name in geneToTargetSeq.keys():
         if geneToTargetSeq[gene_name] in consensus_seq_dict.keys():
@@ -322,16 +339,18 @@ def get_gene_names_from_consensus(consensus_seq_dict):
 
 
 def get_variants(consensus_seqs):
+    """Get resistance gene variants from freebayes consensus GBS sequences"""
     consensus_seq_dict = get_consensus_seqs(consensus_seqs)
     gene_names = get_gene_names_from_consensus(consensus_seq_dict)
     for gene_name in gene_names:
         if GBS_Res_Targets[gene_name] == "pos" and geneToTargetSeq[gene_name] and geneToRef[gene_name]:
             seq_diffs = get_seq_diffs(consensus_seq_dict[geneToTargetSeq[gene_name]], geneToRef[gene_name])
             update_GBS_Res_var(gene_name, seq_diffs, GBS_Res_var)
-            update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, drugToClass)
+            update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, geneToClass)
 
 
 def write_output(content, output_filename):
+    """Write table content to output file"""
     try:
         with open(output_filename, 'w') as out:
             out.write(content)
@@ -340,6 +359,7 @@ def write_output(content, output_filename):
 
 
 def create_output_contents(final_dict):
+    """Create tab-delimited table from dictionary"""
     final = sorted(final_dict.items(), key=lambda item: item[0], reverse=False)
     content = ''
     for n, item in enumerate(final):

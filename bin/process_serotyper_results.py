@@ -4,6 +4,7 @@ import argparse, sys
 
 
 def write_line(gene, gene_dict, out):
+    """Write serotype to out stream of file"""
     serotype = gene_dict[gene]
     status = 'identical'
     if serotype != '':
@@ -12,6 +13,7 @@ def write_line(gene, gene_dict, out):
     del gene_dict[gene]
 
 def make_gene_dict(input_file, depth_threshold):
+    """Get features from SRST2 input file into dictionary depending on read depth threshold"""
     gene_dict = dict()
     with open(input_file, 'r') as fg_file:
         next(fg_file) # Skip header row
@@ -22,6 +24,7 @@ def make_gene_dict(input_file, depth_threshold):
     return gene_dict
 
 def write_outfile(gene_dict, out_file):
+    """Write serotype, match type status and average read depth to output file"""
     with open(out_file, 'w') as out:
         out.write('Matched_Allele'+'\t'+'Match_Type'+'\t'+'Serotype'+'\t'+'AvgDepth'+'\n')
         if 'III' in gene_dict.keys():
@@ -47,8 +50,14 @@ def get_arguments():
 def main():
     args = get_arguments().parse_args()
     db_name = ' '.join(args.db.split('.')[:-1])
+
+    # Specift fullgenes file path from ID and database name
     fullgenes_file = args.id + '__fullgenes__' + db_name + '__results.txt'
+
+    # Get feature dictionary
     gene_dict = make_gene_dict(fullgenes_file, args.depth)
+
+    # Write tab-delimited output file with serotype features
     write_outfile(gene_dict, args.output)
 
 

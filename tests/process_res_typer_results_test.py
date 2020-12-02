@@ -7,7 +7,7 @@ from bin.process_res_typer_results import get_arguments, codon2aa, derive_presen
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
     get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, create_output_contents, run, main, \
-    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, Res_Targets, GBS_Res_Targets, drugToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
+    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, Res_Targets, GBS_Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -626,7 +626,7 @@ class TestProcessResTyperResults(unittest.TestCase):
 
     def test_update_drug_res_col_dict(self):
         # ============== Test PARC variant ==================
-        update_drug_res_col_dict('PARC', ['Q17S'], drugRes_Col, drugToClass)
+        update_drug_res_col_dict('PARC', ['Q17S'], drugRes_Col, geneToClass)
         self.assertEqual(drugRes_Col, {
             'TET': 'neg',
             'EC': 'neg',
@@ -635,7 +635,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         })
 
         # ============== Test RPOBgbs-1 variant ==================
-        update_drug_res_col_dict('RPOBGBS-1', ['F1G'], drugRes_Col, drugToClass)
+        update_drug_res_col_dict('RPOBGBS-1', ['F1G'], drugRes_Col, geneToClass)
         self.assertEqual(drugRes_Col, {
             'TET': 'neg',
             'EC': 'neg',

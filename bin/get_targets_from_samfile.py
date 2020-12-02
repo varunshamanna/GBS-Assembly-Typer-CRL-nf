@@ -2,6 +2,7 @@
 import argparse, sys, re
 
 def get_targets(targets_file):
+    """Read target text file into targets list"""
     targets = []
     with open(targets_file, 'r') as txt:
         for line in txt:
@@ -10,6 +11,7 @@ def get_targets(targets_file):
 
 
 def in_line(line, target):
+    """Return True if headers and mappings of target sequence is in main SAM file, otherwise False"""
     if (bool(re.search('^@HD|^\@SQ.*' + target + '|^@PG', line))==True):
         return True
     elif (line.split('\t')[2] == target):
@@ -19,6 +21,7 @@ def in_line(line, target):
 
 
 def write_sam_file(sam_file, target, id, output_prefix):
+    """Write a SAM file for the ID and target"""
     with open(output_prefix + target + '_' + id + '_seq.sam', 'w') as out:
         with open(sam_file, 'r') as sam:
             for line in sam:
@@ -27,6 +30,7 @@ def write_sam_file(sam_file, target, id, output_prefix):
 
 
 def write_target_sam_files(targets, sam_file, id, output_prefix):
+    """Write a SAM file for each ID and target from targets list"""
     for target in targets:
         write_sam_file(sam_file, target, id, output_prefix)
 
@@ -46,7 +50,11 @@ def get_arguments():
 
 def main():
     args = get_arguments().parse_args()
+
+    # Get list of target names from target text file
     targets = get_targets(args.target)
+
+    # Write SAM file for each ID and target specified
     write_target_sam_files(targets, args.sam, args.id, args.output)
 
 
