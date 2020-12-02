@@ -1,8 +1,10 @@
 # GBS-Typer-sanger-nf
 An updated NextFlow version of Ben Metcalf's GBS Typer pipeline.
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/master/LICENSE)   
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/main/LICENSE)   
+![build](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/workflows/build/badge.svg)  
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/sangerpathogens/gbs-typer-sanger-nf)   
+[![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/main/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)   
 
 ### Installation locally
 GBS Typer relies on Nextflow and Docker.
@@ -29,7 +31,18 @@ To resume pipeline if incomplete:
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results' -resume
 ```
 
+NOTE: If running the pipleline at Sanger, add the '-profile sanger' option.
+
+
 ### Run unit tests
 ```
-nosetests
+python3 -m pytest
 ```
+
+### Making a release
+Once all changes have been pushed to the main branch, confirm that the CI has run successfully and then execute:
+```
+release.sh <version number (without v)>
+```
+This will tag the main branch.
+

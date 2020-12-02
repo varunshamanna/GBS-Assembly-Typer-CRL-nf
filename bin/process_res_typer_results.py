@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import sys
 import os
@@ -214,7 +214,7 @@ def derive_presence_absence_targets(input_file):
                 depth = float(fields[5])
                 update_presence_absence_target(gene, allele, depth, drugRes_Col, Res_Targets, GBS_Res_Targets)
     except IOError:
-        print('Cannot open {}.'.format(filename))
+        print('Cannot open {}.'.format(input_file))
 
 
 def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict):
@@ -255,7 +255,7 @@ def derive_presence_absence_targets_for_arg_res(input_files):
                     depth = float(fields[5])
                     update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
         except IOError:
-            print('Cannot open {}.'.format(filename))
+            print('Cannot open {}.'.format(input_file))
 
 
 def find_mismatches(seq_diffs, query_Seq, ref_Seq):
@@ -308,7 +308,7 @@ def get_consensus_seqs(consensus_seqs_file):
                         tmp_seq = consensus_seq_dict[seq_name] + line.split('\n')[0]
                         consensus_seq_dict[seq_name] = tmp_seq
     except IOError:
-        print('Cannot open {}.'.format(filename))
+        print('Cannot open {}.'.format(consensus_seqs_file))
 
     return consensus_seq_dict
 
@@ -336,7 +336,7 @@ def write_output(content, output_filename):
         with open(output_filename, 'w') as out:
             out.write(content)
     except IOError:
-        print('Cannot open filename starting "{}"'.format(output_pref))
+        print('Cannot open filename starting "{}"'.format(output_filename))
 
 
 def create_output_contents(final_dict):

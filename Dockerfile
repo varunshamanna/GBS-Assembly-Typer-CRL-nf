@@ -22,6 +22,8 @@ ARG BOWTIE2_VERSION=2.2.9
 ARG PRODIGAL_VERSION=1:2.6.3-1
 # Latest bedtools2 version (pipeline code specified bedtools(1) 2.17.0)
 ARG BEDTOOLS_VERSION=2.26.0+dfsg-5
+# Biopython used by pipleline python scripts
+ARG BIOPYTHON_VERSION=1.78
 
 ##########################
 # Installation
@@ -44,6 +46,7 @@ RUN apt-get update -y -qq && apt-get install -y -qq \
         prodigal=${PRODIGAL_VERSION} \
         tabix \
         python-pip \
+	python3-pip \
         vcftools \
         libbz2-dev \
         zlib1g-dev \
@@ -56,8 +59,8 @@ RUN apt-get update -y -qq && apt-get install -y -qq \
       && locale-gen
 
 # Biopython
-RUN wget -q http://biopython.org/DIST/biopython-1.76.tar.gz \
-    && pip install biopython-1.76.tar.gz
+RUN wget -q http://biopython.org/DIST/biopython-${BIOPYTHON_VERSION}.tar.gz \
+    && pip3 install biopython-${BIOPYTHON_VERSION}.tar.gz
 
 # Perl locales
 ENV LANG en_GB.UTF-8
