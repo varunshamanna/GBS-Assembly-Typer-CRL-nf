@@ -3,11 +3,13 @@ import argparse, sys
 
 
 def write_output(lines, output):
+    """ Write content to output file"""
     with open(output, 'w') as out:
         out.write(lines)
 
 
 def get_content_with_id(id, file):
+    """ Include ID string with content of file """
     content = 'ID' + '\t'
     count = 0
     with open(file, 'r') as f:
@@ -21,6 +23,7 @@ def get_content_with_id(id, file):
 
 
 def get_sero_res_contents(id, sero_file, res_file):
+    """ Merge serotyping and resistance typing content"""
     header = 'ID' + '\t' + 'Serotype' + '\t'
     type = ''
     res_incidence = ''
@@ -72,12 +75,16 @@ def get_arguments():
 
 def main():
     args = get_arguments().parse_args()
+
+    # Merge serotyping and resistance typing results (including ID)
     sero_res_output_lines = get_sero_res_contents(args.id, args.sero, args.inc)
     write_output(sero_res_output_lines, args.output + "_sero_res_incidence.txt")
 
+    # Add ID to alleles from resistance typing results
     res_alleles_output_lines = get_content_with_id(args.id, args.alleles)
     write_output(res_alleles_output_lines, args.output + "_id_alleles.txt")
 
+    # Add ID to variants from resistance typing results
     res_variants_output_lines = get_content_with_id(args.id, args.variants)
     write_output(res_variants_output_lines, args.output + "_id_variants.txt")
 

@@ -3,6 +3,7 @@ import argparse, sys, re
 
 
 def get_targets(targets_file):
+    """Read target text file into targets list"""
     targets = []
     with open(targets_file, 'r') as txt:
         for line in txt:
@@ -10,6 +11,7 @@ def get_targets(targets_file):
     return targets
 
 def write_line(line, target, flag, out):
+    """Write line of matching targets"""
     if line[0] == '>':
         if '>{}\n'.format(target) == line:
             out.write(line)
@@ -23,6 +25,7 @@ def write_line(line, target, flag, out):
 
 
 def write_fasta_file(fasta_file, target, output_prefix):
+    """Write a FASTA file for the target"""
     with open(output_prefix + target + '_ref.fna', 'w') as out:
         with open(fasta_file, 'r') as fasta:
             flag = 0
@@ -31,6 +34,7 @@ def write_fasta_file(fasta_file, target, output_prefix):
 
 
 def write_target_fasta_files(targets, fasta_file, output_prefix):
+    """Write a FASTA file for each target from targets list"""
     for target in targets:
         write_fasta_file(fasta_file, target, output_prefix)
 
@@ -48,7 +52,11 @@ def get_arguments():
 
 def main():
     args = get_arguments().parse_args()
+
+    # Get list of target names from target text file
     targets = get_targets(args.target)
+
+    # Write FASTA file for each target specified 
     write_target_fasta_files(targets, args.fasta, args.output)
 
 
