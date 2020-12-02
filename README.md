@@ -31,6 +31,9 @@ To resume pipeline if incomplete:
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results' -resume
 ```
 
+NOTE: If running the pipleline at Sanger, add the '-profile sanger' option.
+
+
 ### Run unit tests
 ```
 python3 -m pytest
