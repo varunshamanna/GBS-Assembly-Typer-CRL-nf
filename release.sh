@@ -46,8 +46,11 @@ validate_branch
 validate_staging_empty
 
 # update version number in nextflow config file
-sed "s@gbs-typer-sanger-nf:.*@gbs-typer-sanger-nf:${VERSION}'@g" nextflow.config > /tmp/nextflow.config.tmp
-cat /tmp/nextflow.config.tmp > nextflow.config
+NEXTFLOW_CONFIG="nextflow.config"
+sed "s@gbs-typer-sanger-nf:.*@gbs-typer-sanger-nf:${VERSION}'@g" ${NEXTFLOW_CONFIG} > /tmp/${NEXTFLOW_CONFIG}.tmp
+cat /tmp/${NEXTFLOW_CONFIG}.tmp > ${NEXTFLOW_CONFIG}
+git add ${NEXTFLOW_CONFIG}
+git commit -m "Updated container version number for release v${VERSION}" ${NEXTFLOW_CONFIG}
 
 # tag and commit
 echo "Creating version ${VERSION}..."
