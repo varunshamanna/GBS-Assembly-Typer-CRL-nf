@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-
 import argparse, sys
-
 
 def write_line(gene, gene_dict, out):
     """Write serotype to out stream of file"""
     serotype = gene_dict[gene]
     status = 'identical'
-    if serotype != '':
+    if serotype[4] != '':
         status = 'imperfect'
-        out.write(serotype[1]+'\t'+serotype[0]+'='+status+'\t'+serotype[0]+'\t'+serotype[3]+'\n')
-    del gene_dict[gene]
+    out.write(serotype[1]+'\t'+serotype[0]+'='+status+'\t'+serotype[0]+'\t'+serotype[3]+'\n')
 
 def make_gene_dict(input_file, depth_threshold):
     """Get features from SRST2 input file into dictionary depending on read depth threshold"""

@@ -14,10 +14,15 @@ class TestProcessResults(unittest.TestCase):
     def setUp(self) -> None:
         self.test_stream = io.StringIO()
 
-    def test_should_write_line(self):
+    def test_should_write_line_imperfect(self):
         write_line('III', {'III': ['III', 'III-1', '100.0', '267.595', '1snp', '', '0.581', '172', '0.011', '4', '4']}, self.test_stream)
         actual = self.extract_written_content()
         self.assertEqual(actual, """III-1\tIII=imperfect\tIII\t267.595\n""")
+
+    def test_should_write_line_identical(self):
+        write_line('III', {'III': ['III', 'III-1', '100.0', '267.595', '', '', '0.581', '172', '0.011', '4', '4']}, self.test_stream)
+        actual = self.extract_written_content()
+        self.assertEqual(actual, """III-1\tIII=identical\tIII\t267.595\n""")
 
     def extract_written_content(self):
         self.test_stream.seek(0)
