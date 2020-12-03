@@ -1,12 +1,12 @@
 # GBS-Typer-sanger-nf
-An updated NextFlow version of Ben Metcalf's GBS Typer pipeline.
+An updated NextFlow version of [Ben Metcalf's GBS Typer pipeline](https://github.com/BenJamesMetcalf/GBS_Scripts_Reference).
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/main/LICENSE)   
 ![build](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/workflows/build/badge.svg)  
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/sangerpathogens/gbs-typer-sanger-nf)   
 [![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/main/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)   
 
-### Installation locally
+### Installation on local machine
 GBS Typer relies on Nextflow and Docker.
 Download:
 1. [Docker](https://www.docker.com/).
@@ -15,24 +15,45 @@ Download:
 ```
 git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 ```
-4. Pull Docker image
-```
-docker pull sangerpathogens/gbs-typer-sanger-nf:0.0.2
-```
 
-### Pipeline test (serotyping only)
+### Running the pipeline
+#### To run on one sample:
+```
+cd GBS-Typer-sanger-nf
+nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID'
+```
+This will create three tab-delimited files:
+1. **sampleID_serotype_res_incidence.txt** - Gives the serotype and presence/absence (i.e. +/-) of antibiotic resistance genes (GBS-specific alleles and ResFinder/ARG-ANNOT genes)
+e.g. Isolate Strep B sample 25292_2#105 has serotype II and have genes: 23S1, 23S3, GYRA, LSA and TET
+
+ID | Serotype | 23S1 | 23S3 | CAT | ERM | GYRA | LNU | LSA | MEF | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4 | TET
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+25292_2#105 | II | + | + | - | - | + | - | - | - | + | - | - | - | - | +
+
+2. **sampleID_gbs_res_variants.txt** - Gives the SNP variants for GBS-specific resistance genes
+e.g. Isolate Strep B sample 25292_2#105 have common variants 23S1, 23S3 and GYRA, but replacement of amino acid S by Q in position 17 of the PARC protein sequence
+
+ID | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+25292_2#105 | 23S1 | 23S3 | GYRA | PARC-Q17S | | | | |
+
+3. **sampleID_drug_cat_alleles.txt** - Gives the alleles for drug categories: EC (erythromycins), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
+e.g. Isolate Step B sample 25292_2#105 have erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA and tetracycline-resistant TETM-1 (allele of TETM)
+
+ID | EC | FQ | OTHER | TET
+:---: | :---: | :---: | :---: | :---:
+25292_2#105 | 23S1:23S3 | PARC:GYRA | neg | TETM(TETM-1)
+
+#### To run on multiple samples in a directory:
 ```
 cd GBS-Typer-sanger-nf
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results'
 ```
+This will produce combined tables of results_serotype_res_incidence.txt, results_gbs_res_variants.txt and results_drug_cat_alleles.txt that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
 
-To resume pipeline if incomplete:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results' -resume
-```
-
-NOTE: If running the pipleline at Sanger, add the '-profile sanger' option.
-
+#### Additional useful options
+To resume pipeline if incomplete, add the '-resume' option.
+If running the pipleline at Sanger, add the '-profile sanger' option.
 
 ### Run unit tests
 ```
@@ -45,4 +66,3 @@ Once all changes have been pushed to the main branch, confirm that the CI has ru
 release.sh <version number (without v)>
 ```
 This will tag the main branch.
-
