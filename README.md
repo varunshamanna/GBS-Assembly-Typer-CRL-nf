@@ -53,7 +53,19 @@ This will produce combined tables of results_serotype_res_incidence.txt, results
 
 #### Additional useful options
 To resume pipeline if incomplete, add the '-resume' option.
-If running the pipleline at Sanger, add the '-profile sanger' option.
+
+### Running on farm5
+1. Load modules
+```
+module load ISG/singularity/3.6.4
+module load nextflow/20.10.0-5430
+```
+
+2. When running (within bsub) add '-profile sanger' as an option, e.g.
+```
+nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID' -profile sanger
+```
+
 
 ### Run unit tests
 ```
