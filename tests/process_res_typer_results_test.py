@@ -480,6 +480,25 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"EC": "ERM(***allele***)"}, drug_res_col_dict)
         self.assertEqual({"MEFA": "pos"}, res_target_dict)
 
+        # ============== Test MPHC ==================
+        drug_res_col_dict = {"OTHER": "neg"}
+        res_target_dict = {"MPHC": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***mph(C)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1(***mph(C)***)"}, drug_res_col_dict)
+        self.assertEqual({"MPHC": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "FOSA(***allele***)"}
+        res_target_dict = {"MPHC": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***mph(C)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "FOSA(***allele***):GENE1(***mph(C)***)"}, drug_res_col_dict)
+        self.assertEqual({"MPHC": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "MPHC(***allele***)"}
+        res_target_dict = {"MPHC": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***mph(C)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "MPHC(***allele***)"}, drug_res_col_dict)
+        self.assertEqual({"MPHC": "pos"}, res_target_dict)
+
         # ============== Test TETM ==================
         drug_res_col_dict = {"TET": "neg"}
         res_target_dict = {"TETM": "neg"}
