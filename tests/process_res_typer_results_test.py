@@ -499,6 +499,44 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"OTHER": "MPHC(***allele***)"}, drug_res_col_dict)
         self.assertEqual({"MPHC": "pos"}, res_target_dict)
 
+        # ============== Test MSRA ==================
+        drug_res_col_dict = {"OTHER": "neg"}
+        res_target_dict = {"MSRA": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***msr(A)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1(***msr(A)***)"}, drug_res_col_dict)
+        self.assertEqual({"MSRA": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "FOSA(***allele***)"}
+        res_target_dict = {"MSRA": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***msr(A)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "FOSA(***allele***):GENE1(***msr(A)***)"}, drug_res_col_dict)
+        self.assertEqual({"MSRA": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "MSRA(***allele***)"}
+        res_target_dict = {"MSRA": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***msr(A)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "MSRA(***allele***)"}, drug_res_col_dict)
+        self.assertEqual({"MSRA": "pos"}, res_target_dict)
+
+        # ============== Test MSRD ==================
+        drug_res_col_dict = {"OTHER": "neg"}
+        res_target_dict = {"MSRD": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***msr(D)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1(***msr(D)***)"}, drug_res_col_dict)
+        self.assertEqual({"MSRD": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "FOSA(***allele***)"}
+        res_target_dict = {"MSRD": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***msr(D)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "FOSA(***allele***):GENE1(***msr(D)***)"}, drug_res_col_dict)
+        self.assertEqual({"MSRD": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "MSRD(***allele***)"}
+        res_target_dict = {"MSRD": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***msr(D)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "MSRD(***allele***)"}, drug_res_col_dict)
+        self.assertEqual({"MSRD": "pos"}, res_target_dict)
+
         # ============== Test TETM ==================
         drug_res_col_dict = {"TET": "neg"}
         res_target_dict = {"TETM": "neg"}
