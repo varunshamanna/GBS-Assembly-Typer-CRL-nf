@@ -385,6 +385,25 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_update_presence_absence_target_for_arg_res(self):
         depth = MIN_DEPTH+1
 
+        # ============== Test FOSA ==================
+        drug_res_col_dict = {"FQ": "neg"}
+        res_target_dict = {"FOSA": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***fosA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"FQ": "GENE1(***fosA***)"}, drug_res_col_dict)
+        self.assertEqual({"FOSA": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"FQ": "PARC(***PARC***)"}
+        res_target_dict = {"FOSA": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***fosA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"FQ": "PARC(***PARC***):GENE1(***fosA***)"}, drug_res_col_dict)
+        self.assertEqual({"FOSA": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"FQ": "FOSA(***allele***)"}
+        res_target_dict = {"FOSA": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***fosA***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"FQ": "FOSA(***allele***)"}, drug_res_col_dict)
+        self.assertEqual({"FOSA": "pos"}, res_target_dict)
+
         # ============== Test ERMB ==================
         drug_res_col_dict = {"EC": "neg"}
         res_target_dict = {"ERMB": "neg"}

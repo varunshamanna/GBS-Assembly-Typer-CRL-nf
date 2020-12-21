@@ -26,6 +26,7 @@ drugRes_Col = {
 geneToClass = {
     'ERMB': 'EC',
     'ERMT': 'EC',
+    'FOSA': 'FQ',
     'LNU': 'EC',
     'LSA': 'EC',
     'MEF': 'EC',
@@ -49,6 +50,7 @@ geneToClass = {
 Res_Targets = {
     'ERMB': 'neg',
     'ERMT': 'neg',
+    'FOSA': 'neg',
     'LNU': 'neg',
     'LSA': 'neg',
     'MEF': 'neg',
