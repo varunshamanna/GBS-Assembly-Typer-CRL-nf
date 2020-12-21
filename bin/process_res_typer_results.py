@@ -24,7 +24,8 @@ drugRes_Col = {
 
 # Gene to Drug Class Resistance lookup dictionary
 geneToClass = {
-    'ERM': 'EC',
+    'ERMB': 'EC',
+    'ERMT': 'EC',
     'LNU': 'EC',
     'LSA': 'EC',
     'MEF': 'EC',
@@ -46,7 +47,8 @@ geneToClass = {
 
 # Other Resistance Targets dictionary
 Res_Targets = {
-    'ERM': 'neg',
+    'ERMB': 'neg',
+    'ERMT': 'neg',
     'LNU': 'neg',
     'LSA': 'neg',
     'MEF': 'neg',

@@ -271,25 +271,25 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_update_presence_absence_target(self):
         depth = MIN_DEPTH+1
 
-        # ============== Test ERM ==================
+        # ============== Test ERMB ==================
         drug_res_col_dict = {"EC": "neg"}
-        res_target_dict = {"ERM": "neg"}
+        res_target_dict = {"ERMB": "neg"}
         gbs_res_target_dict = {"GYRA": "neg"}
-        update_presence_absence_target("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
-        self.assertEqual({"EC": "GENE1(***ERM***)"}, drug_res_col_dict)
-        self.assertEqual({"ERM": "pos"}, res_target_dict)
-        update_presence_absence_target("GENE2", "***ERM***", depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
-        self.assertEqual({"EC": "GENE1(***ERM***):GENE2(***ERM***)"}, drug_res_col_dict)
-        self.assertEqual({"ERM": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE1", "***ERMB***", depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
+        self.assertEqual({"EC": "GENE1(***ERMB***)"}, drug_res_col_dict)
+        self.assertEqual({"ERMB": "pos"}, res_target_dict)
+        update_presence_absence_target("GENE2", "***ERMB***", depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
+        self.assertEqual({"EC": "GENE1(***ERMB***):GENE2(***ERMB***)"}, drug_res_col_dict)
+        self.assertEqual({"ERMB": "pos"}, res_target_dict)
 
         # Check low depth
         drug_res_col_dict = {"EC": "neg"}
-        res_target_dict = {"ERM": "neg"}
-        update_presence_absence_target("GENE2", "***ERM***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
+        res_target_dict = {"ERMB": "neg"}
+        update_presence_absence_target("GENE2", "***ERMB***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
         self.assertEqual({"EC": "neg"}, drug_res_col_dict)
-        self.assertEqual({"ERM": "neg"}, res_target_dict)
+        self.assertEqual({"ERMB": "neg"}, res_target_dict)
 
-        # ============== Test TET ==================
+        # ============== Test TETM ==================
         drug_res_col_dict = {"TET": "neg"}
         res_target_dict = {"TETM": "neg"}
         update_presence_absence_target("GENE1", "***TETM***", depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
@@ -385,24 +385,24 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_update_presence_absence_target_for_arg_res(self):
         depth = MIN_DEPTH+1
 
-        # ============== Test ERM ==================
+        # ============== Test ERMB ==================
         drug_res_col_dict = {"EC": "neg"}
-        res_target_dict = {"ERM": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"EC": "GENE1(***ERM***)"}, drug_res_col_dict)
-        self.assertEqual({"ERM": "pos"}, res_target_dict)
+        res_target_dict = {"ERMB": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***erm(B)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "GENE1(***erm(B)***)"}, drug_res_col_dict)
+        self.assertEqual({"ERMB": "pos"}, res_target_dict)
 
         drug_res_col_dict = {"EC": "LNU(***allele***)"}
-        res_target_dict = {"ERM": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"EC": "LNU(***allele***):GENE1(***ERM***)"}, drug_res_col_dict)
-        self.assertEqual({"ERM": "pos"}, res_target_dict)
+        res_target_dict = {"ERMB": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***erm(B)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "LNU(***allele***):GENE1(***erm(B)***)"}, drug_res_col_dict)
+        self.assertEqual({"ERMB": "pos"}, res_target_dict)
 
-        drug_res_col_dict = {"EC": "ERM(***allele***)"}
-        res_target_dict = {"ERM": "pos"}
-        update_presence_absence_target_for_arg_res("GENE1", "***ERM***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"EC": "ERM(***allele***)"}, drug_res_col_dict)
-        self.assertEqual({"ERM": "pos"}, res_target_dict)
+        drug_res_col_dict = {"EC": "ERMB(***allele***)"}
+        res_target_dict = {"ERMB": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***erm(B)***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"EC": "ERMB(***allele***)"}, drug_res_col_dict)
+        self.assertEqual({"ERMB": "pos"}, res_target_dict)
 
         # ============== Test LNU ==================
         drug_res_col_dict = {"EC": "neg"}
@@ -461,7 +461,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"EC": "ERM(***allele***)"}, drug_res_col_dict)
         self.assertEqual({"MEF": "pos"}, res_target_dict)
 
-        # ============== Test TET ==================
+        # ============== Test TETM ==================
         drug_res_col_dict = {"TET": "neg"}
         res_target_dict = {"TETM": "neg"}
         update_presence_absence_target_for_arg_res("GENE1", "***tet(M)***", depth, drug_res_col_dict, res_target_dict)
