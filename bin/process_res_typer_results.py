@@ -24,6 +24,7 @@ drugRes_Col = {
 
 # Gene to Drug Class Resistance lookup dictionary
 geneToClass = {
+    'CAT': 'OTHER',
     'ERMB': 'EC',
     'ERMT': 'EC',
     'FOSA': 'OTHER',
@@ -38,7 +39,7 @@ geneToClass = {
     'TETM': 'TET',
     'TETO': 'TET',
     'TETS': 'TET',
-    'CAT': 'OTHER',
+    'SUL2': 'OTHER',
     'PARC': 'FQ',
     'GYRA': 'FQ',
     '23S1': 'EC',
@@ -51,6 +52,7 @@ geneToClass = {
 
 # Other Resistance Targets dictionary
 Res_Targets = {
+    'CAT': 'neg',
     'ERMB': 'neg',
     'ERMT': 'neg',
     'FOSA': 'neg',
@@ -65,7 +67,7 @@ Res_Targets = {
     'TETM': 'neg',
     'TETO': 'neg',
     'TETS': 'neg',
-    'CAT': 'neg',
+    'SUL2': 'neg',
 }
 
 # GBS Resistance Targets dictionary
@@ -251,7 +253,7 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
 
         other = 1
         for gene_name in res_target_dict.keys():
-            if re.search(gene_name, "".join(re.split("[^a-zA-Z]*", allele)).upper()):
+            if re.search(gene_name, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
                 other = 0
                 drugCat = geneToClass[gene_name]
                 if res_target_dict[gene_name] == "neg":

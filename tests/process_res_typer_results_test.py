@@ -537,6 +537,25 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"OTHER": "MSRD(***allele***)"}, drug_res_col_dict)
         self.assertEqual({"MSRD": "pos"}, res_target_dict)
 
+        # ============== Test SUL2 ==================
+        drug_res_col_dict = {"OTHER": "neg"}
+        res_target_dict = {"SUL2": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***sul2***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1(***sul2***)"}, drug_res_col_dict)
+        self.assertEqual({"SUL2": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "FOSA(***allele***)"}
+        res_target_dict = {"SUL2": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***sul2***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "FOSA(***allele***):GENE1(***sul2***)"}, drug_res_col_dict)
+        self.assertEqual({"SUL2": "pos"}, res_target_dict)
+
+        drug_res_col_dict = {"OTHER": "SUL2(***allele***)"}
+        res_target_dict = {"SUL2": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***sul2***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "SUL2(***allele***)"}, drug_res_col_dict)
+        self.assertEqual({"SUL2": "pos"}, res_target_dict)
+
         # ============== Test TETM ==================
         drug_res_col_dict = {"TET": "neg"}
         res_target_dict = {"TETM": "neg"}
