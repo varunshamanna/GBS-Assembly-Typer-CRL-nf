@@ -28,7 +28,11 @@ geneToClass = {
     'LNU': 'EC',
     'LSA': 'EC',
     'MEF': 'EC',
-    'TET': 'TET',
+    'TETB': 'TET',
+    'TETL': 'TET',
+    'TETM': 'TET',
+    'TETO': 'TET',
+    'TETS': 'TET',
     'CAT': 'OTHER',
     'PARC': 'FQ',
     'GYRA': 'FQ',
@@ -46,7 +50,11 @@ Res_Targets = {
     'LNU': 'neg',
     'LSA': 'neg',
     'MEF': 'neg',
-    'TET': 'neg',
+    'TETB': 'neg',
+    'TETL': 'neg',
+    'TETM': 'neg',
+    'TETO': 'neg',
+    'TETS': 'neg',
     'CAT': 'neg',
 }
 
@@ -192,7 +200,7 @@ def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_t
     if depth >= MIN_DEPTH:
 
         for gene_name in res_target_dict.keys():
-            if re.search(gene_name, allele.upper()):
+            if re.search(gene_name, allele):
                 drugCat = geneToClass[gene_name]
 
                 if drug_res_col_dict[drugCat] == "neg":
@@ -233,7 +241,7 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
 
         other = 1
         for gene_name in res_target_dict.keys():
-            if re.search(gene_name, allele.upper()):
+            if re.search(gene_name, "".join(re.split("[^a-zA-Z]*", allele)).upper()):
                 other = 0
                 drugCat = geneToClass[gene_name]
                 if res_target_dict[gene_name] == "neg":
