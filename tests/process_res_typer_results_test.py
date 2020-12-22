@@ -7,7 +7,7 @@ from bin.process_res_typer_results import get_arguments, codon2aa, derive_presen
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
     get_consensus_seqs, get_gene_names_from_consensus, get_variants, write_output, create_output_contents, run, main, \
-    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, Res_Targets, GBS_Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, MIN_DEPTH
+    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, Res_Targets, GBS_Res_Targets, geneToClass, extract_frame_aa, EOL_SEP
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -19,6 +19,8 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_FASTA_FILE = "test_data/test-db.fasta"
     TEST_CONSENSUS_SEQ_FILE = "test_data/" + TEST_LANE + "_consensus_seq.fna"
     TEST_OUTPUT = "test_data/" + TEST_LANE + "_output.txt"
+
+    MIN_DEPTH = 30
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
@@ -269,7 +271,7 @@ class TestProcessResTyperResults(unittest.TestCase):
             )
 
     def test_update_presence_absence_target(self):
-        depth = MIN_DEPTH+1
+        depth = self.MIN_DEPTH+1
 
         # ============== Test ERM ==================
         drug_res_col_dict = {"EC": "neg"}
@@ -285,7 +287,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # Check low depth
         drug_res_col_dict = {"EC": "neg"}
         res_target_dict = {"ERM": "neg"}
-        update_presence_absence_target("GENE2", "***ERM***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
+        update_presence_absence_target("GENE2", "***ERM***", self.MIN_DEPTH-1, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
         self.assertEqual({"EC": "neg"}, drug_res_col_dict)
         self.assertEqual({"ERM": "neg"}, res_target_dict)
 
@@ -373,7 +375,7 @@ class TestProcessResTyperResults(unittest.TestCase):
                             'FQ': 'neg',
                             'OTHER': 'neg',}
         res_target_dict = {}
-        update_presence_absence_target("GENE1", "***RPOBGBS-1***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
+        update_presence_absence_target("GENE1", "***RPOBGBS-1***", self.MIN_DEPTH-1, drug_res_col_dict, res_target_dict, gbs_res_target_dict)
         self.assertEqual({'TET': 'neg',
                             'EC': 'neg',
                             'FQ': 'neg',
@@ -383,7 +385,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # TODO there is a suspected bug in this perl code - see Python module
 
     def test_update_presence_absence_target_for_arg_res(self):
-        depth = MIN_DEPTH+1
+        depth = self.MIN_DEPTH+1
 
         # ============== Test ERM ==================
         drug_res_col_dict = {"EC": "neg"}
@@ -512,7 +514,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # ============== Test depth ==================
         drug_res_col_dict = {}
         res_target_dict = {}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", self.MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
         self.assertEqual({}, drug_res_col_dict)
         self.assertEqual({}, res_target_dict)
 
@@ -715,7 +717,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         args = get_arguments().parse_args(
             ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
             '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
-            '--output_prefix', 'output'])
+            '--min_read_depth', '30', '--output_prefix', 'output'])
         create_output_contents.return_value = 'foobar'
         run(args)
         self.assertEqual(mock_derive_presence_absence_targets.call_args_list, [call(args.srst2_gbs_fg_output)])
@@ -736,11 +738,12 @@ class TestProcessResTyperResults(unittest.TestCase):
         actual = get_arguments().parse_args(
             ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
             '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
-            '--output_prefix', 'output'])
+            '--min_read_depth', '30', '--output_prefix', 'output'])
         self.assertEqual(actual,
                          argparse.Namespace(srst2_gbs_fg_output='srst2_gbs_fullgenes',
                                             srst2_gbs_cs_output='srst2_gbs_consensus',
                                             srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
+                                            min_depth = 30,
                                             output='output'))
 
     @patch('bin.process_res_typer_results.get_arguments')

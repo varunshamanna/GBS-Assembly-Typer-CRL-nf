@@ -101,7 +101,6 @@ geneToTargetSeq.update({
 })
 
 EOL_SEP = "\n"
-MIN_DEPTH = 10
 
 
 def codon2aa(codon):
@@ -376,6 +375,11 @@ def create_output_contents(final_dict):
 
 
 def run(args):
+
+    # Set minimum read depth
+    global MIN_DEPTH
+    MIN_DEPTH = args.min_depth
+
     # Get presence/absence of genes
     derive_presence_absence_targets(args.srst2_gbs_fg_output)
 
@@ -410,6 +414,8 @@ def get_arguments():
     parser.add_argument('--srst2_other_fullgenes', dest='srst2_other_fg_output', required=False,
                         help='Input SRST2 fullgenes outputs for other references databases.',
                         nargs = '*')
+    parser.add_argument('--min_read_depth', dest='min_depth', required=True, type=int, default=30,
+                        help = 'Minimum read depth where mappings with fewer reads are excluded.')
     parser.add_argument('--output_prefix', dest='output', required=True,
                         help='Output prefix of filename.')
 
