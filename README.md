@@ -52,7 +52,9 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results'
 This will produce combined tables of results_serotype_res_incidence.txt, results_gbs_res_variants.txt and results_drug_cat_alleles.txt that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
 
 #### Additional useful options
-    --restyper_min_read_depth Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded.
+    --restyper_min_read_depth   Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
+    --serotyper_min_read_depth  Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
+
     -resume                   Resume if pipeline does not complete.
 
 ### Running on farm5
