@@ -32,6 +32,18 @@ if (params.output == ""){
     System.exit(1)
 }
 
+if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_min_coverage.toString().tokenize(' ').size()){
+    println("Number of --other_res_min_coverage values is not equal to the number of --other_res_dbs files")
+    println("Please specify an equal number of values.")
+    System.exit(1)
+}
+
+if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_max_divergence.toString().tokenize(' ').size()){
+    println("Number of --other_res_max_divergence values is not equal to the number of --other_res_dbs files")
+    println("Please specify an equal number of values.")
+    System.exit(1)
+}
+
 // Create tmp directory
 tmp_dir = file('./tmp')
 tmp_dir.mkdir()
@@ -48,7 +60,7 @@ workflow RES {
         reads
 
     main:
-        res_targets_file = file(params.res_targets_db)
+        res_targets_file = file(params.gbs_res_targets_db)
 
         // Copy to tmp directory
         gbs_db = file(params.gbs_res_typer_db)
@@ -56,7 +68,7 @@ workflow RES {
 
         split_target_RES_sequences(file(params.gbs_res_typer_db), res_targets_file)
 
-        srst2_for_res_typing(reads, params.gbs_res_typer_db, tmp_dir, 'RES', 99.9, 5)
+        srst2_for_res_typing(reads, params.gbs_res_typer_db, tmp_dir, 'RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
         split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, res_targets_file)
 
         freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
@@ -73,13 +85,13 @@ workflow OTHER_RES {
 
     main:
         // Copy to tmp directory
-        db_list = params.other_res_dbs.tokenize(' ')
+        db_list = params.other_res_dbs.toString().tokenize(' ')
         for (db in db_list) {
             other_db = file(db)
             other_db.copyTo(tmp_dir)
         }
 
-        srst2_for_res_typing(reads, params.other_res_dbs, tmp_dir, 'OTHER_RES', 70, 30)
+        srst2_for_res_typing(reads, params.other_res_dbs, tmp_dir, 'OTHER_RES', params.other_res_min_coverage, params.other_res_max_divergence)
 
     emit:
         srst2_for_res_typing.out.id
