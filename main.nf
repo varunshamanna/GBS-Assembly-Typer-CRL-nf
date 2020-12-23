@@ -20,9 +20,6 @@ if (params.help){
 }
 
 // Check parameters
-params.reads = ""
-params.output = ""
-
 if (params.reads == ""){
     println("Please specify reads with --reads")
     println("Print help with --help")
@@ -34,14 +31,6 @@ if (params.output == ""){
     println("Print help with --help")
     System.exit(1)
 }
-
-// Import databases
-params.db = "./db/$params.dbversion"
-params.db_serotyping = "$params.db/GBS_seroT_Gene-DB/GBS_seroT_Gene-DB_Final.fasta"
-params.db_gbs_res_typer = "$params.db/GBS_resTyper_Gene-DB/GBS_Res_Gene-DB_Final.fasta"
-params.db_res_targets = "$params.db/GBS_resTyper_Gene-DB/seqs_of_interest.txt"
-params.db_argannot = "$params.db/ARGannot-DB/ARGannot_r1.fasta"
-params.db_resfinder = "$params.db/ResFinder-DB/ResFinder.fasta"
 
 // Create tmp directory
 tmp_dir = file('./tmp')
@@ -59,15 +48,15 @@ workflow RES {
         reads
 
     main:
-        res_targets_file = file(params.db_res_targets)
+        res_targets_file = file(params.res_targets_db)
 
         // Copy to tmp directory
-        gbs_db = file(params.db_gbs_res_typer)
+        gbs_db = file(params.gbs_res_typer_db)
         gbs_db.copyTo(tmp_dir)
 
-        split_target_RES_sequences(file(params.db_gbs_res_typer), res_targets_file)
+        split_target_RES_sequences(file(params.gbs_res_typer_db), res_targets_file)
 
-        srst2_for_res_typing(reads, params.db_gbs_res_typer, tmp_dir, 'RES', 99.9, 5)
+        srst2_for_res_typing(reads, params.gbs_res_typer_db, tmp_dir, 'RES', 99.9, 5)
         split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, res_targets_file)
 
         freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
@@ -107,7 +96,7 @@ workflow {
         .set { read_pairs_ch }
 
     main:
-        serotyping(read_pairs_ch, file(params.db_serotyping))
+        serotyping(read_pairs_ch, file(params.serotyping_db))
 
         RES(read_pairs_ch)
         OTHER_RES(read_pairs_ch)
