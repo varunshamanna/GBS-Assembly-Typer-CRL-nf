@@ -43,6 +43,10 @@ params.db_res_targets = "$params.db/GBS_resTyper_Gene-DB/seqs_of_interest.txt"
 params.db_argannot = "$params.db/ARGannot-DB/ARGannot_r1.fasta"
 params.db_resfinder = "$params.db/ResFinder-DB/ResFinder.fasta"
 
+// Create tmp directory
+tmp_dir = file('./tmp')
+tmp_dir.mkdir()
+
 // Output files
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
 params.variants_out =  "${params.output}_gbs_res_variants.txt"
@@ -55,46 +59,41 @@ workflow RES {
         reads
 
     main:
-        res_typer_gene_db = file(params.db_gbs_res_typer)
         res_targets_file = file(params.db_res_targets)
 
-        split_target_RES_sequences(res_typer_gene_db, res_targets_file)
+        // Copy to tmp directory
+        gbs_db = file(params.db_gbs_res_typer)
+        gbs_db.copyTo(tmp_dir)
 
-        srst2_for_res_typing(reads, res_typer_gene_db, 'RES', 99.9, 5)
+        split_target_RES_sequences(file(params.db_gbs_res_typer), res_targets_file)
+
+        srst2_for_res_typing(reads, params.db_gbs_res_typer, tmp_dir, 'RES', 99.9, 5)
         split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, res_targets_file)
 
-        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out)
+        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
 
     emit:
-        srst2_for_res_typing.out.genes_files.join(freebayes.out)
+        freebayes.out.id
 }
 
-// Resistance typing with the ARG-ANNOT database
-workflow ARGANNOT {
+// Resistance typing with the other resistance databases
+workflow OTHER_RES {
 
     take:
         reads
 
     main:
-        argannot_db = file(params.db_argannot)
-        srst2_for_res_typing(reads, argannot_db, 'ARG', 70, 30)
+        // Copy to tmp directory
+        db_list = params.other_res_dbs.tokenize(' ')
+        for (db in db_list) {
+            other_db = file(db)
+            other_db.copyTo(tmp_dir)
+        }
+
+        srst2_for_res_typing(reads, params.other_res_dbs, tmp_dir, 'OTHER_RES', 70, 30)
 
     emit:
-        srst2_for_res_typing.out.genes_files
-}
-
-// Resistance typing with the ResFinder database
-workflow ResFinder {
-
-    take:
-        reads
-
-    main:
-        resfinder_db = file(params.db_resfinder)
-        srst2_for_res_typing(reads, resfinder_db, 'ARG', 70, 30)
-
-    emit:
-        srst2_for_res_typing.out.genes_files
+        srst2_for_res_typing.out.id
 }
 
 workflow {
@@ -110,11 +109,10 @@ workflow {
     main:
         serotyping(read_pairs_ch, file(params.db_serotyping))
 
-        ResFinder(read_pairs_ch)
-        ARGANNOT(read_pairs_ch)
         RES(read_pairs_ch)
-        res_typer_ch = ARGANNOT.out.join(ResFinder.out.join(RES.out))
-        res_typer(res_typer_ch)
+        OTHER_RES(read_pairs_ch)
+        id_ch = RES.out.join(OTHER_RES.out)
+        res_typer(id_ch, tmp_dir)
 
         // Combine results
         sero_res_ch = serotyping.out.join(res_typer.out)

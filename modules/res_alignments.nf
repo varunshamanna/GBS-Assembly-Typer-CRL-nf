@@ -2,17 +2,27 @@ process srst2_for_res_typing {
 
     input:
     tuple val(pair_id), file(reads)
-    file(db)
+    val(dbs)
+    path(db_dir)
     val(db_name)
     val(min_coverage)
     val(max_divergence)
 
+    publishDir './tmp', mode: 'copy', overwrite: true
+
     output:
-    tuple val(pair_id), file("${db_name}_${pair_id}*.bam"), emit: bam_files
-    tuple val(pair_id), file("*${pair_id}__fullgenes__*__results.txt"), emit: genes_files
+    tuple val(pair_id), file("${pair_id}*.bam"), emit: bam_files
+    val(pair_id), emit: id
+    file("${pair_id}_${db_name}_*__fullgenes__*__results.txt")
 
     """
-    srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${db_name}_${pair_id} --log --save_scores --min_coverage ${min_coverage} --max_divergence ${max_divergence} --gene_db ${db}
+    db_list='${dbs}'
+    db_array=(\$db_list)
+    for ((i=0;i<\${#db_array[@]};i++));
+    do
+        db_file=\$(basename \${db_array[i]})
+        srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id}_${db_name}_\${db_file} --log --save_scores --min_coverage ${min_coverage} --max_divergence ${max_divergence} --gene_db ${db_dir}/\${db_file}
+    done
     """
 }
 
@@ -58,9 +68,13 @@ process freebayes {
     file(target_bam)
     file(target_bai)
     file(target_ref)
+    path(out_dir)
+
+    publishDir './tmp', mode: 'copy', overwrite: true
 
     output:
-    tuple val(pair_id), file("${pair_id}_consensus_seq.fna")
+    val(pair_id), emit: id
+    file("${pair_id}_consensus_seq.fna")
 
     """
     for check_bam_file in CHECK_*_${pair_id}*.bam; do
