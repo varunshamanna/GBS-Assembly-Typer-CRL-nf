@@ -1,12 +1,12 @@
 process srst2_for_res_typing {
 
     input:
-    tuple val(pair_id), file(reads)
-    val(dbs)
-    path(db_dir)
-    val(db_name)
-    val(min_coverage)
-    val(max_divergence)
+    tuple val(pair_id), file(reads) // ID and paired read files
+    val(dbs) // String of resistance database file(s)
+    path(db_dir) // Path to database file(s)
+    val(db_name) // Type of resistance database i.e. GBS or OTHER
+    val(min_coverage) // String of minimum coverage parameter(s) for SRST2
+    val(max_divergence) // String of maximum coverage parameter(s) for SRST2
 
     publishDir './tmp', mode: 'copy', overwrite: true
 
@@ -36,8 +36,8 @@ process srst2_for_res_typing {
 process split_target_RES_sequences {
 
     input:
-    file(fasta_file)
-    file(targets_file)
+    file(fasta_file) // FASTA file of GBS target sequences
+    file(targets_file) // Text file of GBS targets of interest
 
     output:
     file("CHECK_*")
@@ -50,8 +50,8 @@ process split_target_RES_sequences {
 process split_target_RES_seq_from_sam_file {
 
     input:
-    tuple val(pair_id), file(bam_file)
-    file(targets_file)
+    tuple val(pair_id), file(bam_file) // ID and corresponding BAM file from mapping
+    file(targets_file) // Text file of GBS targets of interest
 
     output:
     val(pair_id)
@@ -71,11 +71,10 @@ process split_target_RES_seq_from_sam_file {
 process freebayes {
 
     input:
-    val(pair_id)
-    file(target_bam)
-    file(target_bai)
-    file(target_ref)
-    path(out_dir)
+    val(pair_id) // ID
+    file(target_bam) // BAM file from a mapped target sequence of interest
+    file(target_bai) // Corresponding BAM index file
+    file(target_ref) // FASTA file of target sequence
 
     publishDir './tmp', mode: 'copy', overwrite: true
 
@@ -92,5 +91,4 @@ process freebayes {
         cat CHECK_\${target}_ref.fna | vcf-consensus CHECK_\${target}_${pair_id}_seq.vcf.gz >> ${pair_id}_consensus_seq.fna
     done
     """
-
 }

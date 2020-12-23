@@ -53,50 +53,55 @@ params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
 params.variants_out =  "${params.output}_gbs_res_variants.txt"
 params.alleles_out = "${params.output}_drug_cat_alleles.txt"
 
-// Resistance typing with the RES database
-workflow RES {
+// Resistance mapping with the GBS resistance database
+workflow GBS_RES {
 
     take:
         reads
 
     main:
-        res_targets_file = file(params.gbs_res_targets_db)
+        // Split GBS target sequences from GBS resistance database into separate FASTA files per sequence
+        split_target_RES_sequences(file(params.gbs_res_typer_db), file(params.gbs_res_targets_db))
 
-        // Copy to tmp directory
+        // Copy GBS resistance database into tmp directory to make accessible
         gbs_db = file(params.gbs_res_typer_db)
         gbs_db.copyTo(tmp_dir)
 
-        split_target_RES_sequences(file(params.gbs_res_typer_db), res_targets_file)
+        // Map genomes to GBS resistance database using SRST2
+        srst2_for_res_typing(reads, params.gbs_res_typer_db, tmp_dir, 'GBS_RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
 
-        srst2_for_res_typing(reads, params.gbs_res_typer_db, tmp_dir, 'RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
-        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, res_targets_file)
+        // Split sam file for each GBS target sequence
+        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, file(params.gbs_res_targets_db))
 
-        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
+        // Get consensus sequence using freebayes
+        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out)
 
     emit:
         freebayes.out.id
 }
 
-// Resistance typing with the other resistance databases
+// Resistance mapping with the other resistance databases
 workflow OTHER_RES {
 
     take:
         reads
 
     main:
-        // Copy to tmp directory
+        // Copy resistance databases into tmp directory to make accessible
         db_list = params.other_res_dbs.toString().tokenize(' ')
         for (db in db_list) {
             other_db = file(db)
             other_db.copyTo(tmp_dir)
         }
 
+        // Map genomes to resistance database using SRST2
         srst2_for_res_typing(reads, params.other_res_dbs, tmp_dir, 'OTHER_RES', params.other_res_min_coverage, params.other_res_max_divergence)
 
     emit:
         srst2_for_res_typing.out.id
 }
 
+// Main Workflow
 workflow {
 
     // Create new genotypes file
@@ -108,18 +113,23 @@ workflow {
         .set { read_pairs_ch }
 
     main:
+
+        // Serotyping Process
         serotyping(read_pairs_ch, file(params.serotyping_db))
 
-        RES(read_pairs_ch)
+        // Resistance Mapping Workflows
+        GBS_RES(read_pairs_ch)
         OTHER_RES(read_pairs_ch)
-        id_ch = RES.out.join(OTHER_RES.out)
+
+        // Once both resistance workflows are complete, trigger resistance typing
+        id_ch = GBS_RES.out.join(OTHER_RES.out)
         res_typer(id_ch, tmp_dir)
 
-        // Combine results
+        // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
         combine_results(sero_res_ch)
 
-        // Combine samples
+        // Combine samples and output results files
         combine_results.out.sero_res_incidence
             .collectFile(name: file(params.sero_res_incidence_out), keepHeader: true)
 

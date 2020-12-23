@@ -1,11 +1,8 @@
 process serotyping {
 
-    // Temporarily publish serotyping results - later collate
-    publishDir './results'
-
     input:
-    tuple val(pair_id), file(reads)
-    file(sero_gene_db)
+    tuple val(pair_id), file(reads) // ID and paired read files
+    file(sero_gene_db) // Serotyping reference database
 
     output:
     tuple val(pair_id), file("${pair_id}_SeroType_Results.txt")
