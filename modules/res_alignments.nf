@@ -8,7 +8,7 @@ process srst2_for_res_typing {
     val(min_coverage) // String of minimum coverage parameter(s) for SRST2
     val(max_divergence) // String of maximum coverage parameter(s) for SRST2
 
-    publishDir './tmp', mode: 'copy', overwrite: true
+    publishDir "./tmp/${pair_id}", mode: 'copy', overwrite: true
 
     output:
     tuple val(pair_id), file("${pair_id}*.bam"), emit: bam_files
@@ -76,7 +76,7 @@ process freebayes {
     file(target_bai) // Corresponding BAM index file
     file(target_ref) // FASTA file of target sequence
 
-    publishDir './tmp', mode: 'copy', overwrite: true
+    publishDir "./tmp/${pair_id}", mode: 'copy', overwrite: true
 
     output:
     val(pair_id), emit: id
