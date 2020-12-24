@@ -19,29 +19,40 @@ if (params.help){
     exit 0
 }
 
-// Check parameters
+// Check if reads specified
 if (params.reads == ""){
     println("Please specify reads with --reads")
     println("Print help with --help")
     System.exit(1)
 }
 
+// Check if output specified
 if (params.output == ""){
     println("Please specify and output prefix with --output")
     println("Print help with --help")
     System.exit(1)
 }
 
-if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_min_coverage.toString().tokenize(' ').size()){
-    println("Number of --other_res_min_coverage values is not equal to the number of --other_res_dbs files")
-    println("Please specify an equal number of values.")
-    System.exit(1)
-}
+if (params.other_res_dbs.toString() != 'none'){
 
-if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_max_divergence.toString().tokenize(' ').size()){
-    println("Number of --other_res_max_divergence values is not equal to the number of --other_res_dbs files")
-    println("Please specify an equal number of values.")
-    System.exit(1)
+    // Check other resistance databases exist
+    other_res_db_list = params.other_res_dbs.toString().tokenize(' ')
+    for (db in other_res_db_list) {
+        other_db = file(db, checkIfExists: true)
+    }
+
+    // Check number of resistance databases matches number of minimum coverage and max divergence parameters
+    if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_min_coverage.toString().tokenize(' ').size()){
+        println("Number of --other_res_min_coverage values is not equal to the number of --other_res_dbs files")
+        println("Please specify an equal number of values.")
+        System.exit(1)
+    }
+
+    if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_max_divergence.toString().tokenize(' ').size()){
+        println("Number of --other_res_max_divergence values is not equal to the number of --other_res_dbs files")
+        println("Please specify an equal number of values.")
+        System.exit(1)
+    }
 }
 
 // Create tmp directory
@@ -119,10 +130,15 @@ workflow {
 
         // Resistance Mapping Workflows
         GBS_RES(read_pairs_ch)
-        OTHER_RES(read_pairs_ch)
 
-        // Once both resistance workflows are complete, trigger resistance typing
-        id_ch = GBS_RES.out.join(OTHER_RES.out)
+        if (params.other_res_dbs != 'none'){
+            OTHER_RES(read_pairs_ch)
+            id_ch = GBS_RES.out.join(OTHER_RES.out)
+        } else {
+            id_ch = GBS_RES.out
+        }
+
+        // Once GBS or both resistance workflows are complete, trigger resistance typing
         res_typer(id_ch, tmp_dir)
 
         // Combine serotype and resistance type results for each sample
