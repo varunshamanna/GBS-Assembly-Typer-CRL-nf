@@ -31,7 +31,7 @@ geneToClass = {
     'LNUB': 'EC',
     'LSAC': 'EC',
     'MEFA': 'EC',
-    'MPHC': 'OTHER',
+    'MPHC': 'EC',
     'MSRA': 'OTHER',
     'MSRD': 'OTHER',
     'TETB': 'TET',

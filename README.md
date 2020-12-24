@@ -37,7 +37,7 @@ ID | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
 25292_2#105 | 23S1 | 23S3 | GYRA | PARC-Q17S | | | | |
 
-3. **sampleID_drug_cat_alleles.txt** - Gives the alleles for drug categories: EC (erythromycins), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
+3. **sampleID_drug_cat_alleles.txt** - Gives the alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
 e.g. Isolate Step B sample 25292_2#105 have erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA and tetracycline-resistant TETM-1 (allele of TETM)
 
 ID | EC | FQ | OTHER | TET
