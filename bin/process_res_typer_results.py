@@ -24,12 +24,22 @@ drugRes_Col = {
 
 # Gene to Drug Class Resistance lookup dictionary
 geneToClass = {
-    'ERM': 'EC',
-    'LNU': 'EC',
-    'LSA': 'EC',
-    'MEF': 'EC',
-    'TET': 'TET',
     'CAT': 'OTHER',
+    'ERMB': 'EC',
+    'ERMT': 'EC',
+    'FOSA': 'OTHER',
+    'LNUB': 'EC',
+    'LSAC': 'EC',
+    'MEFA': 'EC',
+    'MPHC': 'EC',
+    'MSRA': 'OTHER',
+    'MSRD': 'OTHER',
+    'TETB': 'TET',
+    'TETL': 'TET',
+    'TETM': 'TET',
+    'TETO': 'TET',
+    'TETS': 'TET',
+    'SUL2': 'OTHER',
     'PARC': 'FQ',
     'GYRA': 'FQ',
     '23S1': 'EC',
@@ -42,12 +52,22 @@ geneToClass = {
 
 # Other Resistance Targets dictionary
 Res_Targets = {
-    'ERM': 'neg',
-    'LNU': 'neg',
-    'LSA': 'neg',
-    'MEF': 'neg',
-    'TET': 'neg',
     'CAT': 'neg',
+    'ERMB': 'neg',
+    'ERMT': 'neg',
+    'FOSA': 'neg',
+    'LNUB': 'neg',
+    'LSAC': 'neg',
+    'MEFA': 'neg',
+    'MPHC': 'neg',
+    'MSRA': 'neg',
+    'MSRD': 'neg',
+    'TETB': 'neg',
+    'TETL': 'neg',
+    'TETM': 'neg',
+    'TETO': 'neg',
+    'TETS': 'neg',
+    'SUL2': 'neg',
 }
 
 # GBS Resistance Targets dictionary
@@ -192,7 +212,7 @@ def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_t
     if depth >= MIN_DEPTH:
 
         for gene_name in res_target_dict.keys():
-            if re.search(gene_name, allele.upper()):
+            if re.search(gene_name, allele):
                 drugCat = geneToClass[gene_name]
 
                 if drug_res_col_dict[drugCat] == "neg":
@@ -233,7 +253,7 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
 
         other = 1
         for gene_name in res_target_dict.keys():
-            if re.search(gene_name, allele.upper()):
+            if re.search(gene_name, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
                 other = 0
                 drugCat = geneToClass[gene_name]
                 if res_target_dict[gene_name] == "neg":
