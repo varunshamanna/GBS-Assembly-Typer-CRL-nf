@@ -22,7 +22,7 @@ git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 cd GBS-Typer-sanger-nf
 nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID'
 ```
-This will create three tab-delimited files:
+This will create three tab-delimited files in a 'results' directory within the current directory:
 1. **sampleID_serotype_res_incidence.txt** - Gives the serotype and presence/absence (i.e. +/-) of antibiotic resistance genes (GBS-specific alleles and ResFinder/ARG-ANNOT genes)
 e.g. Isolate Strep B sample 25292_2#105 has serotype II and have genes: 23S1, 23S3, GYRA, LSAC and TETM
 
@@ -47,9 +47,9 @@ ID | EC | FQ | OTHER | TET
 #### To run on multiple samples in a directory:
 ```
 cd GBS-Typer-sanger-nf
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results'
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'all_samples'
 ```
-This will produce combined tables of results_serotype_res_incidence.txt, results_gbs_res_variants.txt and results_drug_cat_alleles.txt that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
+This will produce combined tables of all_samples_serotype_res_incidence.txt, all_samples_gbs_res_variants.txt and all_samples_drug_cat_alleles.txt in the 'results' directory that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
 
 #### Additional useful options
     --restyper_min_read_depth   Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)

@@ -55,9 +55,12 @@ if (params.other_res_dbs.toString() != 'none'){
     }
 }
 
-// Create tmp directory
+// Create tmp directory if it doesn't already exist
 tmp_dir = file('./tmp')
 tmp_dir.mkdir()
+
+// Results directory
+results_dir = file('./results')
 
 // Output files
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
@@ -147,11 +150,11 @@ workflow {
 
         // Combine samples and output results files
         combine_results.out.sero_res_incidence
-            .collectFile(name: file(params.sero_res_incidence_out), keepHeader: true)
+            .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
 
         combine_results.out.res_alleles
-            .collectFile(name: file(params.alleles_out), keepHeader: true)
+            .collectFile(name: file("${results_dir}/${params.alleles_out}"), keepHeader: true)
 
         combine_results.out.res_variants
-            .collectFile(name: file(params.variants_out), keepHeader: true)
+            .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 }
