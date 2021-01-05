@@ -1,6 +1,7 @@
 process combine_results {
 
     input:
+    // ID, serotyping results, resistance incidence, resistance alleles and resistance variants results
     tuple val(pair_id), file(sero_results), file(res_incidence), file(res_alleles), file(res_variants)
 
     output:
