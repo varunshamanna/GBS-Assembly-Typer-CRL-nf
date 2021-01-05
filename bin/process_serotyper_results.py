@@ -39,7 +39,7 @@ def get_arguments():
                         help='Input fullgenes results tab file.')
     parser.add_argument('--output', '-o', dest='output', required=True,
                         help='Output filename.')
-    parser.add_argument('--depth-threshold', '-d', dest='depth', default = 10, type=int,
+    parser.add_argument('--min_read_depth', '-d', dest='depth', default = 10, type=int,
                         help='Include SNPs greater than depth threshold. Default: 10.')
 
     return parser
