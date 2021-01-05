@@ -24,12 +24,22 @@ drugRes_Col = {
 
 # Gene to Drug Class Resistance lookup dictionary
 geneToClass = {
-    'ERM': 'EC',
-    'LNU': 'EC',
-    'LSA': 'EC',
-    'MEF': 'EC',
-    'TET': 'TET',
     'CAT': 'OTHER',
+    'ERMB': 'EC',
+    'ERMT': 'EC',
+    'FOSA': 'OTHER',
+    'LNUB': 'EC',
+    'LSAC': 'EC',
+    'MEFA': 'EC',
+    'MPHC': 'EC',
+    'MSRA': 'OTHER',
+    'MSRD': 'OTHER',
+    'TETB': 'TET',
+    'TETL': 'TET',
+    'TETM': 'TET',
+    'TETO': 'TET',
+    'TETS': 'TET',
+    'SUL2': 'OTHER',
     'PARC': 'FQ',
     'GYRA': 'FQ',
     '23S1': 'EC',
@@ -42,12 +52,22 @@ geneToClass = {
 
 # Other Resistance Targets dictionary
 Res_Targets = {
-    'ERM': 'neg',
-    'LNU': 'neg',
-    'LSA': 'neg',
-    'MEF': 'neg',
-    'TET': 'neg',
     'CAT': 'neg',
+    'ERMB': 'neg',
+    'ERMT': 'neg',
+    'FOSA': 'neg',
+    'LNUB': 'neg',
+    'LSAC': 'neg',
+    'MEFA': 'neg',
+    'MPHC': 'neg',
+    'MSRA': 'neg',
+    'MSRD': 'neg',
+    'TETB': 'neg',
+    'TETL': 'neg',
+    'TETM': 'neg',
+    'TETO': 'neg',
+    'TETS': 'neg',
+    'SUL2': 'neg',
 }
 
 # GBS Resistance Targets dictionary
@@ -101,7 +121,6 @@ geneToTargetSeq.update({
 })
 
 EOL_SEP = "\n"
-MIN_DEPTH = 10
 
 
 def codon2aa(codon):
@@ -192,7 +211,7 @@ def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_t
     if depth >= MIN_DEPTH:
 
         for gene_name in res_target_dict.keys():
-            if re.search(gene_name, allele.upper()):
+            if re.search(gene_name, allele):
                 drugCat = geneToClass[gene_name]
 
                 if drug_res_col_dict[drugCat] == "neg":
@@ -233,7 +252,7 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
 
         other = 1
         for gene_name in res_target_dict.keys():
-            if re.search(gene_name, allele.upper()):
+            if re.search(gene_name, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
                 other = 0
                 drugCat = geneToClass[gene_name]
                 if res_target_dict[gene_name] == "neg":
@@ -376,6 +395,11 @@ def create_output_contents(final_dict):
 
 
 def run(args):
+
+    # Set minimum read depth
+    global MIN_DEPTH
+    MIN_DEPTH = args.min_depth
+
     # Get presence/absence of genes
     derive_presence_absence_targets(args.srst2_gbs_fg_output)
 
@@ -410,6 +434,8 @@ def get_arguments():
     parser.add_argument('--srst2_other_fullgenes', dest='srst2_other_fg_output', required=False,
                         help='Input SRST2 fullgenes outputs for other references databases.',
                         nargs = '*')
+    parser.add_argument('--min_read_depth', dest='min_depth', required=True, type=int, default=30,
+                        help = 'Minimum read depth where mappings with fewer reads are excluded.')
     parser.add_argument('--output_prefix', dest='output', required=True,
                         help='Output prefix of filename.')
 
