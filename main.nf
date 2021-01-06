@@ -77,18 +77,18 @@ workflow GBS_RES {
         // Split GBS target sequences from GBS resistance database into separate FASTA files per sequence
         split_target_RES_sequences(file(params.gbs_res_typer_db), file(params.gbs_res_targets_db))
 
-        // Copy GBS resistance database into tmp directory to make accessible
-        gbs_db = file(params.gbs_res_typer_db)
-        gbs_db.copyTo(tmp_dir)
+        // Get path and name of GBS resistance database
+        db_path = file(params.gbs_res_typer_db).getParent()
+        db_name = file(params.gbs_res_typer_db).getName()
 
         // Map genomes to GBS resistance database using SRST2
-        srst2_for_res_typing(reads, params.gbs_res_typer_db, tmp_dir, 'GBS_RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
+        srst2_for_res_typing(reads, db_name, db_path, tmp_dir, 'GBS_RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
 
         // Split sam file for each GBS target sequence
         split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, file(params.gbs_res_targets_db))
 
         // Get consensus sequence using freebayes
-        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out)
+        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
 
     emit:
         freebayes.out.id
@@ -101,15 +101,8 @@ workflow OTHER_RES {
         reads
 
     main:
-        // Copy resistance databases into tmp directory to make accessible
-        db_list = params.other_res_dbs.toString().tokenize(' ')
-        for (db in db_list) {
-            other_db = file(db)
-            other_db.copyTo(tmp_dir)
-        }
-
         // Map genomes to resistance database using SRST2
-        srst2_for_res_typing(reads, params.other_res_dbs, tmp_dir, 'OTHER_RES', params.other_res_min_coverage, params.other_res_max_divergence)
+        srst2_for_res_typing(reads, params.other_res_dbs, file('.'), tmp_dir, 'OTHER_RES', params.other_res_min_coverage, params.other_res_max_divergence)
 
     emit:
         srst2_for_res_typing.out.id

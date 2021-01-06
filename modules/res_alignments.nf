@@ -4,11 +4,12 @@ process srst2_for_res_typing {
     tuple val(pair_id), file(reads) // ID and paired read files
     val(dbs) // String of resistance database file(s)
     path(db_dir) // Path to database file(s)
+    path(tmp_dir) // Path to temporary directory
     val(db_name) // Type of resistance database i.e. GBS or OTHER
     val(min_coverage) // String of minimum coverage parameter(s) for SRST2
     val(max_divergence) // String of maximum coverage parameter(s) for SRST2
 
-    publishDir "./tmp/${pair_id}", mode: 'copy', overwrite: true
+    publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
 
     output:
     tuple val(pair_id), file("${pair_id}*.bam"), emit: bam_files
@@ -27,8 +28,11 @@ process srst2_for_res_typing {
 
     for ((i=0;i<\${#db_array[@]};i++));
     do
+        mkdir -p ${tmp_dir}/${pair_id}
+        cp ${db_dir}/\${db_array[i]} ${tmp_dir}/${pair_id}/
         db_file=\$(basename \${db_array[i]})
-        srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id}_${db_name}_\${db_file} --log --save_scores --min_coverage \${min_cov_array[i]} --max_divergence \${max_div_array[i]} --gene_db ${db_dir}/\${db_file}
+        srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id}_${db_name}_\${db_file} --log --save_scores --min_coverage \${min_cov_array[i]} --max_divergence \${max_div_array[i]} --gene_db ${tmp_dir}/${pair_id}/\${db_file}
+        rm ${tmp_dir}/${pair_id}/\${db_file}*
     done
     """
 }
@@ -75,8 +79,9 @@ process freebayes {
     file(target_bam) // BAM file from a mapped target sequence of interest
     file(target_bai) // Corresponding BAM index file
     file(target_ref) // FASTA file of target sequence
+    path(tmp_dir)
 
-    publishDir "./tmp/${pair_id}", mode: 'copy', overwrite: true
+    publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true
 
     output:
     val(pair_id), emit: id
