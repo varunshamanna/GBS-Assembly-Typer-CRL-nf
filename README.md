@@ -37,19 +37,19 @@ ID | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
 25292_2#105 | 23S1 | 23S3 | GYRA | PARC-Q17S | | | | |
 
-3. **sampleID_drug_cat_alleles.txt** - Gives the alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
-e.g. Isolate Step B sample 25292_2#105 have erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA and tetracycline-resistant TETM-1 (allele of TETM)
+3. **sampleID_drug_cat_alleles_variants.txt** - Gives the GBS-specific variants and other resistance alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
+e.g. Isolate Step B sample 25292_2#105 have GBS-specific variants: erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA, and other resistance allele: tetracycline-resistant tet(M)_1
 
 ID | EC | FQ | OTHER | TET
 :---: | :---: | :---: | :---: | :---:
-25292_2#105 | 23S1:23S3 | PARC:GYRA | neg | TETM(TETM-1)
+25292_2#105 | 23S1:23S3 | PARC-Q17S:GYRA | neg | tet(M)_1
 
 #### To run on multiple samples in a directory:
 ```
 cd GBS-Typer-sanger-nf
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix'
 ```
-This will produce combined tables of output_file_prefix_serotype_res_incidence.txt, output_file_prefix_gbs_res_variants.txt and output_file_prefix_drug_cat_alleles.txt in the 'results' directory that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
+This will produce combined tables of output_file_prefix_serotype_res_incidence.txt, output_file_prefix_gbs_res_variants.txt and output_file_prefix_drug_cat_alleles_variants.txt in the 'results' directory that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
 
 #### Additional useful options
     --dbversion                 Database version. (Default: 0.0.2)

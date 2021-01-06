@@ -6,7 +6,7 @@ process combine_results {
 
     output:
     path("${pair_id}_sero_res_incidence.txt"), emit: sero_res_incidence
-    path("${pair_id}_id_alleles.txt"), emit: res_alleles
+    path("${pair_id}_id_alleles_variants.txt"), emit: res_alleles_variants
     path("${pair_id}_id_variants.txt"), emit: res_variants
 
     """
