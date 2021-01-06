@@ -22,7 +22,7 @@ git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 cd GBS-Typer-sanger-nf
 nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID'
 ```
-This will create three tab-delimited files:
+This will create three tab-delimited files in a 'results' directory within the current directory:
 1. **sampleID_serotype_res_incidence.txt** - Gives the serotype and presence/absence (i.e. +/-) of antibiotic resistance genes (GBS-specific alleles and ResFinder/ARG-ANNOT genes)
 e.g. Isolate Strep B sample 25292_2#105 has serotype II and have genes: 23S1, 23S3, GYRA, LSAC and TETM
 
@@ -47,11 +47,17 @@ ID | EC | FQ | OTHER | TET
 #### To run on multiple samples in a directory:
 ```
 cd GBS-Typer-sanger-nf
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'results'
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix'
 ```
-This will produce combined tables of results_serotype_res_incidence.txt, results_gbs_res_variants.txt and results_drug_cat_alleles.txt that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
+This will produce combined tables of output_file_prefix_serotype_res_incidence.txt, output_file_prefix_gbs_res_variants.txt and output_file_prefix_drug_cat_alleles.txt in the 'results' directory that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
 
 #### Additional useful options
+    --dbversion                 Database version. (Default: 0.0.2)
+    --gbs_res_min_coverage      Minimum coverage for mapping to the GBS resistance database. (Default: 99.9)
+    --gbs_res_max_divergence    Maximum divergence for mapping to the GBS resistance database. (Default: 5)
+    --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta')
+    --other_res_min_coverage    Minimum coverage for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: '70 70')
+    --other_res_max_divergence  Maximum divergence for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: '30 30')
     --restyper_min_read_depth   Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
     --serotyper_min_read_depth  Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
 
