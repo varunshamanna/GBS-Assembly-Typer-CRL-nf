@@ -62,7 +62,7 @@ tmp_dir.mkdir()
 // Output files
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
 params.variants_out =  "${params.output}_gbs_res_variants.txt"
-params.alleles_out = "${params.output}_drug_cat_alleles.txt"
+params.alleles_variants_out = "${params.output}_drug_cat_alleles_variants.txt"
 
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
@@ -149,8 +149,8 @@ workflow {
         combine_results.out.sero_res_incidence
             .collectFile(name: file(params.sero_res_incidence_out), keepHeader: true)
 
-        combine_results.out.res_alleles
-            .collectFile(name: file(params.alleles_out), keepHeader: true)
+        combine_results.out.res_alleles_variants
+            .collectFile(name: file(params.alleles_variants_out), keepHeader: true)
 
         combine_results.out.res_variants
             .collectFile(name: file(params.variants_out), keepHeader: true)

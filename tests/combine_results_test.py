@@ -55,7 +55,7 @@ class TestCombineResults(unittest.TestCase):
         self.assertEqual(mock_get_sero_res_contents.call_args_list, [call(args.id, args.sero, args.inc)])
         mock_write_output.assert_has_calls([
             call(ANY, args.output + "_sero_res_incidence.txt"),
-            call(ANY, args.output + "_id_alleles.txt"),
+            call(ANY, args.output + "_id_alleles_variants.txt"),
             call(ANY, args.output + "_id_variants.txt")
             ], any_order = False)
         mock_get_content_with_id.assert_has_calls([

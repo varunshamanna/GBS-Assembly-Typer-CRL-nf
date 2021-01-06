@@ -83,7 +83,7 @@ def main():
 
     # Add ID to alleles from resistance typing results
     res_alleles_output_lines = get_content_with_id(args.id, args.alleles)
-    write_output(res_alleles_output_lines, args.output + "_id_alleles.txt")
+    write_output(res_alleles_output_lines, args.output + "_id_alleles_variants.txt")
 
     # Add ID to variants from resistance typing results
     res_variants_output_lines = get_content_with_id(args.id, args.variants)
