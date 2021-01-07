@@ -1,2 +1,0 @@
-ID	EC	FQ	OTHER	TET
-test	ERMTR(ERMTR-1):23S1:23S3	PARC:GYRA	erm(A)(erm(A)_2)	neg
