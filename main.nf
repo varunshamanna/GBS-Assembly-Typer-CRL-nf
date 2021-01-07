@@ -56,11 +56,11 @@ if (params.other_res_dbs.toString() != 'none'){
 }
 
 // Create tmp directory if it doesn't already exist
-tmp_dir = file('./tmp')
+tmp_dir = file(params.tmp_dir)
 tmp_dir.mkdir()
 
 // Results directory
-results_dir = file('./results')
+results_dir = file(params.results_dir)
 
 // Output files
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
