@@ -19,84 +19,96 @@ if (params.help){
     exit 0
 }
 
-// Check parameters
-params.reads = ""
-params.output = ""
-
+// Check if reads specified
 if (params.reads == ""){
     println("Please specify reads with --reads")
     println("Print help with --help")
     System.exit(1)
 }
 
+// Check if output specified
 if (params.output == ""){
     println("Please specify and output prefix with --output")
     println("Print help with --help")
     System.exit(1)
 }
 
-// Import databases
-params.db = "./db/$params.dbversion"
-params.db_serotyping = "$params.db/GBS_seroT_Gene-DB/GBS_seroT_Gene-DB_Final.fasta"
-params.db_gbs_res_typer = "$params.db/GBS_resTyper_Gene-DB/GBS_Res_Gene-DB_Final.fasta"
-params.db_res_targets = "$params.db/GBS_resTyper_Gene-DB/seqs_of_interest.txt"
-params.db_argannot = "$params.db/ARGannot-DB/ARGannot_r1.fasta"
-params.db_resfinder = "$params.db/ResFinder-DB/ResFinder.fasta"
+if (params.other_res_dbs.toString() != 'none'){
+
+    // Check other resistance databases exist
+    other_res_db_list = params.other_res_dbs.toString().tokenize(' ')
+    for (db in other_res_db_list) {
+        other_db = file(db, checkIfExists: true)
+    }
+
+    // Check number of resistance databases matches number of minimum coverage and max divergence parameters
+    if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_min_coverage.toString().tokenize(' ').size()){
+        println("Number of --other_res_min_coverage values is not equal to the number of --other_res_dbs files")
+        println("Please specify an equal number of values.")
+        System.exit(1)
+    }
+
+    if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_max_divergence.toString().tokenize(' ').size()){
+        println("Number of --other_res_max_divergence values is not equal to the number of --other_res_dbs files")
+        println("Please specify an equal number of values.")
+        System.exit(1)
+    }
+}
+
+// Create tmp directory if it doesn't already exist
+tmp_dir = file(params.tmp_dir)
+tmp_dir.mkdir()
+
+// Results directory
+results_dir = file(params.results_dir)
 
 // Output files
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
 params.variants_out =  "${params.output}_gbs_res_variants.txt"
-params.alleles_out = "${params.output}_drug_cat_alleles.txt"
+params.alleles_variants_out = "${params.output}_drug_cat_alleles_variants.txt"
 
-// Resistance typing with the RES database
-workflow RES {
-
-    take:
-        reads
-
-    main:
-        res_typer_gene_db = file(params.db_gbs_res_typer)
-        res_targets_file = file(params.db_res_targets)
-
-        split_target_RES_sequences(res_typer_gene_db, res_targets_file)
-
-        srst2_for_res_typing(reads, res_typer_gene_db, 'RES', 99.9, 5)
-        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, res_targets_file)
-
-        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out)
-
-    emit:
-        srst2_for_res_typing.out.genes_files.join(freebayes.out)
-}
-
-// Resistance typing with the ARG-ANNOT database
-workflow ARGANNOT {
+// Resistance mapping with the GBS resistance database
+workflow GBS_RES {
 
     take:
         reads
 
     main:
-        argannot_db = file(params.db_argannot)
-        srst2_for_res_typing(reads, argannot_db, 'ARG', 70, 30)
+        // Split GBS target sequences from GBS resistance database into separate FASTA files per sequence
+        split_target_RES_sequences(file(params.gbs_res_typer_db), file(params.gbs_res_targets_db))
+
+        // Get path and name of GBS resistance database
+        db_path = file(params.gbs_res_typer_db).getParent()
+        db_name = file(params.gbs_res_typer_db).getName()
+
+        // Map genomes to GBS resistance database using SRST2
+        srst2_for_res_typing(reads, db_name, db_path, tmp_dir, 'GBS_RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
+
+        // Split sam file for each GBS target sequence
+        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, file(params.gbs_res_targets_db))
+
+        // Get consensus sequence using freebayes
+        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
 
     emit:
-        srst2_for_res_typing.out.genes_files
+        freebayes.out.id
 }
 
-// Resistance typing with the ResFinder database
-workflow ResFinder {
+// Resistance mapping with the other resistance databases
+workflow OTHER_RES {
 
     take:
         reads
 
     main:
-        resfinder_db = file(params.db_resfinder)
-        srst2_for_res_typing(reads, resfinder_db, 'ARG', 70, 30)
+        // Map genomes to resistance database using SRST2
+        srst2_for_res_typing(reads, params.other_res_dbs, file('.'), tmp_dir, 'OTHER_RES', params.other_res_min_coverage, params.other_res_max_divergence)
 
     emit:
-        srst2_for_res_typing.out.genes_files
+        srst2_for_res_typing.out.id
 }
 
+// Main Workflow
 workflow {
 
     // Create new genotypes file
@@ -108,25 +120,34 @@ workflow {
         .set { read_pairs_ch }
 
     main:
-        serotyping(read_pairs_ch, file(params.db_serotyping))
 
-        ResFinder(read_pairs_ch)
-        ARGANNOT(read_pairs_ch)
-        RES(read_pairs_ch)
-        res_typer_ch = ARGANNOT.out.join(ResFinder.out.join(RES.out))
-        res_typer(res_typer_ch)
+        // Serotyping Process
+        serotyping(read_pairs_ch, file(params.serotyping_db))
 
-        // Combine results
+        // Resistance Mapping Workflows
+        GBS_RES(read_pairs_ch)
+
+        if (params.other_res_dbs != 'none'){
+            OTHER_RES(read_pairs_ch)
+            id_ch = GBS_RES.out.join(OTHER_RES.out)
+        } else {
+            id_ch = GBS_RES.out
+        }
+
+        // Once GBS or both resistance workflows are complete, trigger resistance typing
+        res_typer(id_ch, tmp_dir)
+
+        // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
         combine_results(sero_res_ch)
 
-        // Combine samples
+        // Combine samples and output results files
         combine_results.out.sero_res_incidence
-            .collectFile(name: file(params.sero_res_incidence_out), keepHeader: true)
+            .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
 
-        combine_results.out.res_alleles
-            .collectFile(name: file(params.alleles_out), keepHeader: true)
+        combine_results.out.res_alleles_variants
+            .collectFile(name: file(params.alleles_variants_out), keepHeader: true)
 
         combine_results.out.res_variants
-            .collectFile(name: file(params.variants_out), keepHeader: true)
+            .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 }

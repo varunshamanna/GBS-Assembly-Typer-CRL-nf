@@ -29,7 +29,7 @@ class TestProcessResults(unittest.TestCase):
         return "".join(self.test_stream.readlines())
 
     def test_arguments(self):
-        actual = get_arguments().parse_args(['--srst2_output', 'srst2_output_name', '--sero_db', 'sero_db', '--output', 'outfile', '--depth-threshold', '10'])
+        actual = get_arguments().parse_args(['--srst2_output', 'srst2_output_name', '--sero_db', 'sero_db', '--output', 'outfile', '--min_read_depth', '10'])
         self.assertEqual(actual,
                          argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=10))
 

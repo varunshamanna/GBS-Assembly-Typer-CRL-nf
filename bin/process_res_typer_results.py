@@ -121,7 +121,6 @@ geneToTargetSeq.update({
 })
 
 EOL_SEP = "\n"
-MIN_DEPTH = 10
 
 
 def codon2aa(codon):
@@ -207,21 +206,9 @@ def six_frame_translate(seq_input, frame):
     return extract_frame_aa(dna, frame)
 
 
-def update_presence_absence_target(gene, allele, depth, drug_res_col_dict, res_target_dict, gbs_res_target_dict):
-    """Update presence/absence for GBS and Other Resistance Targets dictionary"""
+def update_presence_absence_target(gene, allele, depth, gbs_res_target_dict):
+    """Update presence/absence for GBS Targets dictionary"""
     if depth >= MIN_DEPTH:
-
-        for gene_name in res_target_dict.keys():
-            if re.search(gene_name, allele):
-                drugCat = geneToClass[gene_name]
-
-                if drug_res_col_dict[drugCat] == "neg":
-                    drug_res_col_dict[drugCat] = gene + '(' + allele + ')'
-                else:
-                    new_val = drug_res_col_dict[drugCat] + ":" + gene + '(' + allele + ')'
-                    drug_res_col_dict[drugCat] = new_val
-
-                res_target_dict[gene_name] = "pos"
 
         for gene_name in gbs_res_target_dict.keys():
             if re.search(gene_name, allele):
@@ -242,12 +229,12 @@ def derive_presence_absence_targets(input_file):
                 gene = fields[2]
                 allele = fields[3]
                 depth = float(fields[5])
-                update_presence_absence_target(gene, allele, depth, drugRes_Col, Res_Targets, GBS_Res_Targets)
+                update_presence_absence_target(gene, allele, depth, GBS_Res_Targets)
     except IOError:
         print('Cannot open {}.'.format(input_file))
 
 
-def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict):
+def update_presence_absence_target_for_arg_res(allele, depth, drug_res_col_dict, res_target_dict):
     """Update presence/absence for Other Resistance Targets dictionary"""
     if depth >= MIN_DEPTH:
 
@@ -255,20 +242,21 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
         for gene_name in res_target_dict.keys():
             if re.search(gene_name, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
                 other = 0
-                drugCat = geneToClass[gene_name]
-                if res_target_dict[gene_name] == "neg":
-                    if drug_res_col_dict[drugCat] == "neg":
-                        drug_res_col_dict[drugCat] = gene + '(' + allele + ')'
-                    else:
-                        drug_res_col_dict[drugCat] = drug_res_col_dict[drugCat] + ':' + gene + '(' + allele + ')'
 
+                if res_target_dict[gene_name] == "neg":
                     res_target_dict[gene_name] = "pos"
+
+                drugCat = geneToClass[gene_name]
+                if drug_res_col_dict[drugCat] == "neg":
+                    drug_res_col_dict[drugCat] = allele
+                else:
+                    drug_res_col_dict[drugCat] = drug_res_col_dict[drugCat] + ':' + allele
 
         if other:
             if drug_res_col_dict["OTHER"] == "neg":
-                drug_res_col_dict["OTHER"] = gene + '(' + allele + ')'
+                drug_res_col_dict["OTHER"] = allele
             else:
-                drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + gene + '(' + allele + ')'
+                drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + allele
 
 
 def derive_presence_absence_targets_for_arg_res(input_files):
@@ -281,10 +269,9 @@ def derive_presence_absence_targets_for_arg_res(input_files):
                 # Process file lines
                 for line in fd:
                     fields = line.split('\t')
-                    gene = fields[2]
                     allele = fields[3]
                     depth = float(fields[5])
-                    update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
+                    update_presence_absence_target_for_arg_res(allele, depth, drugRes_Col, Res_Targets)
         except IOError:
             print('Cannot open {}.'.format(input_file))
 
@@ -396,6 +383,11 @@ def create_output_contents(final_dict):
 
 
 def run(args):
+
+    # Set minimum read depth
+    global MIN_DEPTH
+    MIN_DEPTH = args.min_depth
+
     # Get presence/absence of genes
     derive_presence_absence_targets(args.srst2_gbs_fg_output)
 
@@ -418,7 +410,7 @@ def run(args):
     # Write gbs variant output
     write_output(var_out, args.output + "_res_gbs_variants.txt")
     # Write allele output
-    write_output(allele_out, args.output + "_res_alleles.txt")
+    write_output(allele_out, args.output + "_res_alleles_variants.txt")
 
 
 def get_arguments():
@@ -430,6 +422,8 @@ def get_arguments():
     parser.add_argument('--srst2_other_fullgenes', dest='srst2_other_fg_output', required=False,
                         help='Input SRST2 fullgenes outputs for other references databases.',
                         nargs = '*')
+    parser.add_argument('--min_read_depth', dest='min_depth', required=True, type=int, default=30,
+                        help = 'Minimum read depth where mappings with fewer reads are excluded.')
     parser.add_argument('--output_prefix', dest='output', required=True,
                         help='Output prefix of filename.')
 
