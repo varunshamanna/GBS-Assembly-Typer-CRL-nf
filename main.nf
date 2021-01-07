@@ -146,7 +146,7 @@ workflow {
             .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
 
         combine_results.out.res_alleles_variants
-            .collectFile(name: file(params.alleles_variants_out), keepHeader: true)
+            .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
 
         combine_results.out.res_variants
             .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
