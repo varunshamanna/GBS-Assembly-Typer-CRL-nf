@@ -52,16 +52,21 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefi
 This will produce combined tables of output_file_prefix_serotype_res_incidence.txt, output_file_prefix_gbs_res_variants.txt and output_file_prefix_drug_cat_alleles_variants.txt in the 'results' directory that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
 
 #### Additional useful options
-    --dbversion                 Database version. (Default: 0.0.2)
+##### Inputs
+    --db_version                Database version. (Default: 0.0.2)
+    --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta')
+
+##### Outputs
+    --results_dir               Results directory for output files. (Default: './results')
+    --tmp_dir                   Temporary directory for intermediate files. (Default: './tmp')
+
+##### Parameters
     --gbs_res_min_coverage      Minimum coverage for mapping to the GBS resistance database. (Default: 99.9)
     --gbs_res_max_divergence    Maximum divergence for mapping to the GBS resistance database. (Default: 5)
-    --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta')
     --other_res_min_coverage    Minimum coverage for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: '70 70')
     --other_res_max_divergence  Maximum divergence for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: '30 30')
     --restyper_min_read_depth   Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
     --serotyper_min_read_depth  Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
-
-    -resume                   Resume if pipeline does not complete.
 
 ### Running on farm5
 1. Load modules
