@@ -46,7 +46,7 @@ jobs:
       run: |
         # Install latest version of Nextflow
         curl -s https://get.nextflow.io | bash
-        mv nextflow /usr/bin
+        sudo mv nextflow /usr/bin
     - name: Regression tests
       run: ./regression_tests.sh
       shell: bash
