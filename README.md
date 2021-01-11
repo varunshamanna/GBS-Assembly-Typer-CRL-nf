@@ -37,12 +37,12 @@ ID | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
 25292_2#105 | 23S1 | 23S3 | GYRA | PARC-Q17S | | | | |
 
-3. **sampleID_drug_cat_alleles_variants.txt** - Gives the GBS-specific variants and other resistance alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
-e.g. Isolate Step B sample 25292_2#105 have GBS-specific variants: erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA, and other resistance allele: tetracycline-resistant tet(M)_1
+3. **sampleID_drug_cat_alleles_variants.txt** - Gives the GBS-specific variants and other resistance genes and alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
+e.g. Isolate Step B sample 25292_2#105 have GBS-specific variants: erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA, and other resistance allele tetracycline-resistant tet(M)_1 of gene tet(M) (as specified by gene[allele])
 
 ID | EC | FQ | OTHER | TET
 :---: | :---: | :---: | :---: | :---:
-25292_2#105 | 23S1:23S3 | PARC-Q17S:GYRA | neg | tet(M)_1
+25292_2#105 | 23S1:23S3 | PARC-Q17S:GYRA | neg | tet(M)[tet(M)_1]
 
 #### To run on multiple samples in a directory:
 ```
