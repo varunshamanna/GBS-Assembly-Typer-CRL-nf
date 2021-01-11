@@ -234,7 +234,7 @@ def derive_presence_absence_targets(input_file):
         print('Cannot open {}.'.format(input_file))
 
 
-def update_presence_absence_target_for_arg_res(allele, depth, drug_res_col_dict, res_target_dict):
+def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict):
     """Update presence/absence for Other Resistance Targets dictionary"""
     if depth >= MIN_DEPTH:
 
@@ -248,15 +248,15 @@ def update_presence_absence_target_for_arg_res(allele, depth, drug_res_col_dict,
 
                 drugCat = geneToClass[gene_name]
                 if drug_res_col_dict[drugCat] == "neg":
-                    drug_res_col_dict[drugCat] = allele
+                    drug_res_col_dict[drugCat] = gene + '[' + allele + ']'
                 else:
-                    drug_res_col_dict[drugCat] = drug_res_col_dict[drugCat] + ':' + allele
+                    drug_res_col_dict[drugCat] = drug_res_col_dict[drugCat] + ':' + gene + '[' + allele + ']'
 
         if other:
             if drug_res_col_dict["OTHER"] == "neg":
-                drug_res_col_dict["OTHER"] = allele
+                drug_res_col_dict["OTHER"] = gene + '[' + allele + ']'
             else:
-                drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + allele
+                drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + gene + '[' + allele + ']'
 
 
 def derive_presence_absence_targets_for_arg_res(input_files):
@@ -269,9 +269,10 @@ def derive_presence_absence_targets_for_arg_res(input_files):
                 # Process file lines
                 for line in fd:
                     fields = line.split('\t')
+                    gene = fields[2]
                     allele = fields[3]
                     depth = float(fields[5])
-                    update_presence_absence_target_for_arg_res(allele, depth, drugRes_Col, Res_Targets)
+                    update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
         except IOError:
             print('Cannot open {}.'.format(input_file))
 
