@@ -7,7 +7,9 @@ echo "Starting regression tests..."
 echo ""
 
 # Run pipeline on test input data
-nextflow run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$out_dir" --output 'test'
+nextflow -log nextflow_test.log run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$out_dir" --output 'test'
+cat nextflow_test.log
+echo ""
 
 function file_diff {
     local test=${1}
