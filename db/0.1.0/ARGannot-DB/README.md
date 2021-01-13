@@ -1,5 +1,7 @@
-# The ARG-ANNOT database
+# The ARG-ANNOT database (including several ResFinder and CARD genes)
 
-The file in this folder is:
+The file in this folder is from SRST2 v0.2.0 (July 28, 2016):
 
-https://www.mediterranee-infection.com/wp-content/uploads/2019/09/ARG-ANNOT_NT_V6_July2019.txt
+https://raw.githubusercontent.com/katholt/srst2/master/data/ARGannot_r3.fasta
+
+As well as ARG-ANNOT genes, the file includes a non-redundant set of resistance genes from the ResFinder and [CARD](https://card.mcmaster.ca/) databases as described [Partridge et al, JAC 2018](https://academic.oup.com/jac/article/73/10/2625/5055843).
