@@ -118,7 +118,7 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
 ### Examples
 It is recommended you use the default parameters for specifying other resistance databases. However, to use different or multiple resistance databases with the GBS-specific resistance database, e.g. ARG-ANNOT and ResFinder in the db/0.0.2 directory, both with a minimum coverage of 70 and maximum divergence of 30:
 ```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --other_res_dbs 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta' --other_res_min_coverage '70 70' and --other_res_max_divergence '30 30'
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --other_res_dbs 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta' --other_res_min_coverage '70 70' --other_res_max_divergence '30 30'
 ```
 
 ## For developers
