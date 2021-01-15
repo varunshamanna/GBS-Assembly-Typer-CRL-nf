@@ -60,6 +60,8 @@ bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusag
 ```
 This will instruct Nextflow to run tasks as separate LSF jobs in parallel and can be significantly faster. The default is to run up to 20 jobs at a time. The default settings can be tuned to your requirements by editing the **lsf** profile within the nextflow.config file.
 
+Add a **-N 'my-email-address'** to the end of the command line if you wish to be sent a report by email upon completion of the pipeline.
+
 
 ## Output
 
