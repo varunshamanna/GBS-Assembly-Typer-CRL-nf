@@ -45,8 +45,8 @@ cd GBS-Typer-sanger-nf
 
 2. Load modules
 ```
-module load ISG/singularity/3.6.4
-module load nextflow/20.10.0-5430
+module load ISG/singularity
+module load nextflow
 ```
 
 3. For a single sample, run using bsub and add '-profile sanger' as an option, e.g.
@@ -54,11 +54,11 @@ module load nextflow/20.10.0-5430
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID' -profile sanger"
 ```
 
-4. For multiple samples, also run using bsub and add '-profile sanger', e.g.
+4. For multiple samples, also run using bsub and add '-profile sanger,lsf', e.g.
 ```
-bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -profile sanger"
+bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -profile sanger,lsf"
 ```
-This will automatically generate a separate bsub job for each sample in parallel.
+This will instruct Nextflow to run tasks as separate LSF jobs in parallel and can be significantly faster. The default is to run up to 20 jobs at a time. The default settings can be tuned to your requirements by editing the **lsf** profile within the nextflow.config file.
 
 
 ## Output
