@@ -55,6 +55,43 @@ if (params.other_res_dbs.toString() != 'none'){
     }
 }
 
+// Check parameters are within range
+if (params.gbs_res_min_coverage < 0 | params.gbs_res_min_coverage > 100){
+    println("--gbs_res_min_coverage value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.gbs_res_max_divergence < 0 | params.gbs_res_max_divergence > 100){
+    println("--gbs_res_max_divergence value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+other_res_min_coverage_list = params.other_res_min_coverage.toString().tokenize(' ')
+for (other_res_min_coverage in other_res_min_coverage_list){
+    if (other_res_min_coverage.toDouble() < 0 | other_res_min_coverage.toDouble() > 100){
+        println("--other_res_min_coverage value(s) not in range. Please specify a value between 0 and 100.")
+        System.exit(1)
+    }
+}
+
+other_res_max_divergence_list = params.other_res_max_divergence.toString().tokenize(' ')
+for (other_res_max_divergence in other_res_max_divergence_list){
+    if (other_res_max_divergence.toDouble() < 0 | other_res_max_divergence.toDouble() > 100){
+        println("--other_res_max_divergence value(s) not in range. Please specify a value between 0 and 100.")
+        System.exit(1)
+    }
+}
+
+if (params.restyper_min_read_depth < 0){
+    println("--restyper_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
+if (params.serotyper_min_read_depth < 0){
+    println("--serotyper_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
 // Create tmp directory if it doesn't already exist
 tmp_dir = file(params.tmp_dir)
 tmp_dir.mkdir()

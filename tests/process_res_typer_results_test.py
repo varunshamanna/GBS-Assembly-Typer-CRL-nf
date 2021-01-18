@@ -809,12 +809,12 @@ class TestProcessResTyperResults(unittest.TestCase):
         actual = get_arguments().parse_args(
             ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
             '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
-            '--min_read_depth', '30', '--output_prefix', 'output'])
+            '--min_read_depth', '30.0', '--output_prefix', 'output'])
         self.assertEqual(actual,
                          argparse.Namespace(srst2_gbs_fg_output='srst2_gbs_fullgenes',
                                             srst2_gbs_cs_output='srst2_gbs_consensus',
                                             srst2_other_fg_output=['srst2_argannot_fullgenes','srst2_resfinder_fullgenes'],
-                                            min_depth = 30,
+                                            min_depth = 30.0,
                                             output='output'))
 
     @patch('bin.process_res_typer_results.get_arguments')
