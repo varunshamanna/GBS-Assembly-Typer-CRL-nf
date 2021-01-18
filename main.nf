@@ -171,9 +171,9 @@ workflow {
         combine_results.out.sero_res_incidence
             .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
 
-        //combine_results.out.res_alleles_variants
+        combine_results.out.res_alleles_variants
             .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
 
-        //combine_results.out.res_variants
+        combine_results.out.res_variants
             .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 }
