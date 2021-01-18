@@ -122,7 +122,7 @@ workflow {
     main:
 
         // Serotyping Process
-        serotyping(read_pairs_ch, file(params.serotyping_db))
+        serotyping(read_pairs_ch, file(params.serotyping_db), params.serotyper_min_read_depth)
 
         // Resistance Mapping Workflows
         GBS_RES(read_pairs_ch)
@@ -135,7 +135,7 @@ workflow {
         }
 
         // Once GBS or both resistance workflows are complete, trigger resistance typing
-        res_typer(id_ch, tmp_dir)
+        res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
 
         // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
