@@ -11,6 +11,7 @@ include {printHelp} from './modules/help.nf'
 include {serotyping} from './modules/serotyping.nf'
 include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_alignments.nf'
 include {res_typer} from './modules/res_typer.nf'
+include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
 include {combine_results} from './modules/combine.nf'
 
 // Help message
@@ -108,6 +109,23 @@ workflow OTHER_RES {
         srst2_for_res_typing.out.id
 }
 
+// MLST pipeline
+workflow MLST {
+
+    take:
+        reads
+
+    main:
+        // Run SRST2 MLST
+        srst2_for_mlst(reads, file(params.mlst_allele_db, checkIfExists: true), file(params.mlst_definitions_db, checkIfExists: true), params.mlst_min_coverage)
+
+        // Get new consensus allele and pileup data
+        get_mlst_allele_and_pileup(srst2_for_mlst.out, params.mlst_min_read_depth, file(params.mlst_allele_db, checkIfExists: true))
+
+    emit:
+        get_mlst_allele_and_pileup.out
+}
+
 // Main Workflow
 workflow {
 
@@ -137,6 +155,14 @@ workflow {
         // Once GBS or both resistance workflows are complete, trigger resistance typing
         res_typer(id_ch, tmp_dir)
 
+        // MLST
+        if (params.run_mlst){
+            MLST(read_pairs_ch)
+            MLST.out.subscribe { it ->
+                it.copyTo(file("${results_dir}"))
+            }
+        }
+
         // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
         combine_results(sero_res_ch)
@@ -145,9 +171,9 @@ workflow {
         combine_results.out.sero_res_incidence
             .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
 
-        combine_results.out.res_alleles_variants
+        //combine_results.out.res_alleles_variants
             .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
 
-        combine_results.out.res_variants
+        //combine_results.out.res_variants
             .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 }

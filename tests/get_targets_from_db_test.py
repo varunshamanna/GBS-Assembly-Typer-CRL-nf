@@ -3,7 +3,7 @@ import io
 import unittest
 from unittest.mock import patch, call
 
-from bin.get_targets_from_res_db import get_targets, write_line, write_fasta_file, write_target_fasta_files, get_arguments
+from bin.get_targets_from_db import get_targets, write_line, write_fasta_file, write_target_fasta_files, get_arguments
 
 class TestProcessResults(unittest.TestCase):
 
@@ -43,7 +43,7 @@ class TestProcessResults(unittest.TestCase):
         actual = "".join(f.readlines())
         self.assertEqual(actual, """>7__PARCGBS__PARCGBS-1__7\nCATCCTCATGGGGATTCCTCTATTTATGACGCGATGGTTCGTATGTCTCAA\n""")
 
-    @patch('bin.get_targets_from_res_db.write_fasta_file')
+    @patch('bin.get_targets_from_db.write_fasta_file')
     def test_write_target_fasta_files(self, mock_write_fasta_file):
         targets = ['7__PARCGBS__PARCGBS-1__7',
             '5__GYRAGBS__GYRAGBS-1__5',

@@ -115,6 +115,36 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
     --restyper_min_read_depth   Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
     --serotyper_min_read_depth  Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
 
+### Other Pipelines
+      --mlst_min_read_depth         Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. (Default: 30)
+      --run_mlst                    Run MLST pipeline to query new MLST alleles.
+
+
+## Other Pipelines
+### MLST Pipeline Usage
+To include MLST pipeline to query new MLST alleles
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --new_mlst
+```
+
+### Output
+This will produce a text file including sequences and pileups for each allele with sufficient read depth greater than or equal to the --mlst_min_read_depth for each sample called <sampleID>_new_mlst_alleles.txt in the 'results' directory.
+
+    New MLST Allele Consensus:
+    >adhP_1
+    CCAGGACGCATTTTGGGTCACGAAGGCATTGGTATAGTAGAAGAAATTGGAGAAGGCGTA
+    ACGTCTTTGAGGGTTGGTGATCGTGTCTCTATTGCATGGTTCTTTGAAGGGTGCGGTCAT
+    TGCGAATACTGTACTACAGGACGTGAGACACTTTGTCGTAGTGTTAAAAATGCTGGATAC
+    AGTGTTGATGGTGGTATGAGTGAATACGCTATTGTTACCGCGGACTATGCGGTTAAGGTT
+    CCTGAGGGATTAGACCCAGCTCAAGCATCATCAATCACTTGTGCTGGAGTAACAACATAC
+    AAGGCTATCAAAGAAGCTGGAGCTGCTCCTGGTCAGTGGATTGCAGTGTATGGTGCAGGT
+    GGTCTTGGAAACTTAGCAGTCCAATATGCAAAAAAAGTATTCAATGCTCATGTTGTAGCT
+    GTTGATATTAACGCAGATAAACTTCAATTAGCTAAAGAGGTTGGAGCAGATTTGACAGTT
+    AATGGCAAAGAAATAAAA
+
+    New MLST Allele Pileup:
+    adhP_1	1	C	84	^#,^#.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^#.^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^,.^,.^".^".^".^,.^".^".^".^".^".^".^".^,.^".^".^".^,.^".	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 ### Examples
 It is recommended you use the default parameters for specifying other resistance databases. However, to use different or multiple resistance databases with the GBS-specific resistance database, e.g. ARG-ANNOT and ResFinder in the db/0.0.2 directory, both with a minimum coverage of 70 and maximum divergence of 30:
 ```
