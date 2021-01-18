@@ -74,18 +74,22 @@ workflow GBS_RES {
         reads
 
     main:
+
+        gbs_res_typer_db = file(params.gbs_res_typer_db, checkIfExists: true)
+        gbs_res_targets_db = file(params.gbs_res_targets_db, checkIfExists: true)
+
         // Split GBS target sequences from GBS resistance database into separate FASTA files per sequence
-        split_target_RES_sequences(file(params.gbs_res_typer_db), file(params.gbs_res_targets_db))
+        split_target_RES_sequences(gbs_res_typer_db, gbs_res_targets_db)
 
         // Get path and name of GBS resistance database
-        db_path = file(params.gbs_res_typer_db).getParent()
-        db_name = file(params.gbs_res_typer_db).getName()
+        db_path = gbs_res_typer_db.getParent()
+        db_name = gbs_res_typer_db.getName()
 
         // Map genomes to GBS resistance database using SRST2
         srst2_for_res_typing(reads, db_name, db_path, tmp_dir, 'GBS_RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
 
         // Split sam file for each GBS target sequence
-        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, file(params.gbs_res_targets_db))
+        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, gbs_res_targets_db)
 
         // Get consensus sequence using freebayes
         freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
@@ -122,7 +126,7 @@ workflow {
     main:
 
         // Serotyping Process
-        serotyping(read_pairs_ch, file(params.serotyping_db), params.serotyper_min_read_depth)
+        serotyping(read_pairs_ch, file(params.serotyping_db, checkIfExists: true), params.serotyper_min_read_depth)
 
         // Resistance Mapping Workflows
         GBS_RES(read_pairs_ch)
