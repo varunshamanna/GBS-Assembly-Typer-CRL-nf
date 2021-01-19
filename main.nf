@@ -93,6 +93,16 @@ if (params.serotyper_min_read_depth < 0){
     System.exit(1)
 }
 
+if (params.mlst_min_coverage < 0 | params.mlst_min_coverage > 100){
+    println("--mlst_min_coverage value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.mlst_min_read_depth < 0){
+    println("--mlst_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
 // Create tmp directory if it doesn't already exist
 tmp_dir = file(params.tmp_dir)
 tmp_dir.mkdir()

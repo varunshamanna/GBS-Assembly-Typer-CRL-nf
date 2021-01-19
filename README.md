@@ -102,8 +102,8 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
 
 ## Additional options
 ### Inputs
-    --db_version                Database version. (Default: 0.1.0)
-    --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.1.0/ARGannot-DB/ARG-ANNOT.fasta' from ARGannot_r3 of the SRST2 software, which includes non-redundant ResFinder and CARD database genes).
+    --db_version                Database version. (Default: 0.1.1)
+    --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.1.1/ARGannot-DB/ARG-ANNOT.fasta' from ARGannot_r3 of the SRST2 software, which includes non-redundant ResFinder and CARD database genes).
 
 ### Outputs
     --results_dir               Results directory for output files. (Default: './results')
@@ -117,9 +117,11 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
     --restyper_min_read_depth   Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
     --serotyper_min_read_depth  Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
 
-### Other Pipelines
-      --mlst_min_read_depth         Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. (Default: 30)
-      --run_mlst                    Run MLST pipeline to query new MLST alleles.
+### Other Pipeline Options
+    --run_mlst                  Run MLST pipeline to query new MLST alleles.
+
+### Other Pipeline Parameters
+    --mlst_min_read_depth       Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. Only operational with --run_mlst. (Default: 30)
 
 
 ## Other Pipelines

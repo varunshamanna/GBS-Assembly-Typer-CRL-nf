@@ -37,8 +37,11 @@ def printHelp() {
       --serotyper_min_read_depth    Minimum read depth where mappings to serotyping genes with fewer reads are excluded.
                                     (Default: 30)
 
-    Other Pipelines:
-      --mlst_min_read_depth         Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. (Default: 30)
+    Other Pipeline Options:
       --run_mlst                    Run MLST pipeline to query new MLST alleles.
+
+    Other Pipeline Parameters:
+      --mlst_min_read_depth         Minimum read depth where mappings to alleles in MLST with fewer reads are excluded.
+                                    Only operational with --run_mlst. (Default: 30).
   """.stripIndent()
 }
