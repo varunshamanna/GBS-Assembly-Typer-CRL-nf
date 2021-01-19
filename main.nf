@@ -11,6 +11,7 @@ include {printHelp} from './modules/help.nf'
 include {serotyping} from './modules/serotyping.nf'
 include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_alignments.nf'
 include {res_typer} from './modules/res_typer.nf'
+include {surface_typer} from './modules/surface_typer.nf'
 include {combine_results} from './modules/combine.nf'
 
 // Help message
@@ -55,6 +56,21 @@ if (params.other_res_dbs.toString() != 'none'){
     }
 }
 
+if (params.gbs_surface_typer_min_coverage < 0 | params.gbs_surface_typer_min_coverage > 100){
+    println("--gbs_surface_typer_min_coverage value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.gbs_surface_typer_max_divergence < 0 | params.gbs_surface_typer_max_divergence > 100){
+    println("--gbs_surface_typer_max_divergence value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.surfacetyper_min_read_depth < 0){
+    println("--surfacetyper_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
 // Create tmp directory if it doesn't already exist
 tmp_dir = file(params.tmp_dir)
 tmp_dir.mkdir()
@@ -66,6 +82,9 @@ results_dir = file(params.results_dir)
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
 params.variants_out =  "${params.output}_gbs_res_variants.txt"
 params.alleles_variants_out = "${params.output}_drug_cat_alleles_variants.txt"
+params.surface_protein_incidence_out = "${params.output}_surface_protein_incidence.txt"
+params.surface_protein_variants_out = "${params.output}_surface_protein_variants.txt"
+
 
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
@@ -108,6 +127,7 @@ workflow OTHER_RES {
         srst2_for_res_typing.out.id
 }
 
+
 // Main Workflow
 workflow {
 
@@ -139,6 +159,16 @@ workflow {
 
         // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
+
+        // Surface Typing Process
+        if (params.run_surfacetyper) {
+
+            surface_typer(read_pairs_ch, file(params.gbs_surface_typer_db, checkIfExists: true),
+                params.surfacetyper_min_read_depth, params.gbs_surface_typer_min_coverage,
+                params.gbs_surface_typer_max_divergence)
+            sero_res_ch = sero_res_ch.join(surface_typer.out)
+        }
+
         combine_results(sero_res_ch)
 
         // Combine samples and output results files
@@ -150,4 +180,13 @@ workflow {
 
         combine_results.out.res_variants
             .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
+
+        if (params.run_surfacetyper) {
+
+            // Combine results for surface typing
+            combine_results.out.surface_protein_incidence
+                .collectFile(name: file("${results_dir}/${params.surface_protein_incidence_out}"), keepHeader: true)
+            combine_results.out.surface_protein_variants
+                .collectFile(name: file("${results_dir}/${params.surface_protein_variants_out}"), keepHeader: true)
+         }
 }

@@ -69,6 +69,10 @@ def get_arguments():
                         help='Input resistance typing alleles results file.')
     parser.add_argument('--res_variants_results', '-v', dest='variants', required=True,
                         help='Input resistance typing variants results file.')
+    parser.add_argument('--surface_incidence_results', '-x', dest='surface_inc', required=False,
+                        help='Input surface typing incidence results file.')
+    parser.add_argument('--surface_variants_results', '-y', dest='surface_variants', required=False,
+                        help='Input surface typing variants results file.')
     parser.add_argument('--output', '-o', dest='output', required=True,
                         help='Output prefix.')
     return parser
@@ -88,6 +92,16 @@ def main():
     # Add ID to variants from resistance typing results
     res_variants_output_lines = get_content_with_id(args.id, args.variants)
     write_output(res_variants_output_lines, args.output + "_id_variants.txt")
+
+    # Add ID to surface typing incidence results
+    if args.surface_inc:
+        surface_protein_incidence_output_lines = get_content_with_id(args.id, args.surface_inc)
+        write_output(surface_protein_incidence_output_lines, args.output + "_surface_protein_incidence.txt")
+
+    # Add ID to surface typing variants results
+    if args.surface_variants:
+        surface_protein_variants_output_lines = get_content_with_id(args.id, args.surface_variants)
+        write_output(surface_protein_variants_output_lines, args.output + "_surface_protein_variants.txt")
 
 
 if __name__ == "__main__":
