@@ -423,8 +423,8 @@ def get_arguments():
     parser.add_argument('--srst2_other_fullgenes', dest='srst2_other_fg_output', required=False,
                         help='Input SRST2 fullgenes outputs for other references databases.',
                         nargs = '*')
-    parser.add_argument('--min_read_depth', dest='min_depth', required=True, type=int, default=30,
-                        help = 'Minimum read depth where mappings with fewer reads are excluded.')
+    parser.add_argument('--min_read_depth', dest='min_depth', required=True, type=float, default=30,
+                        help = 'Minimum read depth where mappings with fewer reads are excluded. Default: 30.')
     parser.add_argument('--output_prefix', dest='output', required=True,
                         help='Output prefix of filename.')
 

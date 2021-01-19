@@ -55,6 +55,43 @@ if (params.other_res_dbs.toString() != 'none'){
     }
 }
 
+// Check parameters are within range
+if (params.gbs_res_min_coverage < 0 | params.gbs_res_min_coverage > 100){
+    println("--gbs_res_min_coverage value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.gbs_res_max_divergence < 0 | params.gbs_res_max_divergence > 100){
+    println("--gbs_res_max_divergence value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+other_res_min_coverage_list = params.other_res_min_coverage.toString().tokenize(' ')
+for (other_res_min_coverage in other_res_min_coverage_list){
+    if (other_res_min_coverage.toDouble() < 0 | other_res_min_coverage.toDouble() > 100){
+        println("--other_res_min_coverage value(s) not in range. Please specify a value between 0 and 100.")
+        System.exit(1)
+    }
+}
+
+other_res_max_divergence_list = params.other_res_max_divergence.toString().tokenize(' ')
+for (other_res_max_divergence in other_res_max_divergence_list){
+    if (other_res_max_divergence.toDouble() < 0 | other_res_max_divergence.toDouble() > 100){
+        println("--other_res_max_divergence value(s) not in range. Please specify a value between 0 and 100.")
+        System.exit(1)
+    }
+}
+
+if (params.restyper_min_read_depth < 0){
+    println("--restyper_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
+if (params.serotyper_min_read_depth < 0){
+    println("--serotyper_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
 // Create tmp directory if it doesn't already exist
 tmp_dir = file(params.tmp_dir)
 tmp_dir.mkdir()
@@ -74,18 +111,22 @@ workflow GBS_RES {
         reads
 
     main:
+
+        gbs_res_typer_db = file(params.gbs_res_typer_db, checkIfExists: true)
+        gbs_res_targets_db = file(params.gbs_res_targets_db, checkIfExists: true)
+
         // Split GBS target sequences from GBS resistance database into separate FASTA files per sequence
-        split_target_RES_sequences(file(params.gbs_res_typer_db), file(params.gbs_res_targets_db))
+        split_target_RES_sequences(gbs_res_typer_db, gbs_res_targets_db)
 
         // Get path and name of GBS resistance database
-        db_path = file(params.gbs_res_typer_db).getParent()
-        db_name = file(params.gbs_res_typer_db).getName()
+        db_path = gbs_res_typer_db.getParent()
+        db_name = gbs_res_typer_db.getName()
 
         // Map genomes to GBS resistance database using SRST2
         srst2_for_res_typing(reads, db_name, db_path, tmp_dir, 'GBS_RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
 
         // Split sam file for each GBS target sequence
-        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, file(params.gbs_res_targets_db))
+        split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, gbs_res_targets_db)
 
         // Get consensus sequence using freebayes
         freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
@@ -122,7 +163,7 @@ workflow {
     main:
 
         // Serotyping Process
-        serotyping(read_pairs_ch, file(params.serotyping_db))
+        serotyping(read_pairs_ch, file(params.serotyping_db, checkIfExists: true), params.serotyper_min_read_depth)
 
         // Resistance Mapping Workflows
         GBS_RES(read_pairs_ch)
@@ -135,7 +176,7 @@ workflow {
         }
 
         // Once GBS or both resistance workflows are complete, trigger resistance typing
-        res_typer(id_ch, tmp_dir)
+        res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
 
         // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
