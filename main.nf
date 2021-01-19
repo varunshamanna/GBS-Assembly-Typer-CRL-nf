@@ -11,6 +11,7 @@ include {printHelp} from './modules/help.nf'
 include {serotyping} from './modules/serotyping.nf'
 include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_alignments.nf'
 include {res_typer} from './modules/res_typer.nf'
+include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
 include {combine_results} from './modules/combine.nf'
 
 // Help message
@@ -92,6 +93,16 @@ if (params.serotyper_min_read_depth < 0){
     System.exit(1)
 }
 
+if (params.mlst_min_coverage < 0 | params.mlst_min_coverage > 100){
+    println("--mlst_min_coverage value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.mlst_min_read_depth < 0){
+    println("--mlst_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
 // Create tmp directory if it doesn't already exist
 tmp_dir = file(params.tmp_dir)
 tmp_dir.mkdir()
@@ -149,6 +160,23 @@ workflow OTHER_RES {
         srst2_for_res_typing.out.id
 }
 
+// MLST pipeline
+workflow MLST {
+
+    take:
+        reads
+
+    main:
+        // Run SRST2 MLST
+        srst2_for_mlst(reads, file(params.mlst_allele_db, checkIfExists: true), file(params.mlst_definitions_db, checkIfExists: true), params.mlst_min_coverage)
+
+        // Get new consensus allele and pileup data
+        get_mlst_allele_and_pileup(srst2_for_mlst.out, params.mlst_min_read_depth, file(params.mlst_allele_db, checkIfExists: true))
+
+    emit:
+        get_mlst_allele_and_pileup.out
+}
+
 // Main Workflow
 workflow {
 
@@ -177,6 +205,14 @@ workflow {
 
         // Once GBS or both resistance workflows are complete, trigger resistance typing
         res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
+
+        // MLST
+        if (params.run_mlst){
+            MLST(read_pairs_ch)
+            MLST.out.subscribe { it ->
+                it.copyTo(file("${results_dir}"))
+            }
+        }
 
         // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
