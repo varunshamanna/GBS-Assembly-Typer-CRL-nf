@@ -102,8 +102,8 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
 
 ## Additional options
 ### Inputs
-    --db_version                Database version. (Default: 0.1.0)
-    --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.1.0/ARGannot-DB/ARG-ANNOT.fasta' from ARGannot_r3 of the SRST2 software, which includes non-redundant ResFinder and CARD database genes).
+    --db_version                Database version. (Default: 0.1.1)
+    --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.1.1/ARGannot-DB/ARG-ANNOT.fasta' from ARGannot_r3 of the SRST2 software, which includes non-redundant ResFinder and CARD database genes).
 
 ### Outputs
     --results_dir               Results directory for output files. (Default: './results')
@@ -111,11 +111,43 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
 
 ### Parameters
     --gbs_res_min_coverage      Minimum coverage for mapping to the GBS resistance database. (Default: 99.9)
-    --gbs_res_max_divergence    Maximum divergence for mapping to the GBS resistance database. (Default: 5)
+    --gbs_res_max_divergence    Maximum divergence for mapping to the GBS resistance database. (Default: 5, i.e. report only hits with <5% divergence)
     --other_res_min_coverage    Minimum coverage for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: 70)
-    --other_res_max_divergence  Maximum divergence for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: 30)
+    --other_res_max_divergence  Maximum divergence for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: 30, i.e. report only hits with <30% divergence)
     --restyper_min_read_depth   Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
     --serotyper_min_read_depth  Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
+
+### Other Pipeline Options
+    --run_mlst                  Run MLST pipeline to query new MLST alleles.
+
+### Other Pipeline Parameters
+    --mlst_min_read_depth       Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. Only operational with --run_mlst. (Default: 30)
+
+
+## Other Pipelines
+### MLST Pipeline Usage
+To include MLST pipeline to query new MLST alleles
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --new_mlst
+```
+
+### Output
+This will produce a text file including sequences and pileups for each allele with sufficient read depth greater than or equal to the --mlst_min_read_depth for each sample called <sampleID>_new_mlst_alleles.txt in the 'results' directory.
+
+    New MLST Allele Consensus:
+    >adhP_1
+    CCAGGACGCATTTTGGGTCACGAAGGCATTGGTATAGTAGAAGAAATTGGAGAAGGCGTA
+    ACGTCTTTGAGGGTTGGTGATCGTGTCTCTATTGCATGGTTCTTTGAAGGGTGCGGTCAT
+    TGCGAATACTGTACTACAGGACGTGAGACACTTTGTCGTAGTGTTAAAAATGCTGGATAC
+    AGTGTTGATGGTGGTATGAGTGAATACGCTATTGTTACCGCGGACTATGCGGTTAAGGTT
+    CCTGAGGGATTAGACCCAGCTCAAGCATCATCAATCACTTGTGCTGGAGTAACAACATAC
+    AAGGCTATCAAAGAAGCTGGAGCTGCTCCTGGTCAGTGGATTGCAGTGTATGGTGCAGGT
+    GGTCTTGGAAACTTAGCAGTCCAATATGCAAAAAAAGTATTCAATGCTCATGTTGTAGCT
+    GTTGATATTAACGCAGATAAACTTCAATTAGCTAAAGAGGTTGGAGCAGATTTGACAGTT
+    AATGGCAAAGAAATAAAA
+
+    New MLST Allele Pileup:
+    adhP_1	1	C	84	^#,^#.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^#.^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^,.^,.^".^".^".^,.^".^".^".^".^".^".^".^,.^".^".^".^,.^".	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ### Examples
 It is recommended you use the default parameters for specifying other resistance databases. However, to use different or multiple resistance databases with the GBS-specific resistance database, e.g. ARG-ANNOT and ResFinder in the db/0.0.2 directory, both with a minimum coverage of 70 and maximum divergence of 30:

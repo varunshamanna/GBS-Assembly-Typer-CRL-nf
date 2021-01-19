@@ -29,16 +29,16 @@ class TestProcessResults(unittest.TestCase):
         return "".join(self.test_stream.readlines())
 
     def test_arguments(self):
-        actual = get_arguments().parse_args(['--srst2_output', 'srst2_output_name', '--sero_db', 'sero_db', '--output', 'outfile', '--min_read_depth', '10'])
+        actual = get_arguments().parse_args(['--srst2_output', 'srst2_output_name', '--sero_db', 'sero_db', '--output', 'outfile', '--min_read_depth', '30.0'])
         self.assertEqual(actual,
-                         argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=10))
+                         argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=30.0))
 
     def test_arguments_short_options(self):
-        actual = get_arguments().parse_args(['-s', 'srst2_output_name', '-b', 'sero_db', '-o', 'outfile', '-d', '10'])
+        actual = get_arguments().parse_args(['-s', 'srst2_output_name', '-b', 'sero_db', '-o', 'outfile', '-d', '30.0'])
         self.assertEqual(actual,
-                         argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=10))
+                         argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=30.0))
 
     def test_arguments_without_depth_threshold(self):
         actual = get_arguments().parse_args(['-s', 'srst2_output_name', '-b', 'sero_db', '-o', 'outfile'])
         self.assertEqual(actual,
-                        argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=10))
+                        argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=30.0))
