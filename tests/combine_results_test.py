@@ -1,9 +1,9 @@
-import io
 import unittest
 import argparse
 from unittest.mock import patch, call, ANY
 
 from bin.combine_results import write_output, get_content_with_id, get_sero_res_contents, get_arguments, main
+
 
 class TestCombineResults(unittest.TestCase):
 
@@ -16,9 +16,9 @@ class TestCombineResults(unittest.TestCase):
 
     def test_write_output(self):
         write_output('foobar', self.TEST_OUTPUT)
-        f = open(self.TEST_OUTPUT, "r")
-        actual = "".join(f.readlines())
-        self.assertEqual(actual, """foobar""")
+        with open(self.TEST_OUTPUT, 'r') as f:
+            actual = "".join(f.readlines())
+            self.assertEqual(actual, """foobar""")
 
     def test_should_get_content_with_id_alleles(self):
         actual = get_content_with_id(self.TEST_LANE, self.TEST_DATA_RES_ALLELES)
@@ -32,23 +32,35 @@ class TestCombineResults(unittest.TestCase):
         actual = get_sero_res_contents(self.TEST_LANE, self.TEST_DATA_SEROTYPE, self.TEST_DATA_RES_INCIDENCE)
         self.assertEqual(actual, 'ID\tSerotype\t23S1\t23S3\tCAT\tERM\tGYRA\tLNU\tLSA\tMEF\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tTET\n25292_2#85\tIII\t+\t+\t-\t+\t+\t-\t-\t+\t+\t-\t-\t-\t-\t+\n')
 
-    def test_arguments(self):
-        actual = get_arguments().parse_args(['--id', 'id', '--serotyper_results', 'sero_file', '--res_incidence_results', 'res_file',
+    def test_arguments_sero_res(self):
+        actual = get_arguments().parse_args(['sero_res', '--id', 'id', '--serotyper_results', 'sero_file', '--res_incidence_results', 'res_file',
                                             '--res_alleles_results', 'allele_file', '--res_variants_results', 'variants_file', '--output', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(id='id', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
+                         argparse.Namespace(which='sero_res', id='id', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
 
-    def test_arguments_short_options(self):
-        actual = get_arguments().parse_args(['-i', 'id', '-s', 'sero_file', '-r', 'res_file', '-a', 'allele_file', '-v', 'variants_file', '-o', 'output_prefix'])
+    def test_arguments_surface_typing(self):
+        actual = get_arguments().parse_args(['surface_typer', '--id', 'id', '--surface_incidence_results', 'file1', '--surface_variants_results', 'file2',
+                                             '--output', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(id='id', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
+                         argparse.Namespace(which='surface_typer', id='id', surface_inc='file1', surface_variants='file2', output='output_prefix'))
+
+    def test_arguments_short_options_sero_res(self):
+        actual = get_arguments().parse_args(['sero_res', '-i', 'id', '-s', 'sero_file', '-r', 'res_file', '-a', 'allele_file', '-v', 'variants_file', '-o', 'output_prefix'])
+        self.assertEqual(actual,
+                         argparse.Namespace(which='sero_res', id='id', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
+
+    def test_arguments_short_options_surface_typing(self):
+        actual = get_arguments().parse_args(['surface_typer', '-i', 'id', '-x', 'file1', '-y', 'file2', '-o', 'output_prefix'])
+        self.assertEqual(actual,
+                         argparse.Namespace(which='surface_typer', id='id', surface_inc='file1', surface_variants='file2', output='output_prefix'))
 
     @patch('bin.combine_results.get_arguments')
     @patch('bin.combine_results.get_sero_res_contents')
     @patch('bin.combine_results.write_output')
     @patch('bin.combine_results.get_content_with_id')
-    def test_main(self, mock_get_content_with_id, mock_write_output, mock_get_sero_res_contents, mock_get_arguments):
+    def test_main_for_sero_res(self, mock_get_content_with_id, mock_write_output, mock_get_sero_res_contents, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
+        args.which = "sero_res"
         mock_get_sero_res_contents.return_value = 'foobar1'
         mock_get_content_with_id.return_value = ANY
         main()
@@ -57,8 +69,25 @@ class TestCombineResults(unittest.TestCase):
             call(ANY, args.output + "_sero_res_incidence.txt"),
             call(ANY, args.output + "_id_alleles_variants.txt"),
             call(ANY, args.output + "_id_variants.txt")
-            ], any_order = False)
+            ], any_order=False)
         mock_get_content_with_id.assert_has_calls([
             call(args.id, args.alleles),
             call(args.id, args.variants)
-        ], any_order = False)
+        ], any_order=False)
+
+    @patch('bin.combine_results.get_arguments')
+    @patch('bin.combine_results.write_output')
+    @patch('bin.combine_results.get_content_with_id')
+    def test_main_for_surface_typer(self, mock_get_content_with_id, mock_write_output, mock_get_arguments):
+        args = mock_get_arguments.return_value.parse_args()
+        args.which = "surface_typer"
+        mock_get_content_with_id.return_value = ANY
+        main()
+        mock_write_output.assert_has_calls([
+            call(ANY, args.output + "_surface_protein_variants.txt"),
+            call(ANY, args.output + "_surface_protein_incidence.txt")
+        ], any_order=False)
+        mock_get_content_with_id.assert_has_calls([
+            call(args.id, args.surface_inc),
+            call(args.id, args.surface_variants)
+        ], any_order=False)

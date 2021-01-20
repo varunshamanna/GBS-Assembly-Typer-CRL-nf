@@ -1,0 +1,7 @@
+Sample	DB	gene	allele	coverage	depth	diffs	uncertainty	divergence	length	maxMAF	clusterid	seqid	annotation
+26189_8#338	GBS_Surface_Gene-DB_Final	SRR1	SRR1-150	100.0	138.384	4snp		2.667	150	0.015	10	10	
+26189_8#338	GBS_Surface_Gene-DB_Final	ALP23	ALP23-1	100.0	166.103			0.0	620	0.028	13	13	
+26189_8#338	GBS_Surface_Gene-DB_Final	PI1	PI1-1	100.0	137.787			0.0	60	0.014	2	2	
+26189_8#338	GBS_Surface_Gene-DB_Final	PI2A1	PI2A1-1	100.0	126.262			0.0	60	0.022	4	4	
+26189_8#338	GBS_Surface_Gene-DB_Final	PI2A3	PI2A3-1	100.0	100.967		edge2.0	0.0	60	0.0	6	6
+26189_8#338	GBS_Surface_Gene-DB_Final	HVGA	HVGA1	100.0	126.222		edge2.0	0.0	60	0.0	6	6

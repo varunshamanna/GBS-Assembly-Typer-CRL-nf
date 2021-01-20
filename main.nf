@@ -13,7 +13,8 @@ include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_
 include {res_typer} from './modules/res_typer.nf'
 include {surface_typer} from './modules/surface_typer.nf'
 include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
-include {combine_results} from './modules/combine.nf'
+include {combine_results; combine_surface_typer_results} from './modules/combine.nf'
+
 
 // Help message
 if (params.help){
@@ -237,15 +238,6 @@ workflow {
         // Combine serotype and resistance type results for each sample
         sero_res_ch = serotyping.out.join(res_typer.out)
 
-        // Surface Typing Process
-        if (params.run_surfacetyper) {
-
-            surface_typer(read_pairs_ch, file(params.gbs_surface_typer_db, checkIfExists: true),
-                params.surfacetyper_min_read_depth, params.gbs_surface_typer_min_coverage,
-                params.gbs_surface_typer_max_divergence)
-            sero_res_ch = sero_res_ch.join(surface_typer.out)
-        }
-
         combine_results(sero_res_ch)
 
         // Combine samples and output results files
@@ -258,12 +250,19 @@ workflow {
         combine_results.out.res_variants
             .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 
+        // Surface Typing Process
         if (params.run_surfacetyper) {
 
+            surface_typer(read_pairs_ch, file(params.gbs_surface_typer_db, checkIfExists: true),
+                params.surfacetyper_min_read_depth, params.gbs_surface_typer_min_coverage,
+                params.gbs_surface_typer_max_divergence)
+
+            combine_surface_typer_results(surface_typer.out)
+
             // Combine results for surface typing
-            combine_results.out.surface_protein_incidence
+            combine_surface_typer_results.out.surface_protein_incidence
                 .collectFile(name: file("${results_dir}/${params.surface_protein_incidence_out}"), keepHeader: true)
-            combine_results.out.surface_protein_variants
+            combine_surface_typer_results.out.surface_protein_variants
                 .collectFile(name: file("${results_dir}/${params.surface_protein_variants_out}"), keepHeader: true)
-         }
+        }
 }

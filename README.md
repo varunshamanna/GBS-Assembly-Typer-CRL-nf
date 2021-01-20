@@ -119,9 +119,11 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
 
 ### Other Pipeline Options
     --run_mlst                  Run MLST pipeline to query new MLST alleles.
+    --run_surfacetyper          Run the surface protein typing pipeline.
 
 ### Other Pipeline Parameters
     --mlst_min_read_depth       Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. Only operational with --run_mlst. (Default: 30)
+    --surfacetyper_min_read_depth Minimum read depth used in the surface typing pipeline
 
 
 ## Other Pipelines
@@ -148,6 +150,26 @@ This will produce a text file including sequences and pileups for each allele wi
 
     New MLST Allele Pileup:
     adhP_1	1	C	84	^#,^#.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^#.^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^,.^,.^".^".^".^,.^".^".^".^".^".^".^".^,.^".^".^".^,.^".	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+### Surface Protein Typing Pipeline Usage
+To enable the surface typing pipeline provide the **--run_surfacetyper** command line argument:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_surfacetyper
+```
+
+### Output
+This will create two tab-delimited files in the 'results' directory
+1. **<output_file_prefix>_surface_protein_incidence.txt**
+This shows the incidence of different surface protein alleles in the Strep B sample(s), e.g.
+
+ID | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
+26189_8#338 | - | + | - | - | + | + | - | - | - | + | -
+
+2. **<output_file_prefix>_surface_protein_variants.txt**
+This shows all the surface proteins in the Strep B sample(s), e.g.
+
+ID | ALPH | HVGA | PILI | SRR
+26189_8#338 | ALP23 | neg | PI1:PI2A1 | SRR1
 
 ### Examples
 It is recommended you use the default parameters for specifying other resistance databases. However, to use different or multiple resistance databases with the GBS-specific resistance database, e.g. ARG-ANNOT and ResFinder in the db/0.0.2 directory, both with a minimum coverage of 70 and maximum divergence of 30:

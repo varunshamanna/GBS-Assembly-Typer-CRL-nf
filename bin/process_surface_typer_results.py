@@ -4,75 +4,37 @@ import sys
 import re
 
 
-# Protein to family lookup
-proteinFamilies = {
+variantLookup = {
     'ALP': 'ALPH',
     'RIB': 'ALPH',
     'SRR': 'SRR',
-    'PI': 'PILI',
+    'PI':  'PILI',
     'HVGA': 'HVGA',
 }
 
 featureCol = {
-    "ALPH": "neg",
-    "SRR": "neg",
-    "PILI": "neg",
-    "HVGA": "neg",
+    'ALPH': 'neg',
+    'SRR': 'neg',
+    'PILI': 'neg',
+    'HVGA': 'neg',
 }
 
 binFeatureCol = {
-    "HVGA": "-",
-    "PI1": "-",
-    "PI2A1": "-",
-    "PI2A2": "-",
-    "PI2B": "-",
-    "SRR1": "-",
-    "SRR2": "-",
-    "ALP1": "-",
-    "ALP23": "-",
-    "ALPHA": "-",
-    "RIB": "-",
+    'HVGA':  '-',
+    'PI1':   '-',
+    'PI2A1': '-',
+    'PI2A2': '-',
+    'PI2B':  '-',
+    'SRR1':  '-',
+    'SRR2':  '-',
+    'ALP1':  '-',
+    'ALP23': '-',
+    'ALPHA': '-',
+    'RIB':   '-',
 }
 
 
-def update_protein_presence_absence(
-        gene, allele, min_depth, depth, feature_col_dict, bin_feature_col_dict, protein_family_dict):
-    """Update presence/absence"""
-
-    if depth >= min_depth:
-
-        for protein in protein_family_dict.keys():
-            if re.search(protein, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
-
-                family = protein_family_dict[protein]
-                if feature_col_dict[family] == "neg":
-                    feature_col_dict[family] = gene
-                else:
-                    feature_col_dict[family] = feature_col_dict[family] + ':' + gene
-
-        for protein in bin_feature_col_dict.keys():
-            if re.search(protein, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
-                bin_feature_col_dict[protein] = "+"
-
-
-def derive_presence_absence(input_file, min_depth, processor):
-    """Find surface protein gene presence/absence for GBS surface database"""
-
-    try:
-        with open(input_file, 'r') as fd:
-            # Skip header row
-            next(fd)
-            # Process file lines
-            for line in fd:
-                fields = line.split('\t')
-                gene = fields[2]
-                allele = fields[3]
-                depth = float(fields[5])
-                processor(gene, allele, min_depth, depth, featureCol, binFeatureCol, proteinFamilies)
-    except IOError:
-        print('Cannot open {}.'.format(input_file))
-
-
+# TODO this should be taken out into a generic module along with the res_typer method of the same name
 def write_output(content, output_filename):
     """Write table content to output file"""
     try:
@@ -82,6 +44,7 @@ def write_output(content, output_filename):
         print('Cannot open filename starting "{}"'.format(output_filename))
 
 
+# TODO this should be taken out into a generic module along with the res_typer method of the same name
 def create_output_contents(final_dict):
     """Create tab-delimited table from dictionary"""
     final = sorted(final_dict.items(), key=lambda item: item[0], reverse=False)
@@ -99,6 +62,44 @@ def create_output_contents(final_dict):
     return content
 
 
+def update_protein_presence_absence(
+        gene, allele, min_depth, depth, feature_col_dict, bin_feature_col_dict, variant_lookup_dict):
+    """Update presence/absence"""
+
+    if depth >= min_depth:
+
+        for variant in variant_lookup_dict.keys():
+            if re.search(variant, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
+
+                feature = variant_lookup_dict[variant]
+                if feature_col_dict[feature] == "neg":
+                    feature_col_dict[feature] = gene
+                else:
+                    feature_col_dict[feature] = feature_col_dict[feature] + ':' + gene
+
+        for feature in bin_feature_col_dict.keys():
+            if re.search(feature, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
+                bin_feature_col_dict[feature] = "+"
+
+
+def derive_presence_absence(input_file, min_depth, processor):
+    """Find surface protein gene presence/absence for GBS surface database"""
+
+    try:
+        with open(input_file, 'r') as fd:
+            # Skip header row
+            next(fd)
+            # Process file lines
+            for line in fd:
+                fields = line.split('\t')
+                gene = fields[2]
+                allele = fields[3]
+                depth = float(fields[5])
+                processor(gene, allele, min_depth, depth, featureCol, binFeatureCol, variantLookup)
+    except IOError:
+        print('Cannot open {}.'.format(input_file))
+
+
 def run(args):
     """Top level run method"""
     db_name = ' '.join(args.db.split('.')[:-1])
@@ -112,15 +113,16 @@ def run(args):
     feature_out = create_output_contents(featureCol)
     bin_feature_out = create_output_contents(binFeatureCol)
 
-    # Write incidence output
-    write_output(feature_out, args.output + '_surface_protein_incidence_sample.txt')
     # Write gbs variant output
-    write_output(bin_feature_out, args.output + "_surface_protein_variants_sample.txt")
+    write_output(feature_out, args.output + "_surface_protein_variants_sample.txt")
+
+    # Write incidence output
+    write_output(bin_feature_out, args.output + '_surface_protein_incidence_sample.txt')
 
 
 def get_arguments():
     """Parse surface typer command line arguments"""
-    parser = argparse.ArgumentParser(description='Modify fullgenes output of SRST2.')
+    parser = argparse.ArgumentParser(description='Process surface typing fullgenes output from SRST2.')
     parser.add_argument('--srst2_gbs_fullgenes', '-s', dest='fullgenes_file_id', required=True,
                         help='Input fullgenes results tab file.')
     parser.add_argument('--surface_db', '-b', dest='db', required=True,
