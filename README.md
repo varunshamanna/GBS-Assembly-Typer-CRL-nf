@@ -163,12 +163,14 @@ This will create two tab-delimited files in the 'results' directory
 This shows the incidence of different surface protein alleles in the Strep B sample(s), e.g.
 
 ID | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
 26189_8#338 | - | + | - | - | + | + | - | - | - | + | -
 
 2. **<output_file_prefix>_surface_protein_variants.txt**
 This shows all the surface proteins in the Strep B sample(s), e.g.
 
 ID | ALPH | HVGA | PILI | SRR
+:---: | :---: | :---: | :---: | :---:
 26189_8#338 | ALP23 | neg | PI1:PI2A1 | SRR1
 
 ### Examples
