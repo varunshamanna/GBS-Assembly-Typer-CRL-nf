@@ -105,32 +105,31 @@ def main():
     parser = get_arguments()
     args = parser.parse_args()
 
-    if hasattr(args, 'which'):
-        if args.which == "sero_res":
-            # Merge serotyping and resistance typing results (including ID)
-            sero_res_output_lines = get_sero_res_contents(args.id, args.sero, args.inc)
-            write_output(sero_res_output_lines, args.output + "_sero_res_incidence.txt")
+    if args.which == "sero_res":
+        # Merge serotyping and resistance typing results (including ID)
+        sero_res_output_lines = get_sero_res_contents(args.id, args.sero, args.inc)
+        write_output(sero_res_output_lines, args.output + "_sero_res_incidence.txt")
 
-            # Add ID to alleles from resistance typing results
-            res_alleles_output_lines = get_content_with_id(args.id, args.alleles)
-            write_output(res_alleles_output_lines, args.output + "_id_alleles_variants.txt")
+        # Add ID to alleles from resistance typing results
+        res_alleles_output_lines = get_content_with_id(args.id, args.alleles)
+        write_output(res_alleles_output_lines, args.output + "_id_alleles_variants.txt")
 
-            # Add ID to variants from resistance typing results
-            res_variants_output_lines = get_content_with_id(args.id, args.variants)
-            write_output(res_variants_output_lines, args.output + "_id_variants.txt")
+        # Add ID to variants from resistance typing results
+        res_variants_output_lines = get_content_with_id(args.id, args.variants)
+        write_output(res_variants_output_lines, args.output + "_id_variants.txt")
 
-        elif args.which == "surface_typer":
-            # Add ID to surface typing incidence results
-            if args.surface_inc:
-                surface_protein_incidence_output_lines = get_content_with_id(args.id, args.surface_inc)
-                write_output(surface_protein_incidence_output_lines, args.output + "_surface_protein_incidence.txt")
+    elif args.which == "surface_typer":
+        # Add ID to surface typing incidence results
+        if args.surface_inc:
+            surface_protein_incidence_output_lines = get_content_with_id(args.id, args.surface_inc)
+            write_output(surface_protein_incidence_output_lines, args.output + "_surface_protein_incidence.txt")
 
-            # Add ID to surface typing variants results
-            if args.surface_variants:
-                surface_protein_variants_output_lines = get_content_with_id(args.id, args.surface_variants)
-                write_output(surface_protein_variants_output_lines, args.output + "_surface_protein_variants.txt")
+        # Add ID to surface typing variants results
+        if args.surface_variants:
+            surface_protein_variants_output_lines = get_content_with_id(args.id, args.surface_variants)
+            write_output(surface_protein_variants_output_lines, args.output + "_surface_protein_variants.txt")
     else:
-        print("ERROR: No option specified.")
+        print("ERROR: Please specify a valid option.")
         parser.print_help()
 
 

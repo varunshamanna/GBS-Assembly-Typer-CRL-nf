@@ -91,3 +91,10 @@ class TestCombineResults(unittest.TestCase):
             call(args.id, args.surface_inc),
             call(args.id, args.surface_variants)
         ], any_order=False)
+
+    @patch('bin.combine_results.get_arguments')
+    @patch('bin.combine_results.write_output')
+    @patch('bin.combine_results.get_content_with_id')
+    def test_main_no_option(self, mock_get_content_with_id, mock_write_output, mock_get_arguments):
+        main()
+        mock_get_arguments.return_value.print_help.assert_called_once()
