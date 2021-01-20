@@ -16,7 +16,7 @@ process combine_results {
     """
 }
 
-process combine_surface_typer_results {
+process finalise_surface_typer_results {
 
     input:
     // ID, surface protein incidence, surface protein variants

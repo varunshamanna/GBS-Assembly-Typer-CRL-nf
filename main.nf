@@ -13,7 +13,7 @@ include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_
 include {res_typer} from './modules/res_typer.nf'
 include {surface_typer} from './modules/surface_typer.nf'
 include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
-include {combine_results; combine_surface_typer_results} from './modules/combine.nf'
+include {combine_results; finalise_surface_typer_results} from './modules/combine.nf'
 
 
 // Help message
@@ -257,12 +257,12 @@ workflow {
                 params.surfacetyper_min_read_depth, params.gbs_surface_typer_min_coverage,
                 params.gbs_surface_typer_max_divergence)
 
-            combine_surface_typer_results(surface_typer.out)
+            finalise_surface_typer_results(surface_typer.out)
 
             // Combine results for surface typing
-            combine_surface_typer_results.out.surface_protein_incidence
+            finalise_surface_typer_results.out.surface_protein_incidence
                 .collectFile(name: file("${results_dir}/${params.surface_protein_incidence_out}"), keepHeader: true)
-            combine_surface_typer_results.out.surface_protein_variants
+            finalise_surface_typer_results.out.surface_protein_variants
                 .collectFile(name: file("${results_dir}/${params.surface_protein_variants_out}"), keepHeader: true)
         }
 }
