@@ -3,11 +3,22 @@
 in_dir=test_data/input_data
 out_dir=test_data/output_data
 
+SUDO_OPT=
+while getopts ":s" opt; do
+  case ${opt} in
+    s ) SUDO_OPT="sudo "
+      ;;
+    \? ) echo "Usage: $0 [-s to run with sudo]"
+         exit 1
+      ;;
+  esac
+done
+
 echo "Starting regression tests..."
 echo ""
 
 # Run pipeline on test input data
-nextflow -log nextflow_test.log run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$out_dir" --run_surfacetyper --output 'test'
+${SUDO_OPT}nextflow -log nextflow_test.log run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$out_dir" --run_surfacetyper --output 'test'
 cat nextflow_test.log
 echo ""
 
