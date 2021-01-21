@@ -34,7 +34,9 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefi
 ```
 
 
-## Running the pipeline on Sanger pcs6:
+## Running the pipeline at Sanger:
+Please refer to the internal Sanger wiki 'Pathogen Informatics Nextflow Pipelines' and then follow the steps below.
+
 Note: Running the pipeline requires an internet connection and should be done in lustre storage.
 
 1. Clone repository
