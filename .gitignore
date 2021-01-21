@@ -1,5 +1,12 @@
 .idea
 .nextflow.log*
+nextflow*.log*
 .nextflow
 results
 work
+.DS_Store
+tmp
+data
+test_data/output_data/test_*.txt
+
+**/__pycache__
