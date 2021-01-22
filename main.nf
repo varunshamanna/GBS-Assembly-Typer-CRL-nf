@@ -24,14 +24,20 @@ if (params.help){
 
 // Check if reads specified
 if (params.reads == ""){
-    println("Please specify reads with --reads")
+    println("Please specify reads with --reads.")
     println("Print help with --help")
     System.exit(1)
 }
 
 // Check if output specified
 if (params.output == ""){
-    println("Please specify and output prefix with --output")
+    println("Please specify and output prefix with --output.")
+    println("Print help with --help")
+    System.exit(1)
+}
+
+if (!params.run_sero_res && !params.run_surfacetyper && !params.run_mlst){
+    println("Please specify one or more pipelines to run.")
     println("Print help with --help")
     System.exit(1)
 }
@@ -105,13 +111,13 @@ if (params.mlst_min_read_depth < 0){
     System.exit(1)
 }
 
-if (params.gbs_surface_typer_min_coverage < 0 | params.gbs_surface_typer_min_coverage > 100){
-    println("--gbs_surface_typer_min_coverage value not in range. Please specify a value between 0 and 100.")
+if (params.surfacetyper_min_coverage < 0 | params.surfacetyper_min_coverage > 100){
+    println("--surfacetyper_min_coverage value not in range. Please specify a value between 0 and 100.")
     System.exit(1)
 }
 
-if (params.gbs_surface_typer_max_divergence < 0 | params.gbs_surface_typer_max_divergence > 100){
-    println("--gbs_surface_typer_max_divergence value not in range. Please specify a value between 0 and 100.")
+if (params.surfacetyper_max_divergence < 0 | params.surfacetyper_max_divergence > 100){
+    println("--surfacetyper_max_divergence value not in range. Please specify a value between 0 and 100.")
     System.exit(1)
 }
 
@@ -211,51 +217,57 @@ workflow {
 
     main:
 
-        // Serotyping Process
-        serotyping(read_pairs_ch, file(params.serotyping_db, checkIfExists: true), params.serotyper_min_read_depth)
+        if (params.run_sero_res){
 
-        // Resistance Mapping Workflows
-        GBS_RES(read_pairs_ch)
+            // Serotyping Process
+            serotyping(read_pairs_ch, file(params.serotyping_db, checkIfExists: true), params.serotyper_min_read_depth)
 
-        if (params.other_res_dbs != 'none'){
-            OTHER_RES(read_pairs_ch)
-            id_ch = GBS_RES.out.join(OTHER_RES.out)
-        } else {
-            id_ch = GBS_RES.out
+            // Resistance Mapping Workflows
+            GBS_RES(read_pairs_ch)
+
+            if (params.other_res_dbs != 'none'){
+                OTHER_RES(read_pairs_ch)
+                id_ch = GBS_RES.out.join(OTHER_RES.out)
+            } else {
+                id_ch = GBS_RES.out
+            }
+
+            // Once GBS or both resistance workflows are complete, trigger resistance typing
+            res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
+
+            // Combine serotype and resistance type results for each sample
+            sero_res_ch = serotyping.out.join(res_typer.out)
+
+            combine_results(sero_res_ch)
+
+            // Combine samples and output results files
+            combine_results.out.sero_res_incidence
+                .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
+
+            combine_results.out.res_alleles_variants
+                .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
+
+            combine_results.out.res_variants
+                .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
+
         }
-
-        // Once GBS or both resistance workflows are complete, trigger resistance typing
-        res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
 
         // MLST
         if (params.run_mlst){
+
             MLST(read_pairs_ch)
             MLST.out.subscribe { it ->
                 it.copyTo(file("${results_dir}"))
             }
+
         }
 
-        // Combine serotype and resistance type results for each sample
-        sero_res_ch = serotyping.out.join(res_typer.out)
-
-        combine_results(sero_res_ch)
-
-        // Combine samples and output results files
-        combine_results.out.sero_res_incidence
-            .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
-
-        combine_results.out.res_alleles_variants
-            .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
-
-        combine_results.out.res_variants
-            .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
-
         // Surface Typing Process
-        if (params.run_surfacetyper) {
+        if (params.run_surfacetyper){
 
             surface_typer(read_pairs_ch, file(params.gbs_surface_typer_db, checkIfExists: true),
-                params.surfacetyper_min_read_depth, params.gbs_surface_typer_min_coverage,
-                params.gbs_surface_typer_max_divergence)
+                params.surfacetyper_min_read_depth, params.surfacetyper_min_coverage,
+                params.surfacetyper_max_divergence)
 
             finalise_surface_typer_results(surface_typer.out)
 
@@ -264,5 +276,6 @@ workflow {
                 .collectFile(name: file("${results_dir}/${params.surface_protein_incidence_out}"), keepHeader: true)
             finalise_surface_typer_results.out.surface_protein_variants
                 .collectFile(name: file("${results_dir}/${params.surface_protein_variants_out}"), keepHeader: true)
+
         }
 }

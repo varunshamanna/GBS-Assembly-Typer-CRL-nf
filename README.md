@@ -120,13 +120,20 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
     --serotyper_min_read_depth  Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
 
 ### Other Pipeline Options
-    --run_mlst                  Run MLST pipeline to query new MLST alleles.
-    --run_surfacetyper          Run the surface protein typing pipeline.
+    --run_sero_res              Run the main serotyping and resistance pipelines. (Default: true)
+                                Use '--run_sero_res false' to override the default.
+    --run_mlst                  Run the MLST pipeline to query new MLST alleles. (Default: false)
+    --run_surfacetyper          Run the surface protein typing pipeline. (Default: false)
+
 
 ### Other Pipeline Parameters
-    --mlst_min_read_depth       Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. Only operational with --run_mlst. (Default: 30)
-    --surfacetyper_min_read_depth Minimum read depth used in the surface typing pipeline
+    --mlst_min_read_depth          Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. Only operational with --run_mlst. (Default: 30)
+    --surfacetyper_min_coverage    Minimum coverage for mapping to the GBS surface protein database.(Default: 70)
+    --surfacetyper_max_divergence  Maximum divergence for mapping to the GBS surface protein database. (Default: 8,
+                                   i.e. report only hits with <8% divergence))
+    --surfacetyper_min_read_depth  Minimum read depth for surface protein typing pipeline (Default: 30)
 
+All default options can be changed by editing the ```nextflow.config``` file.
 
 ## Other Pipelines
 ### MLST Pipeline Usage
@@ -180,6 +187,15 @@ It is recommended you use the default parameters for specifying other resistance
 ```
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --other_res_dbs 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta' --other_res_min_coverage '70 70' --other_res_max_divergence '30 30'
 ```
+To run **only** the surface protein typing pipeline, use: 
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_surfacetyper
+```
+To run **only** the MLST pipeline, use: 
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_mlst
+```
+The default configuration will run serotyping and resistance typing only.
 
 ## For developers
 ### Run unit tests
