@@ -163,7 +163,7 @@ This will produce a text file including sequences and pileups for each allele wi
 ### Surface Protein Typing Pipeline Usage
 To enable the surface typing pipeline provide the **--run_surfacetyper** command line argument:
 ```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_surface_typer
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_surfacetyper
 ```
 
 ### Output
