@@ -102,7 +102,7 @@ This will produce combined tables of output_file_prefix_serotype_res_incidence.t
 
 ## Additional options
 ### Inputs
-    --db_version                Database version. (Default: 0.1.1)
+    --db_version                Database version. (Default: 0.1.2)
     --other_res_dbs             Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.1.1/ARGannot-DB/ARG-ANNOT.fasta' from ARGannot_r3 of the SRST2 software, which includes non-redundant ResFinder and CARD database genes).
 
 ### Outputs

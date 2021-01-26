@@ -1,0 +1,2 @@
+Sample	DB	gene	allele	coverage	depth	diffs	uncertainty	divergence	length	maxMAF	clusterid	seqid	annotation
+26189_8#5	ARG-ANNOT	TetM_Tet	TetM_831	99.948	188.937	6snp1indel		0.313	1920	0.037	13	831	no;no;TetM;Tet;U08812;1981-3900;1920

@@ -1,0 +1,2 @@
+23S1	23S3	CAT	ERM	GYRA	LNU	LSA	MEF	PARC	RPOBGBS-1	RPOBGBS-2	RPOBGBS-3	RPOBGBS-4	TET
+pos	pos	neg	pos	pos	neg	neg	pos	pos	neg	neg	neg	neg	pos

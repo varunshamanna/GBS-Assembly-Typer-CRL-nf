@@ -12,6 +12,7 @@ include {serotyping} from './modules/serotyping.nf'
 include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_alignments.nf'
 include {res_typer} from './modules/res_typer.nf'
 include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
+include {get_pbp_genes; get_pbp_alleles} from './modules/pbp_typer.nf'
 include {combine_results} from './modules/combine.nf'
 
 // Help message
@@ -177,6 +178,48 @@ workflow MLST {
         get_mlst_allele_and_pileup.out
 }
 
+// PBP-1A allele typing pipeline
+workflow PBP1A {
+
+    take:
+        pbp_typer_output
+
+    main:
+        // Run
+        get_pbp_alleles(pbp_typer_output, 'GBS1A-1', file(params.gbs_blactam_1A_db, checkIfExists: true))
+
+    emit:
+        get_pbp_alleles.out
+}
+
+// PBP-2B allele typing pipeline
+workflow PBP2B {
+
+    take:
+        pbp_typer_output
+
+    main:
+        // Run
+        get_pbp_alleles(pbp_typer_output, 'GBS2B-1', file(params.gbs_blactam_2B_db, checkIfExists: true))
+
+    emit:
+        get_pbp_alleles.out
+}
+
+// PBP-2X allele typing pipeline
+workflow PBP2X {
+
+    take:
+        pbp_typer_output
+
+    main:
+        // Run
+        get_pbp_alleles(pbp_typer_output, 'GBS2X-1', file(params.gbs_blactam_2X_db, checkIfExists: true))
+
+    emit:
+        get_pbp_alleles.out
+}
+
 // Main Workflow
 workflow {
 
@@ -210,6 +253,33 @@ workflow {
         if (params.run_mlst){
             MLST(read_pairs_ch)
             MLST.out.subscribe { it ->
+                it.copyTo(file("${results_dir}"))
+            }
+        }
+
+        // PBP Typer
+        if (params.run_pbp_typer){
+            contig_paths = Channel
+                .fromPath(params.contigs)
+                .map { file -> tuple(file.baseName, file) }
+
+            get_pbp_genes(contig_paths, file(params.gbs_blactam_db, checkIfExists: true), params.frac_align_len_threshold, params.frac_identity_len_threshold)
+
+            // Get PBP-1A Alleles
+            PBP1A(get_pbp_genes.out)
+            PBP1A.out.subscribe { it ->
+                it.copyTo(file("${results_dir}"))
+            }
+
+            // Get PBP-2B Alleles
+            PBP2B(get_pbp_genes.out)
+            PBP2B.out.subscribe { it ->
+                it.copyTo(file("${results_dir}"))
+            }
+
+            // Get PBP-2X Alleles
+            PBP2X(get_pbp_genes.out)
+            PBP2X.out.subscribe { it ->
                 it.copyTo(file("${results_dir}"))
             }
         }

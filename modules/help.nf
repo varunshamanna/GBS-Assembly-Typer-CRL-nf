@@ -10,7 +10,7 @@ def printHelp() {
   Additional options:
 
     Inputs:
-      --db_version                  Database version. (Default: 0.1.0)
+      --db_version                  Database version. (Default: 0.1.2)
       --other_res_dbs               Paths to other resistance reference database(s). Must be FASTA format.
                                     Specify 'none' to omit using other resistance databases.
                                     (Default: 'db/0.1.0/ARGannot-DB/ARG-ANNOT.fasta'

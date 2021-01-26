@@ -1,0 +1,1 @@
+Matched_Allele	Match_Type	Serotype	AvgDepth

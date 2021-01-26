@@ -1,0 +1,2 @@
+Matched_Allele	Match_Type	Serotype	AvgDepth
+II-1	II=imperfect	II	137.929
