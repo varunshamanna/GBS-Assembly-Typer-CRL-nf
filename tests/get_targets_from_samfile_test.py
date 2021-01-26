@@ -1,9 +1,9 @@
 import argparse
-import io
 import unittest
-from unittest.mock import patch, call, ANY
+from unittest.mock import patch, call
 
 from bin.get_targets_from_samfile import get_targets, in_line, write_sam_file, write_target_sam_files, get_arguments
+
 
 class TestProcessResults(unittest.TestCase):
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import argparse, sys
+import argparse
+import sys
+
 
 def write_line(gene, gene_dict, out):
     """Write serotype to out stream of file"""
@@ -8,6 +10,7 @@ def write_line(gene, gene_dict, out):
     if serotype[4] != '':
         status = 'imperfect'
     out.write(serotype[1]+'\t'+serotype[0]+'='+status+'\t'+serotype[0]+'\t'+serotype[3]+'\n')
+
 
 def make_gene_dict(input_file, depth_threshold):
     """Get features from SRST2 input file into dictionary depending on read depth threshold"""
@@ -20,6 +23,7 @@ def make_gene_dict(input_file, depth_threshold):
                 gene_dict[feature[2]] = feature[2:-1]
     return gene_dict
 
+
 def write_outfile(gene_dict, out_file):
     """Write serotype, match type status and average read depth to output file"""
     with open(out_file, 'w') as out:
@@ -30,6 +34,7 @@ def write_outfile(gene_dict, out_file):
             write_line('II', gene_dict, out)
         for key in gene_dict:
             write_line(key, gene_dict, out)
+
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Modify fullgenes output of SRST2.')
@@ -43,6 +48,7 @@ def get_arguments():
                         help='Minimum read depth where mappings with fewer reads are excluded. Default: 30.')
 
     return parser
+
 
 def main():
     args = get_arguments().parse_args()
