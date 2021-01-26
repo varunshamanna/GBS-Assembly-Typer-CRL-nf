@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import sys
 import re
+from bin.file_utils import FileUtils
 
 
 variantLookup = {
@@ -32,34 +33,6 @@ binFeatureCol = {
     'ALPHA': '-',
     'RIB':   '-',
 }
-
-
-# TODO this should be taken out into a generic module along with the res_typer method of the same name
-def write_output(content, output_filename):
-    """Write table content to output file"""
-    try:
-        with open(output_filename, 'w') as out:
-            out.write(content)
-    except IOError:
-        print('Cannot open filename starting "{}"'.format(output_filename))
-
-
-# TODO this should be taken out into a generic module along with the res_typer method of the same name
-def create_output_contents(final_dict):
-    """Create tab-delimited table from dictionary"""
-    final = sorted(final_dict.items(), key=lambda item: item[0], reverse=False)
-    content = ''
-    for n, item in enumerate(final):
-        if n == len(final)-1:
-            content += item[0] + '\n'
-        else:
-            content += item[0] + '\t'
-    for n, item in enumerate(final):
-        if n == len(final)-1:
-            content += item[1] + '\n'
-        else:
-            content += item[1] + '\t'
-    return content
 
 
 def update_protein_presence_absence(
@@ -110,14 +83,14 @@ def run(args):
     # Get presence/absence of genes
     derive_presence_absence(fullgenes_file, args.min_depth, update_protein_presence_absence)
 
-    feature_out = create_output_contents(featureCol)
-    bin_feature_out = create_output_contents(binFeatureCol)
+    feature_out = FileUtils.create_output_contents(featureCol)
+    bin_feature_out = FileUtils.create_output_contents(binFeatureCol)
 
     # Write gbs variant output
-    write_output(feature_out, args.output + "_surface_protein_variants_sample.txt")
+    FileUtils.write_output(feature_out, args.output + "_surface_protein_variants_sample.txt")
 
     # Write incidence output
-    write_output(bin_feature_out, args.output + '_surface_protein_incidence_sample.txt')
+    FileUtils.write_output(bin_feature_out, args.output + '_surface_protein_incidence_sample.txt')
 
 
 def get_arguments():

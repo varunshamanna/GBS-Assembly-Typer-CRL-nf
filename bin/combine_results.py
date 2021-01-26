@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import print_function
-import argparse, sys
-
-
-def write_output(lines, output):
-    """ Write content to output file"""
-    with open(output, 'w') as out:
-        out.write(lines)
+import argparse
+import sys
+from bin.file_utils import FileUtils
 
 
 def get_content_with_id(id, file):
@@ -108,26 +104,26 @@ def main():
     if args.which == "sero_res":
         # Merge serotyping and resistance typing results (including ID)
         sero_res_output_lines = get_sero_res_contents(args.id, args.sero, args.inc)
-        write_output(sero_res_output_lines, args.output + "_sero_res_incidence.txt")
+        FileUtils.write_output(sero_res_output_lines, args.output + "_sero_res_incidence.txt")
 
         # Add ID to alleles from resistance typing results
         res_alleles_output_lines = get_content_with_id(args.id, args.alleles)
-        write_output(res_alleles_output_lines, args.output + "_id_alleles_variants.txt")
+        FileUtils.write_output(res_alleles_output_lines, args.output + "_id_alleles_variants.txt")
 
         # Add ID to variants from resistance typing results
         res_variants_output_lines = get_content_with_id(args.id, args.variants)
-        write_output(res_variants_output_lines, args.output + "_id_variants.txt")
+        FileUtils.write_output(res_variants_output_lines, args.output + "_id_variants.txt")
 
     elif args.which == "surface_typer":
         # Add ID to surface typing incidence results
         if args.surface_inc:
             surface_protein_incidence_output_lines = get_content_with_id(args.id, args.surface_inc)
-            write_output(surface_protein_incidence_output_lines, args.output + "_surface_protein_incidence.txt")
+            FileUtils.write_output(surface_protein_incidence_output_lines, args.output + "_surface_protein_incidence.txt")
 
         # Add ID to surface typing variants results
         if args.surface_variants:
             surface_protein_variants_output_lines = get_content_with_id(args.id, args.surface_variants)
-            write_output(surface_protein_variants_output_lines, args.output + "_surface_protein_variants.txt")
+            FileUtils.write_output(surface_protein_variants_output_lines, args.output + "_surface_protein_variants.txt")
     else:
         print("ERROR: Please specify a valid option.")
         parser.print_help()

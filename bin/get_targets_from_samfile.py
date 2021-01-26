@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse, sys, re
 
+
 def get_targets(targets_file):
     """Read target text file into targets list"""
     targets = []
