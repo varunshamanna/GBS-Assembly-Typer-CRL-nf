@@ -75,6 +75,7 @@ def get_arguments():
     subparser_sero_res.add_argument('--res_variants_results', '-v', dest='variants', required=True,
                         help='Input resistance typing variants results file.')
     subparser_sero_res.add_argument('--output', '-o', dest='output', required=True,
+<<<<<<< HEAD
                         help='Output prefix.')
     subparser_sero_res.set_defaults(which='sero_res')
 
@@ -107,6 +108,26 @@ def get_arguments():
     subparser_surface_typing.add_argument('--output', '-o', dest='output', required=True,
                         help='Output prefix.')
     subparser_surface_typing.set_defaults(which='pbp_typer')
+=======
+                        help='Output prefix.')
+    subparser_sero_res.set_defaults(which='sero_res')
+
+    subparser_surface_typing = subparsers.add_parser(
+        'surface_typer',
+        help='',
+        description='Combine surface protein typing results.',
+    )
+
+    subparser_surface_typing.add_argument('--id', '-i', dest='id', required=True,
+                        help='Sample ID.')
+    subparser_surface_typing.add_argument('--surface_incidence_results', '-x', dest='surface_inc', required=True,
+                        help='Input surface typing incidence results file.')
+    subparser_surface_typing.add_argument('--surface_variants_results', '-y', dest='surface_variants', required=True,
+                        help='Input surface typing variants results file.')
+    subparser_surface_typing.add_argument('--output', '-o', dest='output', required=True,
+                        help='Output prefix.')
+    subparser_surface_typing.set_defaults(which='surface_typer')
+>>>>>>> main
 
     return parser
 
@@ -138,12 +159,15 @@ def main():
         if args.surface_variants:
             surface_protein_variants_output_lines = get_content_with_id(args.id, args.surface_variants)
             FileUtils.write_output(surface_protein_variants_output_lines, args.output + "_surface_protein_variants.txt")
+<<<<<<< HEAD
 
     elif args.which == "pbp_typer":
         # Add ID to PBP typer existing allele results
         if args.pbp_allele:
             pbp_typer_output_lines = get_content_with_id(args.id, args.pbp_allele)
             FileUtils.write_output(pbp_typer_output_lines, args.output + "_existing_PBP_allele.txt")
+=======
+>>>>>>> main
     else:
         print("ERROR: Please specify a valid option.")
         parser.print_help()

@@ -211,6 +211,15 @@ It is recommended you use the default parameters for specifying other resistance
 ```
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --other_res_dbs 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta' --other_res_min_coverage '70 70' --other_res_max_divergence '30 30'
 ```
+To run **only** the surface protein typing pipeline, use:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_surfacetyper
+```
+To run **only** the MLST pipeline, use:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_mlst
+```
+The default configuration will run serotyping and resistance typing only.
 
 The default configuration will run serotyping and resistance typing only.
 To run **only** the surface protein typing pipeline, use:

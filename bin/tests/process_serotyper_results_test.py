@@ -5,6 +5,7 @@ import unittest
 from process_serotyper_results import write_line, make_gene_dict, get_arguments
 
 
+
 class TestProcessResults(unittest.TestCase):
 
     def test_should_make_gene_dict(self):
