@@ -32,7 +32,6 @@ process srst2_for_res_typing {
         cp ${db_dir}/\${db_array[i]} ${tmp_dir}/${pair_id}/
         db_file=\$(basename \${db_array[i]})
         srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id}_${db_name}_\${db_file} --log --save_scores --min_coverage \${min_cov_array[i]} --max_divergence \${max_div_array[i]} --gene_db ${tmp_dir}/${pair_id}/\${db_file}
-        rm ${tmp_dir}/${pair_id}/\${db_file}*
     done
     """
 }
