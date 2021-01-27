@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Common classes containing and processing FASTA and BLAST output data"""
 from collections import defaultdict
 from lib.file_io import get_seq_content
 from lib.six_frame_translation import six_frame_translate, extract_frame_aa, codon2aa

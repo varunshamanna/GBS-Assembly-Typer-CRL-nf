@@ -26,12 +26,14 @@ jobs:
         pip install biopython
     - name: Lint with flake8
       run: |
+        cd bin
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        cd bin
         python3 -m pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
@@ -48,5 +50,5 @@ jobs:
         curl -s https://get.nextflow.io | bash
         sudo mv nextflow /usr/bin
     - name: Regression tests
-      run: ./regression_tests.sh
+      run: ./regression_tests.sh -s
       shell: bash

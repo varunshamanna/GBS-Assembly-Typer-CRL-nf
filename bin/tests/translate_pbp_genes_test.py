@@ -7,7 +7,7 @@ from translate_pbp_genes import SeqData, get_arguments, write_seq_dict
 
 @pytest.fixture(scope="session")
 def seq_data_location():
-    yield 'test_data/test_blactam_contig_fragments.fasta'
+    yield 'test_data/input/test_blactam_contig_fragments.fasta'
 
 
 @pytest.fixture(scope="function")
@@ -44,7 +44,7 @@ def test_write_seq_file(prep_seq_data):
     seq_data_to_analyse = prep_seq_data
     seq_data_to_analyse.translate_content(1)
     seq_data = seq_data_to_analyse.get_data()
-    out_seq_data_location = 'test_data/GBS1A-1.faa'
+    out_seq_data_location = 'test_data/output/GBS1A-1.faa'
     write_seq_dict(seq_data, out_seq_data_location)
     fo = open(out_seq_data_location, 'r')
 

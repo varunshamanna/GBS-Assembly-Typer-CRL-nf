@@ -27,7 +27,8 @@ process get_pbp_alleles {
     file(gbs_blactam_db)
 
     output:
-    path "${pair_id}_${pbp_type}_PBP*", optional: true
+    path "${pair_id}_${pbp_type}_PBP_new_allele.faa", optional: true, emit: new_pbp
+    tuple val(pair_id), file("${pair_id}_${pbp_type}_PBP_existing_allele.txt"), optional: true, emit: existing_pbp
 
     """
     # Get PBP alleles

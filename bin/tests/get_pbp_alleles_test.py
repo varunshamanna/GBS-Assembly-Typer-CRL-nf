@@ -6,17 +6,17 @@ from get_pbp_alleles import BlastData, SeqData, get_identical_allele, get_imperf
 
 @pytest.fixture(scope="session")
 def blast_data_location():
-    yield 'test_data/test_blast_PBP_alleles.out'
+    yield 'test_data/input/test_blast_PBP_alleles.out'
 
 
 @pytest.fixture(scope="session")
 def blast_imperfect_data_location():
-    yield 'test_data/test_blast_imperfect_PBP_alleles.out'
+    yield 'test_data/input/test_blast_imperfect_PBP_alleles.out'
 
 
 @pytest.fixture(scope="session")
 def seq_data_location():
-    yield 'test_data/test_GBS1A-1.faa'
+    yield 'test_data/input/test_GBS1A-1.faa'
 
 
 @pytest.fixture(scope="function")
@@ -81,7 +81,7 @@ def test_get_identical_allele(prep_blast_data):
     blast_data_to_process = prep_blast_data
     best_blast_hit = blast_data_to_process.get_best_hit()
 
-    assert get_identical_allele(best_blast_hit) == ['.26077_6_118.11:39458-40418(+)\n1||GBS_1A\n']
+    assert get_identical_allele(best_blast_hit) == ['Contig\tPBP_allele\n.26077_6_118.11:39458-40418(+)\t1||GBS_1A\n']
 
 
 def test_get_identical_allele_with_no_identical_hits(blast_imperfect_data_location):
@@ -126,11 +126,11 @@ def test_write_content_of_identical_allele(prep_blast_data):
     best_blast_hit = blast_data_to_process.get_best_hit()
     identical_allele = get_identical_allele(best_blast_hit)
 
-    output_filename = 'test_data/GBS1A-1_identical_PBP_allele.txt'
+    output_filename = 'test_data/output/GBS1A-1_identical_PBP_allele.txt'
     write_content(identical_allele, output_filename)
     fo = open(output_filename, 'r')
 
-    assert fo.readlines() == ['.26077_6_118.11:39458-40418(+)\n', '1||GBS_1A\n']
+    assert fo.readlines() == ['Contig\tPBP_allele\n', '.26077_6_118.11:39458-40418(+)\t1||GBS_1A\n']
 
 
 def test_write_content_of_imperfect_allele(blast_imperfect_data_location, prep_seq_data):
@@ -142,7 +142,7 @@ def test_write_content_of_imperfect_allele(blast_imperfect_data_location, prep_s
     seq_data_to_analyse = prep_seq_data
     imperfect_allele = get_imperfect_allele(best_blast_hit, seq_data_to_analyse)
 
-    output_filename = 'test_data/GBS1A-1_new_PBP_allele.faa'
+    output_filename = 'test_data/output/GBS1A-1_new_PBP_allele.faa'
     write_content(imperfect_allele, output_filename)
     fo = open(output_filename, 'r')
 

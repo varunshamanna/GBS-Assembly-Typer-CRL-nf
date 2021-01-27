@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 import argparse
 import sys
-import os
 import re
 import glob
 import subprocess
 from collections import defaultdict
 from lib.six_frame_translation import six_frame_translate, extract_frame_aa, codon2aa
 from lib.file_io import get_seq_content
+from lib.file_utils import FileUtils
 
 class nSeq(str): # Nucleotide sequence
     pass
 
+
 class aSeq(str): # Amino acid sequence
     pass
+
 
 # Drug Class Resistance dictionary
 drugRes_Col = {
@@ -255,32 +257,6 @@ def get_variants(consensus_seqs):
             update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, geneToClass)
 
 
-def write_output(content, output_filename):
-    """Write table content to output file"""
-    try:
-        with open(output_filename, 'w') as out:
-            out.write(content)
-    except IOError:
-        print('Cannot open filename starting "{}"'.format(output_filename))
-
-
-def create_output_contents(final_dict):
-    """Create tab-delimited table from dictionary"""
-    final = sorted(final_dict.items(), key=lambda item: item[0], reverse=False)
-    content = ''
-    for n, item in enumerate(final):
-        if n == len(final)-1:
-            content += item[0] + '\n'
-        else:
-            content += item[0] + '\t'
-    for n, item in enumerate(final):
-        if n == len(final)-1:
-            content += item[1] + '\n'
-        else:
-            content += item[1] + '\t'
-    return content
-
-
 def run(args):
 
     # Set minimum read depth
@@ -293,23 +269,23 @@ def run(args):
     if args.srst2_other_fg_output is not None:
         derive_presence_absence_targets_for_arg_res(args.srst2_other_fg_output)
         Res_Targets.update(GBS_Res_Targets)
-        inc_out = create_output_contents(Res_Targets)
+        inc_out = FileUtils.create_output_contents(Res_Targets)
     else:
-        inc_out = create_output_contents(GBS_Res_Targets)
+        inc_out = FileUtils.create_output_contents(GBS_Res_Targets)
 
     # Get variants
     get_variants(args.srst2_gbs_cs_output)
-    var_out = create_output_contents(GBS_Res_var)
+    var_out = FileUtils.create_output_contents(GBS_Res_var)
 
     # Get alleles for all drug classes
-    allele_out = create_output_contents(drugRes_Col)
+    allele_out = FileUtils.create_output_contents(drugRes_Col)
 
     # Write incidence output
-    write_output(inc_out, args.output + '_res_incidence.txt')
+    FileUtils.write_output(inc_out, args.output + '_res_incidence.txt')
     # Write gbs variant output
-    write_output(var_out, args.output + "_res_gbs_variants.txt")
+    FileUtils.write_output(var_out, args.output + "_res_gbs_variants.txt")
     # Write allele output
-    write_output(allele_out, args.output + "_res_alleles_variants.txt")
+    FileUtils.write_output(allele_out, args.output + "_res_alleles_variants.txt")
 
 
 def get_arguments():

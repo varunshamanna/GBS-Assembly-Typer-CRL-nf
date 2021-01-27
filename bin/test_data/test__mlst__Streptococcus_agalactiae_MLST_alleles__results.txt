@@ -1,2 +1,0 @@
-Sample	ST	adhP	pheS	atr	glnA	sdhA	glcK	tkt	mismatches	uncertainty	depth	maxMAF
-test	1	1	1	2	1	1	2	2	adhP_1/1snp	-	173.614142857	0.0378378378378

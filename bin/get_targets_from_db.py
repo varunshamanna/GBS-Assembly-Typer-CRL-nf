@@ -10,6 +10,7 @@ def get_targets(targets_file):
             targets.append(line.split('\n')[0])
     return targets
 
+
 def write_line(line, target, flag, out):
     """Write line of matching targets"""
     if line[0] == '>':

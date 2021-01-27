@@ -11,9 +11,11 @@ include {printHelp} from './modules/help.nf'
 include {serotyping} from './modules/serotyping.nf'
 include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_alignments.nf'
 include {res_typer} from './modules/res_typer.nf'
+include {surface_typer} from './modules/surface_typer.nf'
 include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
 include {get_pbp_genes; get_pbp_alleles} from './modules/pbp_typer.nf'
-include {combine_results} from './modules/combine.nf'
+include {combine_results; finalise_surface_typer_results; finalise_pbp_existing_allele_results} from './modules/combine.nf'
+
 
 // Help message
 if (params.help){
@@ -22,15 +24,26 @@ if (params.help){
 }
 
 // Check if reads specified
-if (params.reads == ""){
-    println("Please specify reads with --reads")
-    println("Print help with --help")
-    System.exit(1)
+if (params.run_sero_res | params.run_mlst | params.run_surfacetyper){
+    if (params.reads == ""){
+        println("Please specify reads with --reads.")
+        println("Print help with --help")
+        System.exit(1)
+    }
+    // Create read pairs channel
+    Channel.fromFilePairs( params.reads, checkIfExists: true )
+        .set { read_pairs_ch }
 }
 
 // Check if output specified
 if (params.output == ""){
-    println("Please specify and output prefix with --output")
+    println("Please specify and output prefix with --output.")
+    println("Print help with --help")
+    System.exit(1)
+}
+
+if (!params.run_sero_res && !params.run_surfacetyper && !params.run_mlst && !params.run_pbptyper){
+    println("Please specify one or more pipelines to run.")
     println("Print help with --help")
     System.exit(1)
 }
@@ -104,17 +117,37 @@ if (params.mlst_min_read_depth < 0){
     System.exit(1)
 }
 
+if (params.surfacetyper_min_coverage < 0 | params.surfacetyper_min_coverage > 100){
+    println("--surfacetyper_min_coverage value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.surfacetyper_max_divergence < 0 | params.surfacetyper_max_divergence > 100){
+    println("--surfacetyper_max_divergence value not in range. Please specify a value between 0 and 100.")
+    System.exit(1)
+}
+
+if (params.surfacetyper_min_read_depth < 0){
+    println("--surfacetyper_min_read_depth value not in range. Please specify a value of 0 or above.")
+    System.exit(1)
+}
+
 // Create tmp directory if it doesn't already exist
 tmp_dir = file(params.tmp_dir)
 tmp_dir.mkdir()
 
-// Results directory
+// Create results directory if it doesn't already exist
 results_dir = file(params.results_dir)
+results_dir.mkdir()
 
 // Output files
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
 params.variants_out =  "${params.output}_gbs_res_variants.txt"
 params.alleles_variants_out = "${params.output}_drug_cat_alleles_variants.txt"
+params.existing_pbp_alleles_out = "${params.output}_existing_pbp_alleles.txt"
+params.surface_protein_incidence_out = "${params.output}_surface_protein_incidence.txt"
+params.surface_protein_variants_out = "${params.output}_surface_protein_variants.txt"
+
 
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
@@ -188,8 +221,17 @@ workflow PBP1A {
         // Run
         get_pbp_alleles(pbp_typer_output, 'GBS1A-1', file(params.gbs_blactam_1A_db, checkIfExists: true))
 
+        // Output new PBP alleles to results directory
+        get_pbp_alleles.out.new_pbp.subscribe { it ->
+            it.copyTo(file("${results_dir}"))
+        }
+
+        // Combine existing PBP alleles results in one file
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+
     emit:
-        get_pbp_alleles.out
+        // Emit existing PBP alleles for collection
+        finalise_pbp_existing_allele_results.out
 }
 
 // PBP-2B allele typing pipeline
@@ -202,8 +244,17 @@ workflow PBP2B {
         // Run
         get_pbp_alleles(pbp_typer_output, 'GBS2B-1', file(params.gbs_blactam_2B_db, checkIfExists: true))
 
+        // Output new PBP alleles to results directory
+        get_pbp_alleles.out.new_pbp.subscribe { it ->
+            it.copyTo(file("${results_dir}"))
+        }
+
+        // Combine existing PBP alleles results in one file
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+
     emit:
-        get_pbp_alleles.out
+        // Emit existing PBP alleles for collection
+        finalise_pbp_existing_allele_results.out
 }
 
 // PBP-2X allele typing pipeline
@@ -216,8 +267,17 @@ workflow PBP2X {
         // Run
         get_pbp_alleles(pbp_typer_output, 'GBS2X-1', file(params.gbs_blactam_2X_db, checkIfExists: true))
 
+        // Output new PBP alleles to results directory
+        get_pbp_alleles.out.new_pbp.subscribe { it ->
+            it.copyTo(file("${results_dir}"))
+        }
+
+        // Combine existing PBP alleles results in one file
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+
     emit:
-        get_pbp_alleles.out
+        // Emit existing PBP alleles for collection
+        finalise_pbp_existing_allele_results.out
 }
 
 // Main Workflow
@@ -227,74 +287,88 @@ workflow {
     Channel.fromPath( params.output )
         .set { output_ch }
 
-    // Create read pairs channel
-    Channel.fromFilePairs( params.reads, checkIfExists: true )
-        .set { read_pairs_ch }
-
     main:
 
-        // Serotyping Process
-        serotyping(read_pairs_ch, file(params.serotyping_db, checkIfExists: true), params.serotyper_min_read_depth)
+        if (params.run_sero_res){
 
-        // Resistance Mapping Workflows
-        GBS_RES(read_pairs_ch)
+            // Serotyping Process
+            serotyping(read_pairs_ch, file(params.serotyping_db, checkIfExists: true), params.serotyper_min_read_depth)
 
-        if (params.other_res_dbs != 'none'){
-            OTHER_RES(read_pairs_ch)
-            id_ch = GBS_RES.out.join(OTHER_RES.out)
-        } else {
-            id_ch = GBS_RES.out
+            // Resistance Mapping Workflows
+            GBS_RES(read_pairs_ch)
+
+            if (params.other_res_dbs != 'none'){
+                OTHER_RES(read_pairs_ch)
+                id_ch = GBS_RES.out.join(OTHER_RES.out)
+            } else {
+                id_ch = GBS_RES.out
+            }
+
+            // Once GBS or both resistance workflows are complete, trigger resistance typing
+            res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
+
+            // Combine serotype and resistance type results for each sample
+            sero_res_ch = serotyping.out.join(res_typer.out)
+
+            combine_results(sero_res_ch)
+
+            // Combine samples and output results files
+            combine_results.out.sero_res_incidence
+                .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
+
+            combine_results.out.res_alleles_variants
+                .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
+
+            combine_results.out.res_variants
+                .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
+
         }
-
-        // Once GBS or both resistance workflows are complete, trigger resistance typing
-        res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
 
         // MLST
         if (params.run_mlst){
+
             MLST(read_pairs_ch)
             MLST.out.subscribe { it ->
                 it.copyTo(file("${results_dir}"))
             }
+
+        }
+
+        // Surface Typing Process
+        if (params.run_surfacetyper){
+
+            surface_typer(read_pairs_ch, file(params.gbs_surface_typer_db, checkIfExists: true),
+                params.surfacetyper_min_read_depth, params.surfacetyper_min_coverage,
+                params.surfacetyper_max_divergence)
+
+            finalise_surface_typer_results(surface_typer.out)
+
+            // Combine results for surface typing
+            finalise_surface_typer_results.out.surface_protein_incidence
+                .collectFile(name: file("${results_dir}/${params.surface_protein_incidence_out}"), keepHeader: true)
+            finalise_surface_typer_results.out.surface_protein_variants
+                .collectFile(name: file("${results_dir}/${params.surface_protein_variants_out}"), keepHeader: true)
+
         }
 
         // PBP Typer
-        if (params.run_pbp_typer){
+        if (params.run_pbptyper){
             contig_paths = Channel
-                .fromPath(params.contigs)
+                .fromPath(params.contigs, checkIfExists: true)
                 .map { file -> tuple(file.baseName, file) }
 
-            get_pbp_genes(contig_paths, file(params.gbs_blactam_db, checkIfExists: true), params.frac_align_len_threshold, params.frac_identity_len_threshold)
+            get_pbp_genes(contig_paths, file(params.gbs_blactam_db, checkIfExists: true), params.pbp_frac_align_threshold, params.pbp_frac_identity_threshold)
 
-            // Get PBP-1A Alleles
+            // Get PBP existing and new alleles
             PBP1A(get_pbp_genes.out)
-            PBP1A.out.subscribe { it ->
-                it.copyTo(file("${results_dir}"))
-            }
-
-            // Get PBP-2B Alleles
             PBP2B(get_pbp_genes.out)
-            PBP2B.out.subscribe { it ->
-                it.copyTo(file("${results_dir}"))
-            }
-
-            // Get PBP-2X Alleles
             PBP2X(get_pbp_genes.out)
-            PBP2X.out.subscribe { it ->
-                it.copyTo(file("${results_dir}"))
-            }
+
+            PBP1A.out
+                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true)
+            PBP2B.out
+                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true)
+            PBP2X.out
+                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true)
         }
-
-        // Combine serotype and resistance type results for each sample
-        sero_res_ch = serotyping.out.join(res_typer.out)
-        combine_results(sero_res_ch)
-
-        // Combine samples and output results files
-        combine_results.out.sero_res_incidence
-            .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
-
-        combine_results.out.res_alleles_variants
-            .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
-
-        combine_results.out.res_variants
-            .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 }

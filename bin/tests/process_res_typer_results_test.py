@@ -1,24 +1,23 @@
 import argparse
 import unittest
-import os
 from unittest.mock import patch, call, ANY
 
 from process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
-    get_seq_content, get_gene_names_from_consensus, get_variants, write_output, create_output_contents, run, main, \
-    EOL_SEP, geneToRef, geneToTargetSeq, GBS_Res_var, Res_Targets, GBS_Res_Targets, geneToClass, extract_frame_aa, EOL_SEP
+    get_gene_names_from_consensus, get_variants, run, main, get_seq_content, \
+    geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP
 
 
 class TestProcessResTyperResults(unittest.TestCase):
 
     TEST_LANE = "26189_8#5"
-    TEST_GBS_FULLGENES_RESULTS_FILE = "test_data/RES_" + TEST_LANE + "__fullgenes__GBS_Res_Gene-DB_Final__results.txt"
-    TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
-    TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
-    TEST_FASTA_FILE = "test_data/test-db.fasta"
-    TEST_CONSENSUS_SEQ_FILE = "test_data/" + TEST_LANE + "_consensus_seq.fna"
-    TEST_OUTPUT = "test_data/" + TEST_LANE + "_output.txt"
+    TEST_GBS_FULLGENES_RESULTS_FILE = "test_data/input/RES_" + TEST_LANE + "__fullgenes__GBS_Res_Gene-DB_Final__results.txt"
+    TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/input/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
+    TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/input/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
+    TEST_FASTA_FILE = "test_data/input/test-db.fasta"
+    TEST_CONSENSUS_SEQ_FILE = "test_data/input/" + TEST_LANE + "_consensus_seq.fna"
+    TEST_OUTPUT = "test_data/output/" + TEST_LANE + "_output.txt"
 
     MIN_DEPTH = 30
 
@@ -768,28 +767,17 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual(mock_update_GBS_Res_var.call_args_list, [])
         self.assertEqual(mock_update_drug_res_col_dict.call_args_list, [])
 
-    def test_write_output(self):
-        write_output('foobar', self.TEST_OUTPUT)
-        f = open(self.TEST_OUTPUT, "r")
-        actual = "".join(f.readlines())
-        self.assertEqual(actual, """foobar""")
-
-    def test_create_output_contents(self):
-        final_dict = {'B_ITEM': 'pos', '1ITEM': 'neg', 'A_ITEM': 'neg'}
-        actual = create_output_contents(final_dict)
-        self.assertEqual(actual, '1ITEM\tA_ITEM\tB_ITEM\nneg\tneg\tpos\n')
-
     @patch('process_res_typer_results.derive_presence_absence_targets')
     @patch('process_res_typer_results.derive_presence_absence_targets_for_arg_res')
-    @patch('process_res_typer_results.create_output_contents')
+    @patch('lib.file_utils.FileUtils.create_output_contents')
     @patch('process_res_typer_results.get_variants')
-    @patch('process_res_typer_results.write_output')
+    @patch('lib.file_utils.FileUtils.write_output')
     def test_run(self, mock_write_output, mock_get_variants, mock_create_output_contents, mock_derive_presence_absence_targets_for_arg_res, mock_derive_presence_absence_targets):
         args = get_arguments().parse_args(
             ['--srst2_gbs_fullgenes', 'srst2_gbs_fullgenes', '--srst2_gbs_consensus', 'srst2_gbs_consensus',
             '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
             '--min_read_depth', '30', '--output_prefix', 'output'])
-        create_output_contents.return_value = 'foobar'
+        mock_create_output_contents.return_value = 'foobar'
         run(args)
         self.assertEqual(mock_derive_presence_absence_targets.call_args_list, [call(args.srst2_gbs_fg_output)])
         self.assertEqual(mock_derive_presence_absence_targets_for_arg_res.call_args_list, [call(args.srst2_other_fg_output)])

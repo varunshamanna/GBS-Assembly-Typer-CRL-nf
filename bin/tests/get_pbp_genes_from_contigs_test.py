@@ -6,12 +6,12 @@ from get_pbp_genes_from_contigs import BlastData, SeqData, FragmentData, get_arg
 
 @pytest.fixture(scope="session")
 def blast_data_location():
-    yield 'test_data/test_blast_blactam.out'
+    yield 'test_data/input/test_blast_blactam.out'
 
 
 @pytest.fixture(scope="session")
 def seq_data_location():
-    yield 'test_data/test_GBS_bLactam_Ref.fasta'
+    yield 'test_data/input/test_GBS_bLactam_Ref.fasta'
 
 
 @pytest.fixture(scope="function")
@@ -87,8 +87,8 @@ def test_write_start_end_positions(prep_fragment_data, name, content):
     """
     fragment_data, best_blast_hits, seq_lengths = prep_fragment_data
     fragment_data.get_start_end_positions(best_blast_hits, seq_lengths, 0.5, 0.5)
-    fragment_data_location = 'test_data/' + name + '.bed'
-    fragment_data.write_start_end_positions('test_data/')
+    fragment_data_location = 'test_data/output/' + name + '.bed'
+    fragment_data.write_start_end_positions('test_data/output/')
     fo = open(fragment_data_location, 'r')
 
     assert fo.readlines() == content

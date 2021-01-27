@@ -19,7 +19,7 @@ def get_imperfect_allele(best_blast_hits, query_seq_data):
 
 
 def get_identical_allele(best_blast_hits):
-    return [hit + '\n' + best_blast_hits[hit][0] + '\n' for hit in best_blast_hits if float(best_blast_hits[hit][1]) == 100]
+    return ['Contig\tPBP_allele\n' + hit + '\t' + best_blast_hits[hit][0] + '\n' for hit in best_blast_hits if float(best_blast_hits[hit][1]) == 100]
 
 
 def get_arguments():
@@ -53,7 +53,7 @@ def main():
 
     # Write data
     if identical_allele:
-        write_content(identical_allele, args.output + '_identical_allele.txt')
+        write_content(identical_allele, args.output + '_existing_allele.txt')
     elif imperfect_allele:
         write_content(imperfect_allele, args.ouptut + '_new_allele.faa')
     else:

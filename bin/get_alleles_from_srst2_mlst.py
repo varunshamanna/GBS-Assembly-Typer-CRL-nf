@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse, sys
 
+
 def get_mismatch_and_depth(file):
     """Read mlst file"""
     with open(file, 'r') as txt:
