@@ -234,4 +234,4 @@ Once all changes have been pushed to the main branch, confirm that the CI has ru
 ```
 release.sh <version number (without v)>
 ```
-This will tag the main branch.
+This will tag the main branch with the specified version number.
