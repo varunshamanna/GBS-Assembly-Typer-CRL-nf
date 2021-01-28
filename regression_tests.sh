@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-in_dir=bin/test_data/regression_test/input_data
-out_dir=bin/test_data/regression_test/output_data
+in_dir=regression_test_data/input_data
+out_dir=regression_test_data/output_data
 
 SUDO_OPT=
 while getopts ":s" opt; do
