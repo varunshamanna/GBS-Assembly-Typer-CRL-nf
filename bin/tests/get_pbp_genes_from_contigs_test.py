@@ -1,162 +1,164 @@
-import os
-import pytest
 import argparse
+import unittest
+from unittest.mock import patch, call, ANY
 
-from get_pbp_genes_from_contigs import BlastData, SeqData, FragmentData, get_arguments, check_arguments
+from get_pbp_genes_from_contigs import BlastData, SeqData, FragmentData, get_arguments, check_arguments, main
 
-@pytest.fixture(scope="session")
-def blast_data_location():
-    yield 'test_data/input/test_blast_blactam.out'
-
-
-@pytest.fixture(scope="session")
-def seq_data_location():
-    yield 'test_data/input/test_GBS_bLactam_Ref.fasta'
+class TestGetPBPGenesFromContigs(unittest.TestCase):
+    TEST_BLAST_DATA = 'test_data/input/test_blast_blactam.out'
+    TEST_SEQ_DATA = 'test_data/input/test_GBS_bLactam_Ref.fasta'
+    TEST_OUTPUT_PREFIX = 'test_data/output/TEST_'
 
 
-@pytest.fixture(scope="function")
-def prep_blast_data(blast_data_location):
-    blast_data_to_process = BlastData(blast_data_location)
-    yield blast_data_to_process
+    def test_read_blast_out(self):
+        """
+        Test output of blast
+        """
+        blast_data_to_process = BlastData(self.TEST_BLAST_DATA)
+        params_list = [
+            ('GBS1A-1', 0, ['.26077_6_118.11', '100.000', '960', '0', '0', '1', '960', '39459', '40418', '0.0', '1773']),
+            ('GBS2B-1', 1, ['.26077_6_118.2', '100.000', '16', '0', '0', '534', '549', '101982', '101967', '1.3', '30.7']),
+            ('GBS2X-1', 2, ['.26077_6_118.10', '100.000', '15', '0', '0', '611', '625', '8263', '8277', '4.5', '28.8'])
+        ]
+        for param in params_list:
+            actual = blast_data_to_process.get_data()[param[0]][param[1]]
+            self.assertEqual(actual, param[2])
 
 
-@pytest.fixture(scope="function")
-def prep_seq_data(seq_data_location):
-    seq_data_to_analyse = SeqData(seq_data_location)
-    yield seq_data_to_analyse
+    def test_get_best_blast_hit(self):
+        """
+        Test the best blast hit of each beta lactam
+        """
+        blast_data_to_process = BlastData(self.TEST_BLAST_DATA)
+        params_list = [
+            ('GBS1A-1', ['.26077_6_118.11', '100.000', '960', '0', '0', '1', '960', '39459', '40418', '0.0', '1773']),
+            ('GBS2B-1', ['.26077_6_118.2', '100.000', '1065', '0', '0', '1', '1065', '185772', '186836', '0.0',	'1967']),
+            ('GBS2X-1', ['.26077_6_118.11', '100.000', '1038', '0', '0', '1', '1038', '52297', '51260',	'0.0', '1917'])
+        ]
+        for param in params_list:
+            self.assertEqual(blast_data_to_process.get_best_hit()[param[0]], param[1])
 
 
-@pytest.fixture(scope="function")
-def prep_fragment_data(prep_blast_data, prep_seq_data):
-    blast_data_to_process = prep_blast_data
-    seq_data_to_analyse = prep_seq_data
-    seq_lengths = seq_data_to_analyse.calculate_seq_length()
-    best_blast_hits = blast_data_to_process.get_best_hit()
-    fragment_data = FragmentData()
-    yield fragment_data, best_blast_hits, seq_lengths
+    def test_get_start_end_positions(self):
+        """
+        Test getting the start and end blactam positions in the contigs
+        """
+        blast_data_to_process = BlastData(self.TEST_BLAST_DATA)
+        seq_data_to_analyse = SeqData(self.TEST_SEQ_DATA)
+        seq_lengths = seq_data_to_analyse.calculate_seq_length()
+        best_blast_hits = blast_data_to_process.get_best_hit()
+        fragment_data = FragmentData()
+        fragment_data.get_start_end_positions(best_blast_hits, seq_lengths, 0.5, 0.5)
+
+        self.assertEqual(fragment_data.get_data(), {'GBS1A-1': ('.26077_6_118.11', '39458', '40418', 'forward', '1', '+'),
+                                                    'GBS2B-1': ('.26077_6_118.2', '185771', '186836', 'forward', '1', '+'),
+                                                    'GBS2X-1': ('.26077_6_118.11', '51259', '52297', 'reverse', '1', '-')})
 
 
-@pytest.mark.parametrize("allele,index,stat", [
-    ('GBS1A-1', 0, ['.26077_6_118.11', '100.000', '960', '0', '0', '1', '960', '39459', '40418', '0.0', '1773']),
-    ('GBS2B-1', 1, ['.26077_6_118.2', '100.000', '16', '0', '0', '534', '549', '101982', '101967', '1.3', '30.7']),
-    ('GBS2X-1', 2, ['.26077_6_118.10', '100.000', '15', '0', '0', '611', '625', '8263', '8277', '4.5', '28.8'])
-])
-def test_read_blast_out(prep_blast_data, allele, index, stat):
-    """
-    Test output of blast
-    """
-    blast_data_to_process = prep_blast_data
-    actual = blast_data_to_process.get_data()[allele][index]
+    def test_write_start_end_positions(self):
+        """
+        Test output file contents containing start and end positions
+        """
+        blast_data_to_process = BlastData(self.TEST_BLAST_DATA)
+        seq_data_to_analyse = SeqData(self.TEST_SEQ_DATA)
+        seq_lengths = seq_data_to_analyse.calculate_seq_length()
+        best_blast_hits = blast_data_to_process.get_best_hit()
+        fragment_data = FragmentData()
+        fragment_data.get_start_end_positions(best_blast_hits, seq_lengths, 0.5, 0.5)
 
-    assert actual == stat
+        params_list = [
+            ('GBS1A-1', ['.26077_6_118.11\t39458\t40418\tforward\t1\t+\n']),
+            ('GBS2B-1', ['.26077_6_118.2\t185771\t186836\tforward\t1\t+\n']),
+            ('GBS2X-1', ['.26077_6_118.11\t51259\t52297\treverse\t1\t-\n'])
+        ]
+        for param in params_list:
+            fragment_data_location = 'test_data/output/' + param[0] + '.bed'
+            fragment_data.write_start_end_positions('test_data/output/')
+            fo = open(fragment_data_location, 'r')
 
-@pytest.mark.parametrize("allele,stat", [
-    ('GBS1A-1', ['.26077_6_118.11', '100.000', '960', '0', '0', '1', '960', '39459', '40418', '0.0', '1773']),
-    ('GBS2B-1', ['.26077_6_118.2', '100.000', '1065', '0', '0', '1', '1065', '185772', '186836', '0.0',	'1967']),
-    ('GBS2X-1', ['.26077_6_118.11', '100.000', '1038', '0', '0', '1', '1038', '52297', '51260',	'0.0', '1917'])
-])
-def test_get_best_blast_hit(prep_blast_data, allele, stat):
-    """
-    Test the best blast hit of each beta lactam
-    """
-    blast_data_to_process = prep_blast_data
-
-    assert blast_data_to_process.get_best_hit()[allele] == stat
+            self.assertEqual(fo.readlines(), param[1])
 
 
-def test_get_start_end_positions(prep_fragment_data):
-    """
-    Test getting the start and end blactam positions in the contigs
-    """
-    fragment_data, best_blast_hits, seq_lengths = prep_fragment_data
-    fragment_data.get_start_end_positions(best_blast_hits, seq_lengths, 0.5, 0.5)
+    def test_read_seq_data(self):
+        """
+        Test output of sequence data
+        """
+        seq_data_to_analyse = SeqData(self.TEST_SEQ_DATA)
+        actual = seq_data_to_analyse.get_data()
 
-    assert fragment_data.get_data() == {'GBS1A-1': ('.26077_6_118.11', '39458', '40418', 'forward', '1', '+'),
-                                        'GBS2B-1': ('.26077_6_118.2', '185771', '186836', 'forward', '1', '+'),
-                                        'GBS2X-1': ('.26077_6_118.11', '51259', '52297', 'reverse', '1', '-')}
+        self.assertEqual(actual['GBS1A-1'], 'GACATCTACAACAGTGACACTTACATCGCTTATCCAAACAATGAATTACAAATAGCATCTACCATCATGGATGCGACTAATGGTAAAGTCATTGCACAATTAGGCGGGCGTCATCAGAATGAAAATATTTCATTTGGGACAAATCAATCTGTCTTAACAGACCGCGATTGGGGTTCTACAATGAAACCTATCTCAGCTTATGCACCTGCTATTGATAGTGGTGTCTATAATTCAACAGGTCAATCATTAAACGACTCAGTTTACTACTGGCCTGGTACTTCTACTCAACTATATGACTGGGATCGTCAATATATGGGTTGGATGAGTATGCAGACCGCTATTCAACAATCACGTAACGTCCCTGCTGTCAGAGCACTTGAAGCCGCTGGATTAGACGAAGCAAAATCTTTCCTTGAAAAATTAGGCATATACTATCCAGAAATGAACTATTCAAATGCTATTTCAAGTAACAACAGTAGCAGTGATGCAAAATATGGTGCAAGTAGTGAGAAAATGGCAGCGGCTTACTCGGCTTTTGCAAACGGCGGAACTTACTATAAACCGCAATATGTTAATAAAATTGAATTTAGCGATGGAACCAATGATACTTATGCAGCGTCTGGTAGCCGTGCGATGAAAGAGACTACTGCCTACATGATGACGGATATGCTGAAAACAGTACTAACATTTGGTACTGGTACTAAAGCAGCTATCCCTGGTGTTGCACAAGCTGGTAAGACTGGTACTTCCAACTATACGGAAGATGAGTTAGCTAAAATTGAAGCAACTACTGGTATCTACAATAGCGCCGTTGGTACAATGGCTCCTGATGAAAACTTTGTCGGCTATACTTCTAAGTACACAATGGCAATTTGGACTGGTTATAAAAATCGCCTTACACCACTTTATGGTAGCCAACTGGATATTGCTACTGAGGTTTATCGTGCAATGATGTCCTAC')
 
 
-@pytest.mark.parametrize("name,content", [
-    ('GBS1A-1', ['.26077_6_118.11\t39458\t40418\tforward\t1\t+\n']),
-    ('GBS2B-1', ['.26077_6_118.2\t185771\t186836\tforward\t1\t+\n']),
-    ('GBS2X-1', ['.26077_6_118.11\t51259\t52297\treverse\t1\t-\n'])
-])
-def test_write_start_end_positions(prep_fragment_data, name, content):
-    """
-    Test output file contents containing start and end positions
-    """
-    fragment_data, best_blast_hits, seq_lengths = prep_fragment_data
-    fragment_data.get_start_end_positions(best_blast_hits, seq_lengths, 0.5, 0.5)
-    fragment_data_location = 'test_data/output/' + name + '.bed'
-    fragment_data.write_start_end_positions('test_data/output/')
-    fo = open(fragment_data_location, 'r')
+    def test_calculate_seq_length(self):
+        """
+        Test the sequence lengths output
+        """
+        seq_data_to_analyse = SeqData(self.TEST_SEQ_DATA)
+        actual = seq_data_to_analyse.calculate_seq_length()
+        params_list = [
+            ('GBS1A-1', 960),
+            ('GBS2B-1', 1065),
+            ('GBS2X-1', 1038)
+        ]
 
-    assert fo.readlines() == content
+        for param in params_list:
+            self.assertEqual(actual[param[0]], param[1])
 
 
-def test_read_seq_data(prep_seq_data):
-    """
-    Test output of sequence data
-    """
-    seq_data_to_analyse = prep_seq_data
-    actual = seq_data_to_analyse.get_data()
-
-    assert actual['GBS1A-1'] == 'GACATCTACAACAGTGACACTTACATCGCTTATCCAAACAATGAATTACAAATAGCATCTACCATCATGGATGCGACTAATGGTAAAGTCATTGCACAATTAGGCGGGCGTCATCAGAATGAAAATATTTCATTTGGGACAAATCAATCTGTCTTAACAGACCGCGATTGGGGTTCTACAATGAAACCTATCTCAGCTTATGCACCTGCTATTGATAGTGGTGTCTATAATTCAACAGGTCAATCATTAAACGACTCAGTTTACTACTGGCCTGGTACTTCTACTCAACTATATGACTGGGATCGTCAATATATGGGTTGGATGAGTATGCAGACCGCTATTCAACAATCACGTAACGTCCCTGCTGTCAGAGCACTTGAAGCCGCTGGATTAGACGAAGCAAAATCTTTCCTTGAAAAATTAGGCATATACTATCCAGAAATGAACTATTCAAATGCTATTTCAAGTAACAACAGTAGCAGTGATGCAAAATATGGTGCAAGTAGTGAGAAAATGGCAGCGGCTTACTCGGCTTTTGCAAACGGCGGAACTTACTATAAACCGCAATATGTTAATAAAATTGAATTTAGCGATGGAACCAATGATACTTATGCAGCGTCTGGTAGCCGTGCGATGAAAGAGACTACTGCCTACATGATGACGGATATGCTGAAAACAGTACTAACATTTGGTACTGGTACTAAAGCAGCTATCCCTGGTGTTGCACAAGCTGGTAAGACTGGTACTTCCAACTATACGGAAGATGAGTTAGCTAAAATTGAAGCAACTACTGGTATCTACAATAGCGCCGTTGGTACAATGGCTCCTGATGAAAACTTTGTCGGCTATACTTCTAAGTACACAATGGCAATTTGGACTGGTTATAAAAATCGCCTTACACCACTTTATGGTAGCCAACTGGATATTGCTACTGAGGTTTATCGTGCAATGATGTCCTAC'
-
-
-@pytest.mark.parametrize("allele,length", [
-    ('GBS1A-1', 960),
-    ('GBS2B-1', 1065),
-    ('GBS2X-1', 1038)
-])
-def test_calculate_seq_length(prep_seq_data, allele, length):
-    """
-    Test the sequence lengths output
-    """
-    seq_data_to_analyse = prep_seq_data
-    actual = seq_data_to_analyse.calculate_seq_length()
-
-    assert actual[allele] == length
+    def test_arguments(self):
+        actual = get_arguments().parse_args(
+            ['--blast_out_file', 'blast_out_file', '--query_fasta', 'fasta_file',
+            '--frac_align_len_threshold', '0.6', '--frac_identity_threshold', '0.6',
+            '--output_prefix', 'out_prefix'])
+        self.assertEqual(actual, argparse.Namespace(blast_out='blast_out_file',
+        fasta_qu='fasta_file', frac_align=0.6, frac_ident=0.6, output='out_prefix'))
 
 
-def test_arguments():
-    actual = get_arguments().parse_args(
-        ['--blast_out_file', 'blast_out_file', '--query_fasta', 'fasta_file',
-        '--frac_align_len_threshold', '0.6', '--frac_identity_threshold', '0.6',
-        '--output_prefix', 'out_prefix'])
-    assert actual == argparse.Namespace(blast_out='blast_out_file',
-    fasta_qu='fasta_file', frac_align=0.6, frac_ident=0.6, output='out_prefix')
+    def test_arguments_short_options(self):
+        actual = get_arguments().parse_args(
+            ['-b', 'blast_out_file', '-f', 'fasta_file',
+            '-fa', '0.5', '-fi', '0.5', '-o', 'out_prefix'])
+        self.assertEqual(actual, argparse.Namespace(blast_out='blast_out_file',
+        fasta_qu='fasta_file', frac_align=0.5, frac_ident=0.5, output='out_prefix'))
 
 
-def test_arguments_short_options():
-    actual = get_arguments().parse_args(
-        ['-b', 'blast_out_file', '-f', 'fasta_file',
-        '-fa', '0.5', '-fi', '0.5', '-o', 'out_prefix'])
-    assert actual ==  argparse.Namespace(blast_out='blast_out_file',
-    fasta_qu='fasta_file', frac_align=0.5, frac_ident=0.5, output='out_prefix')
+    def test_check_arguments_frac_align(self):
+        params_list = [
+            (1.1, 0.5),
+            (-0.1, 0.5)
+        ]
+        for param in params_list:
+            args = argparse.Namespace(blast_out='blast_out_file',
+            fasta_qu='fasta_file', frac_align=param[0], frac_ident=param[1], output='bed_file')
+
+            with self.assertRaises(Exception) as exp:
+                check_arguments(args)
+            self.assertEqual(str(exp.exception), "Invalid frac_align_len_threshold value. Value must be between 0 and 1.")
 
 
-@pytest.mark.parametrize("frac_align,frac_ident", [
-    (1.1, 0.5),
-    (-0.1, 0.5)
-])
-def test_check_arguments_frac_align(frac_align, frac_ident):
-    args = argparse.Namespace(blast_out='blast_out_file',
-    fasta_qu='fasta_file', frac_align=frac_align, frac_ident=frac_ident, output='bed_file')
+    def test_check_arguments_frac_ident(self):
+        params_list = [
+            (0.5, 1.1),
+            (0.5, -0.1)
+        ]
+        for param in params_list:
+            args = argparse.Namespace(blast_out='blast_out_file',
+            fasta_qu='fasta_file', frac_align=param[0], frac_ident=param[1], output='bed_file')
 
-    with pytest.raises(Exception) as exp:
-        check_arguments(args)
-    assert str(exp.value) == "Invalid frac_align_len_threshold value. Value must be between 0 and 1."
+            with self.assertRaises(Exception) as exp:
+                check_arguments(args)
+            self.assertEqual(str(exp.exception), "Invalid frac_identity_threshold value. Value must be between 0 and 1.")
 
 
-@pytest.mark.parametrize("frac_align,frac_ident", [
-    (0.5, 1.1),
-    (0.5, -0.1)
-])
-def test_check_arguments_frac_ident(frac_align, frac_ident):
-    args = argparse.Namespace(blast_out='blast_out_file',
-    fasta_qu='fasta_file', frac_align=frac_align, frac_ident=frac_ident, output='bed_file')
+    @patch('get_pbp_genes_from_contigs.get_arguments')
+    def test_main(self, mock_get_arguments):
+        args = mock_get_arguments.return_value.parse_args()
+        args.blast_out = self.TEST_BLAST_DATA
+        args.fasta_qu = self.TEST_SEQ_DATA
+        args.frac_align = 0.5
+        args.frac_ident = 0.5
+        args.output = self.TEST_OUTPUT_PREFIX
+        main()
+        fo = open('test_data/output/TEST_GBS1A-1.bed', 'r')
 
-    with pytest.raises(Exception) as exp:
-        check_arguments(args)
-    assert str(exp.value) == "Invalid frac_identity_threshold value. Value must be between 0 and 1."
+        self.assertEqual(fo.readlines(), ['.26077_6_118.11\t39458\t40418\tforward\t1\t+\n'])

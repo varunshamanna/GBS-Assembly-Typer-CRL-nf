@@ -55,7 +55,7 @@ def main():
     if identical_allele:
         write_content(identical_allele, args.output + '_existing_allele.txt')
     elif imperfect_allele:
-        write_content(imperfect_allele, args.ouptut + '_new_allele.faa')
+        write_content(imperfect_allele, args.output + '_new_allele.faa')
     else:
         print('Error: No hits found.')
 
