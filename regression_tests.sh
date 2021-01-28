@@ -14,17 +14,6 @@ while getopts ":s" opt; do
   esac
 done
 
-SUDO_OPT=
-while getopts ":s" opt; do
-  case ${opt} in
-    s ) SUDO_OPT="sudo "
-      ;;
-    \? ) echo "Usage: $0 [-s to run with sudo]"
-         exit 1
-      ;;
-  esac
-done
-
 echo "Starting regression tests..."
 echo ""
 
