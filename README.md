@@ -20,8 +20,16 @@ git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 cd GBS-Typer-sanger-nf
 ```
 
+Please note that if you need reproducibility for a research paper, you should use a specific version
+(usually the latest). This can be done by adding a **-b <git tag version>** to the git clone command above. 
+Alternatively, you can use:
+```
+nextflow clone -r <git tag version> sanger-pathogens/GBS-Typer-sanger-nf
+```
+If running on an LSF head node you will need to bsub the **nextflow clone** command.
+
 ### Usage
-Note: Running the pipeline requires an internet connection.
+Note: Running the pipeline requires an internet connection to allow the pipeline to automatically download its [dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf).
 
 #### To run on one sample:
 ```
@@ -61,6 +69,8 @@ bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusag
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -profile sanger,lsf"
 ```
 This will instruct Nextflow to run tasks as separate LSF jobs in parallel and can be significantly faster. The default is to run up to 20 jobs at a time. The default settings can be tuned to your requirements by editing the **lsf** profile within the nextflow.config file.
+
+Specifying the **sanger** profile will instruct the pipeline to build a local singularity image from the [docker hub dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf).
 
 Add a **-N 'my-email-address'** to the end of the command line if you wish to be sent a report by email upon completion of the pipeline.
 
@@ -236,6 +246,22 @@ nextflow run main.nf --output 'output_file_prefix' --run_sero_res false --run_pb
 ```
 The **--reads** parameter is not needed for the PBP typing pipeline.
 
+## Dependencies
+All pipeline dependencies are built into the [docker hub dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf), used by the pipeline.
+The current program versions in this image are as follows:
+
+Program | Version 
+:---: | :---: 
+bedtools | 2.29.2 
+biopython | 1.78 
+bowtie | 2.2.9 
+freebayes | 1.3.3+ 
+prodigal | 1:2.6.3 
+python 2 | 2.7
+python 3 | 3.8
+samtools | 0.1.18 
+srst2 | 0.2.0 
+
 ## For developers
 ### Run unit tests
 ```
@@ -248,4 +274,4 @@ Once all changes have been pushed to the main branch, confirm that the CI has ru
 ```
 release.sh <version number (without v)>
 ```
-This will tag the main branch.
+This will tag the main branch with the specified version number.
