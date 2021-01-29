@@ -353,6 +353,14 @@ workflow {
 
         // PBP Typer
         if (params.run_pbptyper){
+
+            // Check if contigs specified
+            if (params.contigs == ""){
+                println("Please specify contigs with --contigs.")
+                println("Print help with --contigs")
+                System.exit(1)
+            }
+
             contig_paths = Channel
                 .fromPath(params.contigs, checkIfExists: true)
                 .map { file -> tuple(file.baseName, file) }
