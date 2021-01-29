@@ -2,7 +2,7 @@ import unittest
 import argparse
 from unittest.mock import patch, call, ANY
 
-from combine_results import get_content_with_id, get_sero_res_contents, get_arguments, main
+from bin.combine_results import get_content_with_id, get_sero_res_contents, get_arguments, main
 
 
 class TestCombineResults(unittest.TestCase):
@@ -63,10 +63,10 @@ class TestCombineResults(unittest.TestCase):
         self.assertEqual(actual,
                          argparse.Namespace(which='pbp_typer', id='id', pbp_allele='pbp_file', output='output_prefix'))
 
-    @patch('combine_results.get_arguments')
-    @patch('combine_results.get_sero_res_contents')
+    @patch('bin.combine_results.get_arguments')
+    @patch('bin.combine_results.get_sero_res_contents')
     @patch('lib.file_utils.FileUtils.write_output')
-    @patch('combine_results.get_content_with_id')
+    @patch('bin.combine_results.get_content_with_id')
     def test_main_for_sero_res(self, mock_get_content_with_id, mock_write_output, mock_get_sero_res_contents, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.which = "sero_res"
@@ -84,9 +84,9 @@ class TestCombineResults(unittest.TestCase):
             call(args.id, args.variants)
         ], any_order=False)
 
-    @patch('combine_results.get_arguments')
+    @patch('bin.combine_results.get_arguments')
     @patch('lib.file_utils.FileUtils.write_output')
-    @patch('combine_results.get_content_with_id')
+    @patch('bin.combine_results.get_content_with_id')
     def test_main_for_surface_typer(self, mock_get_content_with_id, mock_write_output, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.which = "surface_typer"
@@ -101,9 +101,9 @@ class TestCombineResults(unittest.TestCase):
             call(args.id, args.surface_variants)
         ], any_order=False)
 
-    @patch('combine_results.get_arguments')
+    @patch('bin.combine_results.get_arguments')
     @patch('lib.file_utils.FileUtils.write_output')
-    @patch('combine_results.get_content_with_id')
+    @patch('bin.combine_results.get_content_with_id')
     def test_main_for_pbp_typer(self, mock_get_content_with_id, mock_write_output, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.which = "pbp_typer"
@@ -116,9 +116,9 @@ class TestCombineResults(unittest.TestCase):
             call(args.id, args.pbp_allele)
         ], any_order=False)
 
-    @patch('combine_results.get_arguments')
+    @patch('bin.combine_results.get_arguments')
     @patch('lib.file_utils.FileUtils.write_output')
-    @patch('combine_results.get_content_with_id')
+    @patch('bin.combine_results.get_content_with_id')
     def test_main_no_option(self, mock_get_content_with_id, mock_write_output, mock_get_arguments):
         main()
         mock_get_arguments.return_value.print_help.assert_called_once()

@@ -2,7 +2,7 @@ import argparse
 import unittest
 from unittest.mock import patch, call, ANY
 
-from get_pbp_alleles import BlastData, SeqData, get_identical_allele, get_imperfect_allele, write_content, get_arguments, main
+from bin.get_pbp_alleles import BlastData, SeqData, get_identical_allele, get_imperfect_allele, write_content, get_arguments, main
 
 class TestGetPBPAlleles(unittest.TestCase):
     TEST_BLAST_DATA = 'test_data/input/test_blast_PBP_alleles.out'
@@ -141,7 +141,7 @@ class TestGetPBPAlleles(unittest.TestCase):
         fasta_qu='fasta_file', output='out_prefix'))
 
 
-    @patch('get_pbp_alleles.get_arguments')
+    @patch('bin.get_pbp_alleles.get_arguments')
     def test_main_with_identical_alleles(self, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.blast_out = self.TEST_BLAST_DATA
@@ -153,7 +153,7 @@ class TestGetPBPAlleles(unittest.TestCase):
         self.assertEqual(fo.readlines(), ['Contig\tPBP_allele\n', '.26077_6_118.11:39458-40418(+)\t1||GBS_1A\n'])
 
 
-    @patch('get_pbp_alleles.get_arguments')
+    @patch('bin.get_pbp_alleles.get_arguments')
     def test_main_with_imperfect_alleles(self, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.blast_out = self.TEST_BLAST_IMPERFECT_DATA

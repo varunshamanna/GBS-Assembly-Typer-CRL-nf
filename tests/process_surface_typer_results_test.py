@@ -1,7 +1,7 @@
 import argparse
 import unittest
 from unittest.mock import patch, call, ANY
-from process_surface_typer_results import get_arguments, run,  \
+from bin.process_surface_typer_results import get_arguments, run,  \
      derive_presence_absence, update_protein_presence_absence, featureCol, binFeatureCol, variantLookup
 
 
@@ -35,7 +35,7 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
             'RIB': '-',
         }
 
-    @patch('process_surface_typer_results.update_protein_presence_absence')
+    @patch('bin.process_surface_typer_results.update_protein_presence_absence')
     def test_derive_presence_absence(self, mock_update_protein_presence_absence):
         derive_presence_absence(
             self.TEST_GBS_FULLGENES_RESULTS_FILE, self.MIN_DEPTH, mock_update_protein_presence_absence)
@@ -175,7 +175,7 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
                          argparse.Namespace(
                              fullgenes_file_id='srst2_output_name', db='sero_db', output='outfile', min_depth=30.0))
 
-    @patch('process_surface_typer_results.derive_presence_absence')
+    @patch('bin.process_surface_typer_results.derive_presence_absence')
     @patch('lib.file_utils.FileUtils.create_output_contents')
     @patch('lib.file_utils.FileUtils.write_output')
     def test_run(self, mock_write_output, mock_create_output_contents, mock_derive_presence_absence):

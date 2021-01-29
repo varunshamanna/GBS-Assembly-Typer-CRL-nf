@@ -2,7 +2,7 @@ import argparse
 import io
 import unittest
 
-from process_serotyper_results import write_line, make_gene_dict, get_arguments
+from bin.process_serotyper_results import write_line, make_gene_dict, get_arguments
 
 
 

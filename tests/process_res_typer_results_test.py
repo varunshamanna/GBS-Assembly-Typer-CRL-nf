@@ -2,7 +2,7 @@ import argparse
 import unittest
 from unittest.mock import patch, call, ANY
 
-from process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
+from bin.process_res_typer_results import get_arguments, codon2aa, derive_presence_absence_targets, \
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
     get_gene_names_from_consensus, get_variants, run, main, get_seq_content, \
@@ -588,14 +588,14 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({}, drug_res_col_dict)
         self.assertEqual({}, res_target_dict)
 
-    @patch('process_res_typer_results.update_presence_absence_target')
+    @patch('bin.process_res_typer_results.update_presence_absence_target')
     def test_derive_presence_absence_targets(self, mock):
 
         calls = [call("23S1", "23S1-1", 1135.571, ANY), call("23S3", "23S3-3", 1265.721, ANY)]
         derive_presence_absence_targets(self.TEST_GBS_FULLGENES_RESULTS_FILE)
         mock.assert_has_calls(calls, any_order=False)
 
-    @patch('process_res_typer_results.update_presence_absence_target_for_arg_res')
+    @patch('bin.process_res_typer_results.update_presence_absence_target_for_arg_res')
     def derive_presence_absence_targets_for_arg_res(self, mock):
         calls = [
             call("tet(M)", "tet(M)_12", 132.04, ANY, ANY),
@@ -637,7 +637,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         actual = find_mismatches([], 'GGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG', geneToRef['23S3'])
         self.assertEqual(actual, ['C1G'])
 
-    @patch('process_res_typer_results.six_frame_translate')
+    @patch('bin.process_res_typer_results.six_frame_translate')
     def test_get_seq_diffs(self, mock_six_frame_translate):
         mock_six_frame_translate.return_value = 'HPHGDSSIYDAMVRMSQ'
         get_seq_diffs('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', geneToRef['PARC'])
@@ -742,11 +742,11 @@ class TestProcessResTyperResults(unittest.TestCase):
         actual = get_gene_names_from_consensus(consensus_seq_dict)
         self.assertEqual(actual, ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4'])
 
-    @patch('process_res_typer_results.get_seq_content')
-    @patch('process_res_typer_results.get_gene_names_from_consensus')
-    @patch('process_res_typer_results.get_seq_diffs')
-    @patch('process_res_typer_results.update_GBS_Res_var')
-    @patch('process_res_typer_results.update_drug_res_col_dict')
+    @patch('bin.process_res_typer_results.get_seq_content')
+    @patch('bin.process_res_typer_results.get_gene_names_from_consensus')
+    @patch('bin.process_res_typer_results.get_seq_diffs')
+    @patch('bin.process_res_typer_results.update_GBS_Res_var')
+    @patch('bin.process_res_typer_results.update_drug_res_col_dict')
     def test_get_variants(self, mock_update_drug_res_col_dict, mock_update_GBS_Res_var, mock_get_seq_diffs, mock_get_gene_names_from_consensus, mock_get_seq_content):
         mock_get_seq_content.return_value = {
             '11__23S1__23S1-1__11': 'GTTACCCGCGACAGGACGGAAAGACCCCATGGAG',
@@ -767,10 +767,10 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual(mock_update_GBS_Res_var.call_args_list, [])
         self.assertEqual(mock_update_drug_res_col_dict.call_args_list, [])
 
-    @patch('process_res_typer_results.derive_presence_absence_targets')
-    @patch('process_res_typer_results.derive_presence_absence_targets_for_arg_res')
+    @patch('bin.process_res_typer_results.derive_presence_absence_targets')
+    @patch('bin.process_res_typer_results.derive_presence_absence_targets_for_arg_res')
     @patch('lib.file_utils.FileUtils.create_output_contents')
-    @patch('process_res_typer_results.get_variants')
+    @patch('bin.process_res_typer_results.get_variants')
     @patch('lib.file_utils.FileUtils.write_output')
     def test_run(self, mock_write_output, mock_get_variants, mock_create_output_contents, mock_derive_presence_absence_targets_for_arg_res, mock_derive_presence_absence_targets):
         args = get_arguments().parse_args(
@@ -805,8 +805,8 @@ class TestProcessResTyperResults(unittest.TestCase):
                                             min_depth = 30.0,
                                             output='output'))
 
-    @patch('process_res_typer_results.get_arguments')
-    @patch('process_res_typer_results.run')
+    @patch('bin.process_res_typer_results.get_arguments')
+    @patch('bin.process_res_typer_results.run')
     def test_main(self, mock_run, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         main()

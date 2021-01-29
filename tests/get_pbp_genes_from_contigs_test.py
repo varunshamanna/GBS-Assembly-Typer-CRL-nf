@@ -2,7 +2,7 @@ import argparse
 import unittest
 from unittest.mock import patch, call, ANY
 
-from get_pbp_genes_from_contigs import BlastData, SeqData, FragmentData, get_arguments, check_arguments, main
+from bin.get_pbp_genes_from_contigs import BlastData, SeqData, FragmentData, get_arguments, check_arguments, main
 
 class TestGetPBPGenesFromContigs(unittest.TestCase):
     TEST_BLAST_DATA = 'test_data/input/test_blast_blactam.out'
@@ -150,7 +150,7 @@ class TestGetPBPGenesFromContigs(unittest.TestCase):
             self.assertEqual(str(exp.exception), "Invalid frac_identity_threshold value. Value must be between 0 and 1.")
 
 
-    @patch('get_pbp_genes_from_contigs.get_arguments')
+    @patch('bin.get_pbp_genes_from_contigs.get_arguments')
     def test_main(self, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.blast_out = self.TEST_BLAST_DATA

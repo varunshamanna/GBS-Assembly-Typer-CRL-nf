@@ -1,0 +1,3 @@
+Alleles found
+adhP_1
+pheS_1

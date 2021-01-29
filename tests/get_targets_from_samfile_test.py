@@ -2,7 +2,7 @@ import argparse
 import unittest
 from unittest.mock import patch, call
 
-from get_targets_from_samfile import get_targets, in_line, write_sam_file, write_target_sam_files, get_arguments
+from bin.get_targets_from_samfile import get_targets, in_line, write_sam_file, write_target_sam_files, get_arguments
 
 
 
@@ -55,7 +55,7 @@ class TestProcessResults(unittest.TestCase):
         self.assertEqual(actual, """@HD\tVN:1.0\tSO:unsorted\n@SQ\tSN:12__23S3__23S3-3__12\tLN:60\n@PG\tID:bowtie2\nHX4_26077:6:2110:21704:24005\t153\t12__23S3__23S3-3__12\t1\n""")
 
 
-    @patch('get_targets_from_samfile.write_sam_file')
+    @patch('bin.get_targets_from_samfile.write_sam_file')
     def test_write_target_sam_files(self, mock_write_sam_file):
         targets = ['7__PARCGBS__PARCGBS-1__7',
             '5__GYRAGBS__GYRAGBS-1__5',

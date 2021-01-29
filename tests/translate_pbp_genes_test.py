@@ -2,7 +2,7 @@ import argparse
 import unittest
 from unittest.mock import patch, call, ANY
 
-from translate_pbp_genes import SeqData, get_arguments, write_seq_dict, main
+from bin.translate_pbp_genes import SeqData, get_arguments, write_seq_dict, main
 
 class TestTranslatePBPGenes(unittest.TestCase):
     TEST_SEQ_DATA = 'test_data/input/test_blactam_contig_fragments.fasta'
@@ -56,7 +56,7 @@ class TestTranslatePBPGenes(unittest.TestCase):
         self.assertEqual(actual, argparse.Namespace(fasta='fasta_file', output='out_file'))
 
 
-    @patch('translate_pbp_genes.get_arguments')
+    @patch('bin.translate_pbp_genes.get_arguments')
     def test_main(self, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.fasta = self.TEST_SEQ_DATA
