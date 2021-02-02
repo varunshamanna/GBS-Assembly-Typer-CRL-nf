@@ -265,7 +265,6 @@ srst2 | 0.2.0
 ## For developers
 ### Run unit tests
 ```
-cd bin
 python3 -m pytest
 ```
 
