@@ -21,7 +21,7 @@ cd GBS-Typer-sanger-nf
 ```
 
 Please note that if you need reproducibility for a research paper, you should use a specific version
-(usually the latest). This can be done by adding a **-b <git tag version>** to the git clone command above. 
+(usually the latest). This can be done by adding a **-b <git tag version>** to the git clone command above.
 Alternatively, you can use:
 ```
 nextflow clone -r <git tag version> sanger-pathogens/GBS-Typer-sanger-nf
@@ -151,7 +151,7 @@ All default options can be changed by editing the ```nextflow.config``` file.
 ### MLST Pipeline Usage
 To include MLST pipeline to query new MLST alleles
 ```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --new_mlst
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_mlst
 ```
 
 This will produce a text file including sequences and pileups for each allele with sufficient read depth greater than or equal to the --mlst_min_read_depth for each sample called <sampleID>_new_mlst_alleles.txt in the 'results' directory.
@@ -250,17 +250,17 @@ The **--reads** parameter is not needed for the PBP typing pipeline.
 All pipeline dependencies are built into the [docker hub dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf), used by the pipeline.
 The current program versions in this image are as follows:
 
-Program | Version 
-:---: | :---: 
-bedtools | 2.29.2 
-biopython | 1.78 
-bowtie | 2.2.9 
-freebayes | 1.3.3+ 
-prodigal | 1:2.6.3 
+Program | Version
+:---: | :---:
+bedtools | 2.29.2
+biopython | 1.78
+bowtie | 2.2.9
+freebayes | 1.3.3+
+prodigal | 1:2.6.3
 python 2 | 2.7
 python 3 | 3.8
-samtools | 0.1.18 
-srst2 | 0.2.0 
+samtools | 0.1.18
+srst2 | 0.2.0
 
 ## For developers
 ### Run unit tests
