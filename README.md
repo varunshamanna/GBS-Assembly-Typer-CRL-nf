@@ -6,6 +6,8 @@ An updated NextFlow version of [Ben Metcalf's GBS Typer pipeline](https://github
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/sangerpathogens/gbs-typer-sanger-nf)   
 [![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/main/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)   
 
+## Issues
+If any questions or problems, please post them under [Issues](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/issues).
 
 ## Running the pipeline on a local machine
 
@@ -59,12 +61,18 @@ module load ISG/singularity
 module load nextflow
 ```
 
-3. For a single sample, run using bsub and add '-profile sanger' as an option, e.g.
+3. If running on farm5, you will need to set the http/http proxy
+```
+export http_proxy=http://wwwcache.sanger.ac.uk:3128
+export https_proxy=http://wwwcache.sanger.ac.uk:3128
+```
+
+4. For a single sample, run using bsub and add '-profile sanger' as an option, e.g.
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID' -profile sanger"
 ```
 
-4. For multiple samples, also run using bsub and add '-profile sanger,lsf', e.g.
+5. For multiple samples, also run using bsub and add '-profile sanger,lsf', e.g.
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -profile sanger,lsf"
 ```
