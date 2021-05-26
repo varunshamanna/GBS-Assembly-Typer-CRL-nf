@@ -61,7 +61,7 @@ module load ISG/singularity
 module load nextflow
 ```
 
-3. If running on farm5, you will need to set the http/http proxy
+3. If running on farm5, you will need to set the http/https proxy
 ```
 export http_proxy=http://wwwcache.sanger.ac.uk:3128
 export https_proxy=http://wwwcache.sanger.ac.uk:3128
