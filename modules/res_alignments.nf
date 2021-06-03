@@ -9,12 +9,12 @@ process srst2_for_res_typing {
     val(min_coverage) // String of minimum coverage parameter(s) for SRST2
     val(max_divergence) // String of maximum coverage parameter(s) for SRST2
 
-    publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
+    publishDir "./${tmp_dir}/${pair_id}", mode: 'copy', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
 
     output:
     tuple val(pair_id), file("${pair_id}*.bam"), emit: bam_files
     val(pair_id), emit: id
-    file("${pair_id}_${db_name}_*__fullgenes__*__results.txt")
+    file("${pair_id}_${db_name}_*__fullgenes__*__results.txt") optional true
 
     """
     db_list='${dbs}'
@@ -81,7 +81,7 @@ process freebayes {
     file(target_ref) // FASTA file of target sequence
     path(tmp_dir)
 
-    publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true
+    publishDir "./${tmp_dir}/${pair_id}", mode: 'copy', overwrite: true
 
     output:
     val(pair_id), emit: id

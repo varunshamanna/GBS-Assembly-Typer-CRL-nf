@@ -373,10 +373,10 @@ workflow {
             PBP2X(get_pbp_genes.out)
 
             PBP1A.out
-                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true)
-            PBP2B.out
-                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true)
-            PBP2X.out
-                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true)
+            .concat(PBP2B.out, PBP2X.out)
+            .set { PBP_all }
+
+            PBP_all
+                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true, sort: true)
         }
 }

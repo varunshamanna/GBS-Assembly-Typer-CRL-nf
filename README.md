@@ -86,7 +86,7 @@ Add a **-N 'my-email-address'** to the end of the command line if you wish to be
 ## Output
 
 ### One sample
-Using command:
+If the following command was used:
 ```
 nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID'
 ```
@@ -114,11 +114,16 @@ ID | EC | FQ | OTHER | TET
 25292_2#105 | 23S1:23S3 | PARC-Q17S:GYRA | neg | tet(M)[tet(M)_1]
 
 ### Multiple samples
-Using command:
+If the following command was used:
 ```
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix'
 ```
 This will produce combined tables of output_file_prefix_serotype_res_incidence.txt, output_file_prefix_gbs_res_variants.txt and output_file_prefix_drug_cat_alleles_variants.txt in the 'results' directory that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
+
+## Errors
+It is possible that the pipeline may not complete successfully due to issues with input files and/or individual steps of the pipeline. To troubleshoot potential issues, you can use the `-trace` parameter e.g. `nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -trace` to create a trace file in the current directory while the pipeline is running. The trace file will provide the status of the current directory that provides the status and the location of the log files for each sample and step. For example, if the step failed in `[00/8803ea]`, the command and the error from this step can be viewed by `cat work/00/8803ea01f8bc0fb43f68335d82831f/.command.log` (Hint: while typing `work/00/8803ea`, the complete file path can be completed with the TAB button.)
+
+Alternatively, if `-trace` was not provided in the original command, then you can also find the location of these directories in the bsub output e.g. `grep 'Error' pipeline.o | sort | uniq`.
 
 ## Additional options
 ### Inputs

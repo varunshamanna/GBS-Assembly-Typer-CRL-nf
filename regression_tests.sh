@@ -72,7 +72,7 @@ out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_existing_pbp_alleles.txt output
-file_diff "${out_dir}/test_existing_pbp_alleles.txt" "${out_dir}/reference_existing_pbp_alleles.txt"
+sort "${out_dir}/test_existing_pbp_alleles.txt" | file_diff - "${out_dir}/reference_existing_pbp_alleles.txt"
 out=$?
 error_status=$(($error_status | $out))
 
