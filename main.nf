@@ -148,7 +148,7 @@ params.existing_pbp_alleles_out = "${params.output}_existing_pbp_alleles.txt"
 params.surface_protein_incidence_out = "${params.output}_surface_protein_incidence.txt"
 params.surface_protein_variants_out = "${params.output}_surface_protein_variants.txt"
 params.existing_mlst_alleles_out = "${params.output}_existing_sequence_types.txt"
-
+params.new_mlst_alleles_status = "${params.output}_new_mlst_alleles.log"
 
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
@@ -343,9 +343,8 @@ workflow {
             }
             MLST.out.existing_alleles
                 .collectFile(name: file("${results_dir}/${params.existing_mlst_alleles_out}"), keepHeader: true, sort: true)
-            MLST.out.status.subscribe { it ->
-                it.copyTo(file("${results_dir}"))
-            }
+            MLST.out.status
+                .collectFile(name: file("${results_dir}/${params.new_mlst_alleles_status}"), keepHeader: false, sort: true)
 
         }
 

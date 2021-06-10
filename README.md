@@ -167,9 +167,9 @@ To include the MLST pipeline to query existing sequence types and new MLST allel
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_mlst
 ```
 
-This will produce a new MLST log file for each sample `*_new_mlst_alleles.log` indicating whether new MLST alleles have been found (where there are mismatches with sufficient read depth at least the value specified --mlst_min_read_depth [Default: 30]). If it reads "New MLST alleles found." then a FASTA file for the corresponding sample `<sampleID>_new_mlst_alleles.fasta` and a pileup file `<sampleID>_new_mlst_pileup.txt` are generated.
+This will produce a new MLST log file `<output_file_prefix>_new_mlst_alleles.log` indicating whether new MLST alleles have been found for each sample (where there are mismatches with sufficient read depth at least the value specified --mlst_min_read_depth [Default: 30]). If it includes "<sample_id>: New MLST alleles found." then a FASTA file for the corresponding sample `<sampleID>_new_mlst_alleles.fasta` and a pileup file `<sampleID>_new_mlst_pileup.txt` are generated.
 
-For other samples that have no new MLST alleles and only have existing sequence types, these existing are generated in `<output_file_prefix>_existing_sequence_types.txt`. If "None found" for a sample then no sequence types were found with sufficient read depth at least the value specified by --mlst_min_read_depth [Default: 30]).
+For other samples that have no new MLST alleles and only have existing sequence types, these existing types are generated in `<output_file_prefix>_existing_sequence_types.txt`. If "None found" for a sample then no sequence types were found with sufficient read depth at least the value specified by --mlst_min_read_depth [Default: 30]).
 
 
 ### Surface Protein Typing Pipeline Usage

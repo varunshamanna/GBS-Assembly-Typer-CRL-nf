@@ -8,7 +8,10 @@ def get_mismatch_and_depth(file):
         next(txt)
         for line in txt:
             values = line.split('\t')
-            mismatch_depth = (str(values[9]), float(values[11]), "ST-{}".format(str(values[1])))
+            if values[1] != "failed":
+                mismatch_depth = (str(values[9]), float(values[11]), "ST-{}".format(str(values[1])))
+            else:
+                mismatch_depth = 0
     return mismatch_depth
 
 
@@ -25,7 +28,7 @@ def get_new_and_existing_alleles(mismatch_depth, min_read_depth, output_prefix):
             mismatches = mismatch_depth[0].split(';')
             alleles = ['Alleles found'] + [mismatch.split('/')[0] for mismatch in mismatches]
         else:
-            alleles = ['No new MLST alleles were found with sufficient read depth above ' + str(min_read_depth) + '.']
+            alleles = [output_prefix + ': No new MLST alleles were found with sufficient read depth above ' + str(min_read_depth) + '.']
         write_alleles_file(alleles, "{}_new_mlst_alleles.txt".format(output_prefix))
     else:
         if mismatch_depth[1] >= min_read_depth:

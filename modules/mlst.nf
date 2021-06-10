@@ -43,7 +43,7 @@ process get_mlst_allele_and_pileup {
     # Get consensus allele and variant pileup for each allele
     if [[ \${num_alleles} -gt 1 ]]
     then
-        echo "New MLST alleles found." > ${pair_id}_new_mlst_alleles.log
+        echo "${pair_id}: New MLST alleles found." > ${pair_id}_new_mlst_alleles.log
         for ((i=0;i<\${num_alleles};i++)); # Skip first line of alleles file
         do
             target_allele=\$(sed -n \"\${i+1}p\" ${pair_id}_mlst_alleles.txt)
@@ -66,7 +66,7 @@ process get_mlst_allele_and_pileup {
     then
         cat ${pair_id}_new_mlst_alleles.txt > ${pair_id}_new_mlst_alleles.log
     else
-        echo "No new MLST alleles found." > ${pair_id}_new_mlst_alleles.log
+        echo "${pair_id}: No new MLST alleles found." > ${pair_id}_new_mlst_alleles.log
     fi
 
     """
