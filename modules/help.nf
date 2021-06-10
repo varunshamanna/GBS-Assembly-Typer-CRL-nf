@@ -43,7 +43,7 @@ def printHelp() {
     Other Pipeline Options:
       --run_sero_res                Run the main serotyping and resistance pipelines. (Default: true)
                                     Use '--run_sero_res false' to override the default.
-      --run_mlst                    Run the MLST pipeline to query new MLST alleles. (Default: false)
+      --run_mlst                    Run the MLST pipeline to query existing sequence types and new MLST alleles. (Default: false)
       --run_pbptyper                Run the PBP (Penicillin binding protein) allele typer pipeline. Must also specify
                                     --contigs input. (Default: false)
       --run_surfacetyper            Run the surface protein typing pipeline. (Default: false)

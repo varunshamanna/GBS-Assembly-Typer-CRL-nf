@@ -146,7 +146,7 @@ Alternatively, if `-trace` was not provided in the original command, then you ca
 ### Other Pipeline Options
     --run_sero_res                  Run the main serotyping and resistance pipelines. (Default: true)
                                     Use '--run_sero_res false' to override the default.
-    --run_mlst                      Run the MLST pipeline to query new MLST alleles. (Default: false)
+    --run_mlst                      Run the MLST pipeline to query existing sequence types and new MLST alleles. (Default: false)
     --run_pbptyper                  Run the PBP (Penicillin binding protein) allele typer pipeline. Must also specify --contigs input. (Default: false)
     --run_surfacetyper              Run the surface protein typing pipeline. (Default: false)
 
@@ -162,27 +162,15 @@ All default options can be changed by editing the ```nextflow.config``` file.
 
 ## Other Pipelines
 ### MLST Pipeline Usage
-To include MLST pipeline to query new MLST alleles
+To include the MLST pipeline to query existing sequence types and new MLST alleles:
 ```
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_mlst
 ```
 
-This will produce a text file including sequences and pileups for each allele with sufficient read depth greater than or equal to the --mlst_min_read_depth for each sample called <sampleID>_new_mlst_alleles.txt in the 'results' directory.
+This will produce a new MLST log file for each sample `*_new_mlst_alleles.log` indicating whether new MLST alleles have been found (where there are mismatches with sufficient read depth at least the value specified --mlst_min_read_depth [Default: 30]). If it reads "New MLST alleles found." then a FASTA file for the corresponding sample `<sampleID>_new_mlst_alleles.fasta` and a pileup file `<sampleID>_new_mlst_pileup.txt` are generated.
 
-    New MLST Allele Consensus:
-    >adhP_1
-    CCAGGACGCATTTTGGGTCACGAAGGCATTGGTATAGTAGAAGAAATTGGAGAAGGCGTA
-    ACGTCTTTGAGGGTTGGTGATCGTGTCTCTATTGCATGGTTCTTTGAAGGGTGCGGTCAT
-    TGCGAATACTGTACTACAGGACGTGAGACACTTTGTCGTAGTGTTAAAAATGCTGGATAC
-    AGTGTTGATGGTGGTATGAGTGAATACGCTATTGTTACCGCGGACTATGCGGTTAAGGTT
-    CCTGAGGGATTAGACCCAGCTCAAGCATCATCAATCACTTGTGCTGGAGTAACAACATAC
-    AAGGCTATCAAAGAAGCTGGAGCTGCTCCTGGTCAGTGGATTGCAGTGTATGGTGCAGGT
-    GGTCTTGGAAACTTAGCAGTCCAATATGCAAAAAAAGTATTCAATGCTCATGTTGTAGCT
-    GTTGATATTAACGCAGATAAACTTCAATTAGCTAAAGAGGTTGGAGCAGATTTGACAGTT
-    AATGGCAAAGAAATAAAA
+For other samples that have no new MLST alleles and only have existing sequence types, these existing are generated in `<output_file_prefix>_existing_sequence_types.txt`. If "None found" for a sample then no sequence types were found with sufficient read depth at least the value specified by --mlst_min_read_depth [Default: 30]).
 
-    New MLST Allele Pileup:
-    adhP_1	1	C	84	^#,^#.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^#.^".^".^".^".^".^".^".^".^".^,.^".^".^".^".^".^".^,.^,.^".^".^".^,.^".^".^".^".^".^".^".^,.^".^".^".^,.^".	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ### Surface Protein Typing Pipeline Usage
 To enable the surface typing pipeline provide the **--run_surfacetyper** command line argument:

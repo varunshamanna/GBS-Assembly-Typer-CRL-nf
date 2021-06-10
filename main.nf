@@ -147,6 +147,7 @@ params.alleles_variants_out = "${params.output}_drug_cat_alleles_variants.txt"
 params.existing_pbp_alleles_out = "${params.output}_existing_pbp_alleles.txt"
 params.surface_protein_incidence_out = "${params.output}_surface_protein_incidence.txt"
 params.surface_protein_variants_out = "${params.output}_surface_protein_variants.txt"
+params.existing_mlst_alleles_out = "${params.output}_existing_sequence_types.txt"
 
 
 // Resistance mapping with the GBS resistance database
@@ -206,9 +207,15 @@ workflow MLST {
 
         // Get new consensus allele and pileup data
         get_mlst_allele_and_pileup(srst2_for_mlst.out, params.mlst_min_read_depth, file(params.mlst_allele_db, checkIfExists: true))
-
+        new_alleles = get_mlst_allele_and_pileup.out.new_alleles
+        pileup = get_mlst_allele_and_pileup.out.pileup
+        existing_alleles = get_mlst_allele_and_pileup.out.existing_alleles
+        status = get_mlst_allele_and_pileup.out.new_alleles_status
     emit:
-        get_mlst_allele_and_pileup.out
+        new_alleles
+        pileup
+        existing_alleles
+        status
 }
 
 // PBP-1A allele typing pipeline
@@ -328,7 +335,15 @@ workflow {
         if (params.run_mlst){
 
             MLST(read_pairs_ch)
-            MLST.out.subscribe { it ->
+            MLST.out.new_alleles.subscribe { it ->
+                it.copyTo(file("${results_dir}"))
+            }
+            MLST.out.pileup.subscribe { it ->
+                it.copyTo(file("${results_dir}"))
+            }
+            MLST.out.existing_alleles
+                .collectFile(name: file("${results_dir}/${params.existing_mlst_alleles_out}"), keepHeader: true, sort: true)
+            MLST.out.status.subscribe { it ->
                 it.copyTo(file("${results_dir}"))
             }
 
