@@ -22,7 +22,7 @@ class TestProcessResults(unittest.TestCase):
         actual = get_new_and_existing_alleles(('adhP_1/1snp', 29.99, 'ST-1'), 30, self.TEST_OUTPUT_PREFIX)
         f = open(self.TEST_OUTPUT_PREFIX + '_new_mlst_alleles.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, """No new MLST alleles were found with sufficient read depth above 30.\n""")
+        self.assertEqual(actual, """test: No new MLST alleles were found with sufficient read depth above 30.\n""")
 
     def test_get_new_and_existing_alleles_multi_alleles(self):
         actual = get_new_and_existing_alleles(('adhP_1/1snp;pheS_1/1snp', 173.614142857, 'ST-1'), 30, self.TEST_OUTPUT_PREFIX)
