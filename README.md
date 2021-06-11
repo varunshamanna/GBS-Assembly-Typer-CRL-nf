@@ -311,10 +311,3 @@ srst2 | 0.2.0
 ```
 python3 -m pytest
 ```
-
-### Making a release
-Once all changes have been pushed to the main branch, confirm that the CI has run successfully and then execute:
-```
-release.sh <version number (without v)>
-```
-This will tag the main branch with the specified version number.
