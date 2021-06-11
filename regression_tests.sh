@@ -71,12 +71,12 @@ file_diff "${out_dir}/test_surface_protein_variants.txt" "${out_dir}/reference_s
 out=$?
 error_status=$(($error_status | $out))
 
-# Check for test_existing_sequence_types.txt output
-sort "${out_dir}/test_existing_sequence_types.txt" | file_diff - "${out_dir}/reference_existing_pbp_alleles.txt"
+# Check for test_existing_pbp_alleles.txt output
+sort "${out_dir}/test_existing_pbp_alleles.txt" | file_diff - "${out_dir}/reference_existing_pbp_alleles.txt"
 out=$?
 error_status=$(($error_status | $out))
 
-# Check for test_existing_pbp_alleles.txt output
+# Check for test_existing_sequence_types.txt output
 file_diff "${out_dir}/test_existing_sequence_types.txt" "${out_dir}/reference_existing_sequence_types.txt"
 out=$?
 error_status=$(($error_status | $out))
