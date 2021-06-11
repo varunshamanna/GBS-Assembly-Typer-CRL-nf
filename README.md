@@ -1,16 +1,44 @@
 # GBS-Typer-sanger-nf
-An updated NextFlow version of [Ben Metcalf's GBS Typer pipeline](https://github.com/BenJamesMetcalf/GBS_Scripts_Reference).
+The GBS Typer is for characterising Group B Strep by serotyping, resistance typing, MLST, surface protein typing and penicillin-binding protein typing. It has been adapted from [Ben Metcalf's GBS Typer pipeline](https://github.com/BenJamesMetcalf/GBS_Scripts_Reference) in Nextflow for portability and reproducibility.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/main/LICENSE)   
 ![build](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/workflows/build/badge.svg)  
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/sangerpathogens/gbs-typer-sanger-nf)   
-[![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/main/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)   
+[![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/main/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)
 
-## Issues
+## Contents
+- [ Acknowledge us ](#acknowledge)
+- [ Reporting issues ](#issues)
+- [ Running the serotyping and resistance typing pipeline on a local machine ](#local)
+    - [ Installation ](#localinstall)
+    - [ Usage ](#localusage)
+- [ Running the serotyping and resistance typing pipeline on the farm at Sanger](#farm)
+- [ Output for serotyping and resistance typing ](#output)
+- [ Running other pipelines ](#other)
+    - [ MLST ](#mlst)
+    - [ Surface Protein Typing ](#surfacetyper)
+    - [ Pencillin-binding protein Typing ](#pbp)
+    - [ Examples of running multiple pipelines ](#multiple)
+- [ Additional options ](#additional)
+- [ Troubleshooting for errors](#errors)
+- [ Other information ](#info)
+    - [ Software dependencies ](#dependencies)
+    - [ For developers ](#developers)
+
+<a name="acknowledge"></a>
+## Acknowledge us
+If you use this software, please acknowledge as appropriate.
+
+Contributors: Victoria Carr (Sanger), Kevin Pepper (Sanger)
+
+<a name="issues"></a>
+## Reporting issues
 If any questions or problems, please post them under [Issues](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/issues).
 
+<a name="local"></a>
 ## Running the pipeline on a local machine
 
+<a name="localinstall"></a>
 ### Installation
 GBS Typer relies on Nextflow and Docker.
 Download:
@@ -30,6 +58,7 @@ nextflow clone -r <git tag version> sanger-pathogens/GBS-Typer-sanger-nf
 ```
 If running on an LSF head node you will need to bsub the **nextflow clone** command.
 
+<a name="localusage"></a>
 ### Usage
 Note: Running the pipeline requires an internet connection to allow the pipeline to automatically download its [dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf).
 
@@ -43,8 +72,8 @@ nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID'
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix'
 ```
 
-
-## Running the pipeline at Sanger:
+<a name="farm"></a>
+## Running the serotyping and resistance typing pipeline on the farm at Sanger:
 Please refer to the internal Sanger wiki 'Pathogen Informatics Nextflow Pipelines' and then follow the steps below.
 
 Note: Running the pipeline requires an internet connection and should be done in lustre storage.
@@ -83,7 +112,8 @@ Specifying the **sanger** profile will instruct the pipeline to build a local si
 Add a **-N 'my-email-address'** to the end of the command line if you wish to be sent a report by email upon completion of the pipeline.
 
 
-## Output
+<a name="output"></a>
+## Output for serotyping and resistance typing
 
 ### One sample
 If the following command was used:
@@ -120,11 +150,99 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefi
 ```
 This will produce combined tables of output_file_prefix_serotype_res_incidence.txt, output_file_prefix_gbs_res_variants.txt and output_file_prefix_drug_cat_alleles_variants.txt in the 'results' directory that can be identified by sample ID (i.e. the name of the file before _1.fastq.gz or _2.fastq.gz).
 
-## Errors
-It is possible that the pipeline may not complete successfully due to issues with input files and/or individual steps of the pipeline. To troubleshoot potential issues, you can use the `-trace` parameter e.g. `nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -trace` to create a trace file in the current directory while the pipeline is running. The trace file will provide the status of the current directory that provides the status and the location of the log files for each sample and step. For example, if the step failed in `[00/8803ea]`, the command and the error from this step can be viewed by `cat work/00/8803ea01f8bc0fb43f68335d82831f/.command.log` (Hint: while typing `work/00/8803ea`, the complete file path can be completed with the TAB button.)
 
-Alternatively, if `-trace` was not provided in the original command, then you can also find the location of these directories in the bsub output e.g. `grep 'Error' pipeline.o | sort | uniq`.
+<a name="other"></a>
+## Other Pipelines
+<a name="mlst"></a>
+### MLST
+To include the MLST pipeline to query existing sequence types and new MLST alleles:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_mlst
+```
 
+This will produce a new MLST log file `<output_file_prefix>_new_mlst_alleles.log` indicating whether new MLST alleles have been found for each sample (where there are mismatches with sufficient read depth at least the value specified --mlst_min_read_depth [Default: 30]). If it includes "<sample_id>: New MLST alleles found." then a FASTA file for the corresponding sample `<sampleID>_new_mlst_alleles.fasta` and a pileup file `<sampleID>_new_mlst_pileup.txt` are generated.
+
+For other samples that have no new MLST alleles and only have existing sequence types, these existing types are generated in `<output_file_prefix>_existing_sequence_types.txt`. If "None found" for a sample then no sequence types were found with sufficient read depth at least the value specified by --mlst_min_read_depth [Default: 30]).
+
+<a name="surfacetyper"></a>
+### Surface Protein Typing Pipeline
+To enable the surface typing pipeline provide the **--run_surfacetyper** command line argument:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_surfacetyper
+```
+
+This will create two tab-delimited files in the 'results' directory
+1. **<output_file_prefix>_surface_protein_incidence.txt**
+This shows the incidence of different surface protein alleles in the Strep B sample(s), e.g.
+
+ID | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+26189_8#338 | - | + | - | - | + | + | - | - | - | + | -
+
+2. **<output_file_prefix>_surface_protein_variants.txt**
+This shows all the surface proteins in the Strep B sample(s), e.g.
+
+ID | ALPH | HVGA | PILI | SRR
+:---: | :---: | :---: | :---: | :---:
+26189_8#338 | ALP23 | neg | PI1:PI2A1 | SRR1
+
+<a name="pbp"></a>
+### PBP (Penicillin-binding protein) Typing
+To enable the PBP typing pipeline provide the **--run_pbptyper** command line argument and specify the contig FASTA files using and **--contigs**:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_pbptyper --contigs 'data/*.fa'
+```
+
+If existing PBP alleles are found, a tab-delimited file is created in the 'results' directory. The file contains the sample IDs (that are determined from the contig FASTA file names e.g. 25292_2#85 from data/25292_2#85.fa), the contig identifiers with start, end and forward(+)/reverse(-) positions, and the PBP allele identifier.
+
+ID | Contig | PBP_allele
+:---: | :---: | :---:
+25292_2#85 | .25292_2_85.9:39495-40455(+) | 2\|\|GBS_1A
+26077_6#118 | .26077_6_118.11:39458-40418(+) | 1\|\|GBS_1A
+
+If a new PBP allele is found in a sample, a FASTA file of amino acids is created in the 'results' directory. For example, if contig .25292_2_85.9 from sample 25292_2#85 contained a new PBP-1A allele, then .25292_2_85.9_GBS1A-1_PBP_new_allele.faa is generated with contents:
+
+    >.26077_6_118.11:39458-40418(+)
+    DIYNSDTYIAYPNNELQIASTIMDATNGKVIAQLGGRHQNENISFGTNQSVLTDRDWGST
+    MKPISAYAPAIDSGVYNSTGQSLNDSVYYWPGTSTQLYDWDRQYMGWMSMQTAIQQSRNV
+    PAVRALEAAGLDEAKSFLEKLGIYYPEMNYSNAISSNNSSSDAKYGASSEKMAAAYSAFA
+    NGGTYYKPQYVNKIEFSDGTNDTYAASGSRAMKETTAYMMTDMLKTVLTFGTGTKAAIPG
+    VAQAGKTGTSNYTEDELAKIEATTGIYNSAVGTMAPDENFVGYTSKYTMAIWTGYKNRLT
+    PLYGSQLDIATEVYRAMMSY
+
+<a name="multiple"></a>
+### Examples of running multiple pipelines
+It is recommended you use the default parameters for specifying other resistance databases. However, to use different or multiple resistance databases with the GBS-specific resistance database, e.g. ARG-ANNOT and ResFinder in the db/0.0.2 directory, both with a minimum coverage of 70 and maximum divergence of 30:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --other_res_dbs 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta' --other_res_min_coverage '70 70' --other_res_max_divergence '30 30'
+```
+To run **only** the surface protein typing pipeline, use:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_surfacetyper
+```
+To run **only** the MLST pipeline, use:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_mlst
+```
+The default configuration will run serotyping and resistance typing only.
+
+The default configuration will run serotyping and resistance typing only.
+To run **only** the surface protein typing pipeline, use:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_surfacetyper
+```
+To run **only** the MLST pipeline, use:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_mlst
+```
+To run **only** the PBP typing pipeline, use:
+```
+nextflow run main.nf --output 'output_file_prefix' --run_sero_res false --run_pbptyper --contigs 'data/*.fa'
+```
+The **--reads** parameter is not needed for the PBP typing pipeline.
+
+
+<a name="additional"></a>
 ## Additional options
 ### Inputs
     --contigs                       Path of file containing FASTA contigs. Only use when --run_pbptyper is specified. (Use wildcard '*' to specify multiple files, e.g. 'data/*.fa')
@@ -158,96 +276,20 @@ Alternatively, if `-trace` was not provided in the original command, then you ca
     --surfacetyper_max_divergence   Maximum divergence for mapping to the GBS surface protein database. Only operational with --run_surfacetyper. (Default: 8, i.e. report only hits with <8% divergence)
     --surfacetyper_min_read_depth   Minimum read depth for surface protein typing pipeline. Only operational with --run_surfacetyper. (Default: 30)
 
-All default options can be changed by editing the ```nextflow.config``` file.
-
-## Other Pipelines
-### MLST Pipeline Usage
-To include the MLST pipeline to query existing sequence types and new MLST alleles:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_mlst
-```
-
-This will produce a new MLST log file `<output_file_prefix>_new_mlst_alleles.log` indicating whether new MLST alleles have been found for each sample (where there are mismatches with sufficient read depth at least the value specified --mlst_min_read_depth [Default: 30]). If it includes "<sample_id>: New MLST alleles found." then a FASTA file for the corresponding sample `<sampleID>_new_mlst_alleles.fasta` and a pileup file `<sampleID>_new_mlst_pileup.txt` are generated.
-
-For other samples that have no new MLST alleles and only have existing sequence types, these existing types are generated in `<output_file_prefix>_existing_sequence_types.txt`. If "None found" for a sample then no sequence types were found with sufficient read depth at least the value specified by --mlst_min_read_depth [Default: 30]).
+Options can also be changed by editing the ```nextflow.config``` file.
 
 
-### Surface Protein Typing Pipeline Usage
-To enable the surface typing pipeline provide the **--run_surfacetyper** command line argument:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_surfacetyper
-```
+<a name="errors"></a>
+## Troubleshooting for errors
+It is possible that the pipeline may not complete successfully due to issues with input files and/or individual steps of the pipeline. To troubleshoot potential issues, you can use the `-trace` parameter e.g. `nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -trace` to create a trace file in the current directory while the pipeline is running. The trace file will provide the status of the current directory that provides the status and the location of the log files for each sample and step. For example, if the step failed in `[00/8803ea]`, the command and the error from this step can be viewed by `cat work/00/8803ea01f8bc0fb43f68335d82831f/.command.log` (Hint: while typing `work/00/8803ea`, the complete file path can be completed with the TAB button.)
 
-This will create two tab-delimited files in the 'results' directory
-1. **<output_file_prefix>_surface_protein_incidence.txt**
-This shows the incidence of different surface protein alleles in the Strep B sample(s), e.g.
-
-ID | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
-:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
-26189_8#338 | - | + | - | - | + | + | - | - | - | + | -
-
-2. **<output_file_prefix>_surface_protein_variants.txt**
-This shows all the surface proteins in the Strep B sample(s), e.g.
-
-ID | ALPH | HVGA | PILI | SRR
-:---: | :---: | :---: | :---: | :---:
-26189_8#338 | ALP23 | neg | PI1:PI2A1 | SRR1
-
-### PBP (Penicillin-binding protein) Typing Pipeline Usage
-To enable the PBP typing pipeline provide the **--run_pbptyper** command line argument and specify the contig FASTA files using and **--contigs**:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_pbptyper --contigs 'data/*.fa'
-```
-
-If existing PBP alleles are found, a tab-delimited file is created in the 'results' directory. The file contains the sample IDs (that are determined from the contig FASTA file names e.g. 25292_2#85 from data/25292_2#85.fa), the contig identifiers with start, end and forward(+)/reverse(-) positions, and the PBP allele identifier.
-
-ID | Contig | PBP_allele
-:---: | :---: | :---:
-25292_2#85 | .25292_2_85.9:39495-40455(+) | 2\|\|GBS_1A
-26077_6#118 | .26077_6_118.11:39458-40418(+) | 1\|\|GBS_1A
-
-If a new PBP allele is found in a sample, a FASTA file of amino acids is created in the 'results' directory. For example, if contig .25292_2_85.9 from sample 25292_2#85 contained a new PBP-1A allele, then .25292_2_85.9_GBS1A-1_PBP_new_allele.faa is generated with contents:
-
-    >.26077_6_118.11:39458-40418(+)
-    DIYNSDTYIAYPNNELQIASTIMDATNGKVIAQLGGRHQNENISFGTNQSVLTDRDWGST
-    MKPISAYAPAIDSGVYNSTGQSLNDSVYYWPGTSTQLYDWDRQYMGWMSMQTAIQQSRNV
-    PAVRALEAAGLDEAKSFLEKLGIYYPEMNYSNAISSNNSSSDAKYGASSEKMAAAYSAFA
-    NGGTYYKPQYVNKIEFSDGTNDTYAASGSRAMKETTAYMMTDMLKTVLTFGTGTKAAIPG
-    VAQAGKTGTSNYTEDELAKIEATTGIYNSAVGTMAPDENFVGYTSKYTMAIWTGYKNRLT
-    PLYGSQLDIATEVYRAMMSY
+Alternatively, if `-trace` was not provided in the original command, then you can also find the location of these directories in the bsub output e.g. `grep 'Error' pipeline.o | sort | uniq`.
 
 
-### Examples
-It is recommended you use the default parameters for specifying other resistance databases. However, to use different or multiple resistance databases with the GBS-specific resistance database, e.g. ARG-ANNOT and ResFinder in the db/0.0.2 directory, both with a minimum coverage of 70 and maximum divergence of 30:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --other_res_dbs 'db/0.0.2/ARGannot-DB/ARG-ANNOT.fasta db/0.0.2/ResFinder-DB/ResFinder.fasta' --other_res_min_coverage '70 70' --other_res_max_divergence '30 30'
-```
-To run **only** the surface protein typing pipeline, use:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_surfacetyper
-```
-To run **only** the MLST pipeline, use:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_mlst
-```
-The default configuration will run serotyping and resistance typing only.
-
-The default configuration will run serotyping and resistance typing only.
-To run **only** the surface protein typing pipeline, use:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_surfacetyper
-```
-To run **only** the MLST pipeline, use:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' --run_sero_res false --run_mlst
-```
-To run **only** the PBP typing pipeline, use:
-```
-nextflow run main.nf --output 'output_file_prefix' --run_sero_res false --run_pbptyper --contigs 'data/*.fa'
-```
-The **--reads** parameter is not needed for the PBP typing pipeline.
-
-## Dependencies
+<a name="info"></a>
+## Other information
+<a name="dependencies"></a>
+## Software dependencies
 All pipeline dependencies are built into the [docker hub dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf), used by the pipeline.
 The current program versions in this image are as follows:
 
@@ -263,6 +305,7 @@ python 3 | 3.8
 samtools | 0.1.18
 srst2 | 0.2.0
 
+<a name="developers"></a>
 ## For developers
 ### Run unit tests
 ```
