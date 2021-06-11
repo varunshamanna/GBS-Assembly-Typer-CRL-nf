@@ -24,15 +24,17 @@ def get_sero_res_contents(id, sero_file, res_file):
     header = 'ID' + '\t' + 'Serotype' + '\t'
     type = ''
     res_incidence = ''
+    count = 0
     with open(sero_file, 'r') as sero:
         next(sero) # Skip header row
-        count = 0
         for line in sero:
             if count:
                 type = type + ";" + line.split('\t')[2]
             else:
                 type = id + '\t' + line.split('\t')[2]
             count += 1
+    if not count:
+        type = id + '\tNA'
 
     with open(res_file, 'r') as res:
         count = 0
