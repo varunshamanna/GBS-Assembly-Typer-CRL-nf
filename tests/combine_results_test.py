@@ -25,7 +25,7 @@ class TestCombineResults(unittest.TestCase):
 
     def test_should_get_sero_res_contents(self):
         actual = get_sero_res_contents(self.TEST_LANE, self.TEST_DATA_SEROTYPE, self.TEST_DATA_RES_INCIDENCE)
-        self.assertEqual(actual, 'ID\tSerotype\t23S1\t23S3\tCAT\tERM\tGYRA\tLNU\tLSA\tMEF\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tTET\n25292_2#85\tIII\t+\t+\t-\t+\t+\t-\t-\t+\t+\t-\t-\t-\t-\t+\n')
+        self.assertEqual(actual, 'ID\tSerotype\t23S1\t23S3\tCAT\tERM\tGYRA\tLNU\tLSA\tMEF\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tTET\n25292_2#85\tIII\tpos\tpos\tneg\tpos\tpos\tneg\tneg\tpos\tpos\tneg\tneg\tneg\tneg\tpos\n')
 
     def test_should_get_pbp_contents(self):
         actual = get_content_with_id(self.TEST_LANE, self.TEST_DATA_PBP_ALLELE)

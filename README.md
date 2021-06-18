@@ -29,7 +29,7 @@ The GBS Typer is for characterising Group B Strep by serotyping, resistance typi
 ## Acknowledge us
 If you use this software, please acknowledge as appropriate.
 
-Contributors: Victoria Carr (Sanger), Kevin Pepper (Sanger)
+Contributors: Victoria Carr (Sanger), Kevin Pepper (Sanger), Ben Metcalf (CDC)
 
 <a name="issues"></a>
 ## Reporting issues
@@ -177,7 +177,7 @@ This shows the incidence of different surface protein alleles in the Strep B sam
 
 ID | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
-26189_8#338 | - | + | - | - | + | + | - | - | - | + | -
+26189_8#338 | neg | pos | neg | neg | pos | pos | neg | neg | neg | pos | neg
 
 2. **<output_file_prefix>_surface_protein_variants.txt**
 This shows all the surface proteins in the Strep B sample(s), e.g.

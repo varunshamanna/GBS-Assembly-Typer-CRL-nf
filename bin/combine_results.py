@@ -40,19 +40,12 @@ def get_sero_res_contents(id, sero_file, res_file):
         count = 0
         for line in res:
             if count:
-                results = line.split('\n')[0].split('\t')
-                results_out = []
-                for result in results:
-                    if result == 'pos':
-                        results_out.append('+')
-                    elif result == 'neg':
-                        results_out.append('-')
-                res_incidence = '\t'.join(results_out)
+                res_incidence = line
             else:
                 header += line
             count += 1
 
-    return(header + type + '\t' + res_incidence + '\n')
+    return(header + type + '\t' + res_incidence)
 
 
 def get_arguments():
