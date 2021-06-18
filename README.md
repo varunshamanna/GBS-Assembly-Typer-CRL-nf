@@ -290,7 +290,7 @@ Alternatively, if `-trace` was not provided in the original command, then you ca
 ## Other information
 <a name="dependencies"></a>
 ## Software dependencies
-All pipeline dependencies are built into the [docker hub dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf), used by the pipeline.
+All pipeline dependencies are built into the [quay.io dependencies image](https://quay.io/repository/sangerpathogens/gbs-typer-sanger-nf), used by the pipeline.
 The current program versions in this image are as follows:
 
 Program | Version
