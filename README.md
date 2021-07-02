@@ -98,12 +98,12 @@ export https_proxy=http://wwwcache.sanger.ac.uk:3128
 
 **4. Run using bsub**
 
-    **a. For a single sample**
+-  For a single sample
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'sampleID' -profile sanger,lsf"
 ```
 
-    **b. For multiple samples**
+- For multiple samples
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'output_file_prefix' -profile sanger,lsf"
 ```
