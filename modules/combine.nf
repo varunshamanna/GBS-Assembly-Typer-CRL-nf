@@ -1,4 +1,24 @@
 process combine_results {
+    input:
+    // ID, serotyping results, resistance incidence, resistance alleles, resistance variants, surface protein incidence, surface protein variants, MLST allelic frequency
+    tuple val(pair_id), file(sero_results), file(res_incidence), file(res_alleles), file(res_variants), file(surface_protein_incidence), file(surface_protein_variants), file(mlst_allelic_frequency)
+
+    output:
+    path("${pair_id}_id_combined_output.txt")
+
+    """
+    combine_results.py combine_all \
+        -i ${pair_id} \
+        -s "${sero_results}" \
+        -r "${res_incidence}" \
+        -v "${res_variants}" \
+        -m "${mlst_allelic_frequency}" \
+        -x "${surface_protein_incidence}" \
+        -o ${pair_id}
+    """
+}
+
+process finalise_sero_res_results {
 
     input:
     // ID, serotyping results, resistance incidence, resistance alleles and resistance variants results,

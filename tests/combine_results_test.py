@@ -1,8 +1,9 @@
 import unittest
 import argparse
 from unittest.mock import patch, call, ANY
+import pandas as pd
 
-from bin.combine_results import get_content_with_id, get_sero_res_contents, get_arguments, main
+from bin.combine_results import get_content_with_id, get_sero_res_contents, get_all_content, get_arguments, main
 
 
 class TestCombineResults(unittest.TestCase):
@@ -13,6 +14,8 @@ class TestCombineResults(unittest.TestCase):
     TEST_DATA_RES_ALLELES = 'test_data/input/' + TEST_LANE + '_res_alleles.txt'
     TEST_DATA_RES_VARIANTS = 'test_data/input/' + TEST_LANE + '_res_gbs_variants.txt'
     TEST_DATA_PBP_ALLELE = 'test_data/input/' + TEST_LANE + '_GBS1A-1_PBP_existing_allele.txt'
+    TEST_DATA_SURFACE_TYPER = 'test_data/input/' + TEST_LANE + '_surface_protein_incidence_sample.txt'
+    TEST_DATA_MLST_ALLELIC_FREQUENCY = 'test_data/input/' + TEST_LANE + '__mlst__Streptococcus_agalactiae_MLST_alleles__results.txt'
     TEST_OUTPUT = "test_data/output/" + TEST_LANE + "_output.txt"
 
     def test_should_get_content_with_id_alleles(self):
@@ -25,11 +28,65 @@ class TestCombineResults(unittest.TestCase):
 
     def test_should_get_sero_res_contents(self):
         actual = get_sero_res_contents(self.TEST_LANE, self.TEST_DATA_SEROTYPE, self.TEST_DATA_RES_INCIDENCE)
-        self.assertEqual(actual, 'ID\tSerotype\t23S1\t23S3\tCAT\tERM\tGYRA\tLNU\tLSA\tMEF\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tTET\n25292_2#85\tIII\tpos\tpos\tneg\tpos\tpos\tneg\tneg\tpos\tpos\tneg\tneg\tneg\tneg\tpos\n')
+        self.assertEqual(actual, 'ID\tSerotype\t23S1\t23S3\tCAT\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETS\n25292_2#85\tIII\tpos\tpos\tneg\tneg\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\n')
 
     def test_should_get_pbp_contents(self):
         actual = get_content_with_id(self.TEST_LANE, self.TEST_DATA_PBP_ALLELE)
         self.assertEqual(actual, 'ID\tContig\tPBP_allele\n25292_2#85\t.25292_2_85.9:39495-40455(+)\t2||GBS_1A\n')
+
+    def test_get_all_content(self):
+        actual = get_all_content(self.TEST_LANE, self.TEST_DATA_SEROTYPE, self.TEST_DATA_RES_INCIDENCE, self.TEST_DATA_RES_VARIANTS, self.TEST_DATA_MLST_ALLELIC_FREQUENCY, self.TEST_DATA_SURFACE_TYPER)
+        self.maxDiff = None
+        self.assertEqual(actual.to_dict(), {
+            'Sample_id': {0: '25292_2#85'},
+            'cps_type': {0: 'III'},
+            'ST': {0: 'ST-1'},
+            'adhP': {0: 1},
+            'pheS': {0: 1},
+            'atr': {0: 2},
+            'glnA': {0: 1},
+            'sdhA': {0: 1},
+            'glcK': {0: 2},
+            'tkt': {0: 2},
+            '23S1': {0: 'pos'},
+            '23S3': {0: 'pos'},
+            'CAT': {0: 'neg'},
+            'ERMB':	{0: 'neg'},
+            'ERMT':	{0: 'neg'},
+            'FOSA':	{0: 'neg'},
+            'GYRA':	{0: 'pos'},
+            'LNUB':	{0: 'neg'},
+            'LSAC':	{0: 'neg'},
+            'MEFA':	{0: 'neg'},
+            'MPHC': {0: 'neg'},
+            'MSRA':	{0: 'neg'},
+            'MSRD':	{0: 'neg'},
+            'PARC':	{0: 'pos'},
+            'RPOBGBS-1': {0: 'neg'},
+            'RPOBGBS-2': {0: 'neg'},
+            'RPOBGBS-3': {0: 'neg'},
+            'RPOBGBS-4': {0: 'neg'},
+            'SUL2': {0: 'neg'},
+            'TETB': {0: 'neg'},
+            'TETL': {0: 'neg'},
+            'TETM': {0: 'neg'},
+            'TETO': {0: 'neg'},
+            'TETS': {0: 'neg'},
+            'ALP1': {0: 'neg'},
+            'ALP23': {0: 'pos'},
+            'ALPHA': {0: 'neg'},
+            'HVGA': {0: 'neg'},
+            'PI1': {0: 'pos'},
+            'PI2A1': {0: 'pos'},
+            'PI2A2': {0: 'neg'},
+            'PI2B': {0: 'neg'},
+            'RIB': {0: 'neg'},
+            'SRR1': {0: 'pos'},
+            'SRR2': {0: 'neg'},
+            'GYRA_variant': {0: 'V1A,M2Q,G3W,K4W'},
+            'PARC_variant': {0: '*'}
+        })
+
 
     def test_arguments_sero_res(self):
         actual = get_arguments().parse_args(['sero_res', '--id', 'id', '--serotyper_results', 'sero_file', '--res_incidence_results', 'res_file',
@@ -62,6 +119,11 @@ class TestCombineResults(unittest.TestCase):
         actual = get_arguments().parse_args(['pbp_typer', '-i', 'id', '-p', 'pbp_file', '-o', 'output_prefix'])
         self.assertEqual(actual,
                          argparse.Namespace(which='pbp_typer', id='id', pbp_allele='pbp_file', output='output_prefix'))
+
+    def test_arguments_short_options_pbp_typing(self):
+        actual = get_arguments().parse_args(['combine_all', '-i', 'id', '-s', 'sero_file', '-r', 'res_file', '-v', 'variants_file', '-m', 'mlst_file', '-x', 'surface_typer_file', '-o', 'output_prefix'])
+        self.assertEqual(actual,
+                         argparse.Namespace(which='combine_all', id='id', sero='sero_file', inc='res_file', variants='variants_file', mlst='mlst_file', surface_inc='surface_typer_file', output='output_prefix'))
 
     @patch('bin.combine_results.get_arguments')
     @patch('bin.combine_results.get_sero_res_contents')
@@ -114,6 +176,21 @@ class TestCombineResults(unittest.TestCase):
         ], any_order=False)
         mock_get_content_with_id.assert_has_calls([
             call(args.id, args.pbp_allele)
+        ], any_order=False)
+
+    @patch('bin.combine_results.get_arguments')
+    @patch('lib.file_utils.FileUtils.write_pandas_output')
+    @patch('bin.combine_results.get_all_content')
+    def test_main_for_combine_alls(self, mock_get_all_content, mock_write_pandas_output, mock_get_arguments):
+        args = mock_get_arguments.return_value.parse_args()
+        args.which = "combine_all"
+        mock_get_all_content.return_value = ANY
+        main()
+        mock_write_pandas_output.assert_has_calls([
+            call(ANY, args.output + "_id_combined_output.txt")
+        ], any_order=False)
+        mock_get_all_content.assert_has_calls([
+            call(args.id, args.sero, args.inc, args.variants, args.mlst, args.surface_inc)
         ], any_order=False)
 
     @patch('bin.combine_results.get_arguments')

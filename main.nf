@@ -14,7 +14,7 @@ include {res_typer} from './modules/res_typer.nf'
 include {surface_typer} from './modules/surface_typer.nf'
 include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
 include {get_pbp_genes; get_pbp_alleles} from './modules/pbp_typer.nf'
-include {combine_results; finalise_surface_typer_results; finalise_pbp_existing_allele_results} from './modules/combine.nf'
+include {finalise_sero_res_results; finalise_surface_typer_results; finalise_pbp_existing_allele_results; combine_results} from './modules/combine.nf'
 
 
 // Help message
@@ -149,6 +149,7 @@ params.surface_protein_incidence_out = "${params.output}_surface_protein_inciden
 params.surface_protein_variants_out = "${params.output}_surface_protein_variants.txt"
 params.existing_mlst_alleles_out = "${params.output}_existing_sequence_types.txt"
 params.new_mlst_alleles_status = "${params.output}_new_mlst_alleles.log"
+params.gbs_typer_report = "${params.output}_gbs_typer_report.txt"
 
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
@@ -206,16 +207,21 @@ workflow MLST {
         srst2_for_mlst(reads, file(params.mlst_allele_db, checkIfExists: true), file(params.mlst_definitions_db, checkIfExists: true), params.mlst_min_coverage)
 
         // Get new consensus allele and pileup data
-        get_mlst_allele_and_pileup(srst2_for_mlst.out, params.mlst_min_read_depth, file(params.mlst_allele_db, checkIfExists: true))
+        get_mlst_allele_and_pileup(srst2_for_mlst.out.bam_and_srst2_results, params.mlst_min_read_depth, file(params.mlst_allele_db, checkIfExists: true))
+
+        // Collect outputs
         new_alleles = get_mlst_allele_and_pileup.out.new_alleles
         pileup = get_mlst_allele_and_pileup.out.pileup
         existing_alleles = get_mlst_allele_and_pileup.out.existing_alleles
         status = get_mlst_allele_and_pileup.out.new_alleles_status
+        srst2_results = srst2_for_mlst.out.srst2_results
+
     emit:
         new_alleles
         pileup
         existing_alleles
         status
+        srst2_results
 }
 
 // PBP-1A allele typing pipeline
@@ -317,16 +323,16 @@ workflow {
             // Combine serotype and resistance type results for each sample
             sero_res_ch = serotyping.out.join(res_typer.out)
 
-            combine_results(sero_res_ch)
+            finalise_sero_res_results(sero_res_ch)
 
             // Combine samples and output results files
-            combine_results.out.sero_res_incidence
+            finalise_sero_res_results.out.sero_res_incidence
                 .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
 
-            combine_results.out.res_alleles_variants
+            finalise_sero_res_results.out.res_alleles_variants
                 .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
 
-            combine_results.out.res_variants
+            finalise_sero_res_results.out.res_variants
                 .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 
         }
@@ -392,5 +398,20 @@ workflow {
 
             PBP_all
                 .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true, sort: true)
+        }
+
+        // Combine serotype, resistance, allelic profile, surface typer and GBS resistance variants
+        if (params.run_sero_res & params.run_surfacetyper & params.run_mlst){
+
+            // Combine serotype and resistance type results for each sample
+            combined_ch = serotyping.out
+                .join(res_typer.out)
+                .join(surface_typer.out)
+                .join(MLST.out.srst2_results)
+
+            combine_results(combined_ch)
+
+            combine_results.out
+                .collectFile(name: file("${results_dir}/${params.gbs_typer_report}"), keepHeader: true, sort: true)
         }
 }

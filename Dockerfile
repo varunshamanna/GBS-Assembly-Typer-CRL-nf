@@ -60,7 +60,7 @@ RUN apt-get update -y -qq && apt-get install -y -qq \
       && apt-get update -y -qq \
       && apt-get -y -qq install python${PYTHON2_VERSION} \
       && ln -sf /usr/bin/python${PYTHON2_VERSION} /usr/bin/python \
-      && curl https://bootstrap.pypa.io/2.6/get-pip.py --output get-pip.py \
+      && curl https://bootstrap.pypa.io/pip/2.6/get-pip.py --output get-pip.py \
       && python get-pip.py \
       && rm get-pip.py \
       && apt-get clean \
@@ -73,6 +73,9 @@ RUN apt-get update -y -qq && apt-get install -y -qq \
 ENV LANG en_GB.UTF-8
 ENV LANGUAGE en_GB:en
 ENV LC_ALL en_GB.UTF-8
+
+# Python3 libraries
+RUN pip3 install pandas
 
 # Biopython
 RUN wget -q http://biopython.org/DIST/biopython-${BIOPYTHON_VERSION}.tar.gz \
