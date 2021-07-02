@@ -1,6 +1,7 @@
 import unittest
 import os
 from lib.file_utils import FileUtils
+import pandas as pd
 
 
 class TestFileUtils(unittest.TestCase):
@@ -20,3 +21,14 @@ class TestFileUtils(unittest.TestCase):
         final_dict = {'B_ITEM': 'pos', '1ITEM': 'neg', 'A_ITEM': 'neg'}
         actual = FileUtils.create_output_contents(final_dict)
         self.assertEqual(actual, '1ITEM\tA_ITEM\tB_ITEM\nneg\tneg\tpos\n')
+
+    def test_write_pandas_output(self):
+        final_df = pd.DataFrame.from_dict({
+            'Sample_id': {0: '25292_2#85'},
+            'cps_type': {0: 'III'},
+            'ST': {0: 'ST-1'}})
+        FileUtils.write_pandas_output(final_df, self.TEST_OUTPUT)
+        f = open(self.TEST_OUTPUT, "r")
+        actual = "".join(f.readlines())
+        os.remove(self.TEST_OUTPUT)
+        self.assertEqual(actual, """Sample_id\tcps_type\tST\n25292_2#85\tIII\tST-1\n""")

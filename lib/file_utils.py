@@ -1,3 +1,4 @@
+import pandas as pd
 
 class FileUtils:
     """ Common file handling methods used by the pipelines """
@@ -29,3 +30,11 @@ class FileUtils:
                 content += item[1] + '\t'
         return content
 
+    @staticmethod
+    def write_pandas_output(content, output_filename):
+        """Write a pandas dataframe to a tab-delimited text file"""
+        try:
+            content.to_csv(output_filename, sep='\t', header=True, index=False, line_terminator='\n')
+        except IOError:
+            print('Cannot open filename starting "{}"'.format(output_filename))
+            raise

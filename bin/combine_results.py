@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import sys
 from lib.file_utils import FileUtils
+import pandas as pd
 
 
 def get_content_with_id(id, file):
@@ -46,6 +47,52 @@ def get_sero_res_contents(id, sero_file, res_file):
             count += 1
 
     return(header + type + '\t' + res_incidence)
+
+
+def get_all_content(id, sero_file, res_file_inc, res_file_var, mlst_file, surf_typer_file):
+    """Merge serotype incidence, resistance incidence, resistance GBS variants, MLST type, MLST allelic frequency and surface typer incidence"""
+
+    # Clean serotype incidence
+    sero_info = pd.read_csv(sero_file, sep='\t', lineterminator='\n')
+    cps_type = sero_info.iloc[0]['Serotype']
+    sero = pd.DataFrame({
+        'Sample_id': [id],
+        'cps_type': [cps_type]
+    })
+
+    # Clean MLST type and allelic frequencies
+    mlst = pd.read_csv(mlst_file, sep='\t', lineterminator='\n')
+    mlst = mlst.drop(['mismatches', 'uncertainty', 'depth', 'maxMAF'], axis=1)
+    mlst.rename(columns = {'Sample':'Sample_id'}, inplace = True)
+    mlst.at[0,'Sample_id'] = id
+    mlst['ST'] = mlst['ST'].astype(str)
+    st_value = 'ST-' + mlst.iloc[0]['ST']
+    mlst.at[0,'ST'] = st_value
+
+    # Clean resistance incidence
+    res_inc = pd.read_csv(res_file_inc, sep='\t', lineterminator='\n')
+    res_inc.insert(0, 'Sample_id', [id])
+
+    # Clean surface typer
+    surf_typer = pd.read_csv(surf_typer_file, sep='\t', lineterminator='\n')
+    surf_typer.insert(0, 'Sample_id', [id])
+    surf_typer = surf_typer.replace(to_replace=['+', '-'], value=['pos', 'neg'])
+
+    # Clean resistance variants
+    res_var = pd.read_csv(res_file_var, sep='\t', lineterminator='\n')
+    res_var = res_var.drop(['23S1', '23S3', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4'], axis=1)
+    res_var = res_var.replace(to_replace=list(res_var.columns), value='', regex=True)
+    res_var = res_var.replace(to_replace='-', value='', regex=True)
+    res_var = res_var.replace(to_replace='', value='*')
+    res_var = res_var.add_suffix('_variant')
+    res_var.insert(0, 'Sample_id', [id])
+
+    # Combine dataframes
+    combined = sero.set_index('Sample_id').join([mlst.set_index('Sample_id'), res_inc.set_index('Sample_id'), surf_typer.set_index('Sample_id'), res_var.set_index('Sample_id')])
+    combined.reset_index(inplace=True)
+    combined = combined.rename(columns = {'index':'Sample_id'})
+
+    return combined
 
 
 def get_arguments():
@@ -103,6 +150,28 @@ def get_arguments():
                         help='Output prefix.')
     subparser_pbp_typing.set_defaults(which='pbp_typer')
 
+    subparser_combine_all = subparsers.add_parser(
+        'combine_all',
+        help='',
+        description='Combine all results.'
+    )
+
+    subparser_combine_all.add_argument('--id', '-i', dest='id', required=True,
+                        help='Sample ID.')
+    subparser_combine_all.add_argument('--serotyper_results', '-s', dest='sero', required=True,
+                        help='Input SeroType results tab file.')
+    subparser_combine_all.add_argument('--res_incidence_results', '-r', dest='inc', required=True,
+                        help='Input resistance typing incidence results file.')
+    subparser_combine_all.add_argument('--res_variants_results', '-v', dest='variants', required=True,
+                        help='Input resistance typing variants results file.')
+    subparser_combine_all.add_argument('--mlst_allelic_frequency_results', '-m', dest='mlst', required=True,
+                        help='Input SRST2 results file of MLST allelic frequency.')
+    subparser_combine_all.add_argument('--surface_incidence_results', '-x', dest='surface_inc', required=True,
+                        help='Input surface typing incidence results file.')
+    subparser_combine_all.add_argument('--output', '-o', dest='output', required=True,
+                        help='Output prefix.')
+    subparser_combine_all.set_defaults(which='combine_all')
+
     return parser
 
 
@@ -139,6 +208,11 @@ def main():
         if args.pbp_allele:
             pbp_typer_output_lines = get_content_with_id(args.id, args.pbp_allele)
             FileUtils.write_output(pbp_typer_output_lines, args.output + "_existing_PBP_allele.txt")
+
+    elif args.which == "combine_all":
+        # Combine ID, serotyping and resistance typing incidence, resistance typing variants, MLST type and allelic frequency, surface protein incidence
+        combined_output = get_all_content(args.id, args.sero, args.inc, args.variants, args.mlst, args.surface_inc)
+        FileUtils.write_pandas_output(combined_output, args.output + '_id_combined_output.txt')
 
     else:
         print("ERROR: Please specify a valid option.")

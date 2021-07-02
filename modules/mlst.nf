@@ -9,7 +9,8 @@ process srst2_for_mlst {
     //publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
 
     output:
-    tuple val(pair_id), file("${pair_id}*.bam"), file("${pair_id}__mlst__*__results.txt")
+    tuple val(pair_id), file("${pair_id}*.bam"), file("${pair_id}__mlst__*__results.txt"), emit: bam_and_srst2_results
+    tuple val(pair_id), file("${pair_id}__mlst__*__results.txt"), emit: srst2_results
 
     """
     srst2 --samtools_args '\\-A' --mlst_delimiter '_' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_alleles} --mlst_definitions ${mlst_definitions} --min_coverage ${min_coverage}
