@@ -78,36 +78,35 @@ Please refer to the internal Sanger wiki 'Pathogen Informatics Nextflow Pipeline
 
 Note: Running the pipeline requires an internet connection and should be done in lustre storage.
 
-1. Clone repository
+**1. Clone repository**
 ```
 git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 cd GBS-Typer-sanger-nf
 ```
 
-2. Load modules
+**2. Load modules**
 ```
 module load ISG/singularity
 module load nextflow
 ```
 
-3. If running on farm5, you will need to set the http/https proxy
+**3. If running on farm5, you will need to set the http/https proxy**
 ```
 export http_proxy=http://wwwcache.sanger.ac.uk:3128
 export https_proxy=http://wwwcache.sanger.ac.uk:3128
 ```
 
-4. For a single sample, run using bsub and add '-profile sanger' as an option, e.g.
+**4. Run using bsub**
+**a. For a single sample**
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'sampleID' -profile sanger,lsf"
 ```
 
-5. For multiple samples, also run using bsub and add '-profile sanger,lsf', e.g.
+**b. For multiple samples**
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'output_file_prefix' -profile sanger,lsf"
 ```
-This will instruct Nextflow to run tasks as separate LSF jobs in parallel and can be significantly faster. The default is to run up to 20 jobs at a time. The default settings can be tuned to your requirements by editing the **lsf** profile within the nextflow.config file.
-
-Specifying the **sanger** profile will instruct the pipeline to build a local singularity image from the [docker hub dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf).
+Specifying `-profile sanger,lsf` will instruct Nextflow to run tasks as separate LSF jobs in parallel and will instruct the pipeline to build a local Singularity image from the [quay.io Docker image](https://quay.io/repository/sangerpathogens/gbs-typer-sanger-nf). The default is to run up to 20 jobs at a time. The default settings can be tuned to your requirements by editing the **lsf** profile within the nextflow.config file.
 
 Add a **-N 'my-email-address'** to the end of the command line if you wish to be sent a report by email upon completion of the pipeline.
 
