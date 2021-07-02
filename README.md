@@ -311,3 +311,6 @@ srst2 | 0.2.0
 ```
 python3 -m pytest
 ```
+
+### Deploying a new Docker image
+Currently, the Dockerfile needs to be uploaded and built on [quay.io/sangerpathogens](https://quay.io/repository/sangerpathogens/gbs-typer-sanger-nf)
