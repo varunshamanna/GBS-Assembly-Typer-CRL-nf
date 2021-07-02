@@ -81,6 +81,11 @@ file_diff "${out_dir}/test_existing_sequence_types.txt" "${out_dir}/reference_ex
 out=$?
 error_status=$(($error_status | $out))
 
+# Check for test_gbs_typer_report.txt
+file_diff "${out_dir}/test_gbs_typer_report.txt" "${out_dir}/reference_gbs_typer_report.txt"
+out=$?
+error_status=$(($error_status | $out))
+
 # Error if any output files missing or not expected
 if [[ ${error_status} -eq 1 ]]; then
     echo ""
