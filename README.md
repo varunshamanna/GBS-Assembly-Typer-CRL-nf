@@ -98,12 +98,12 @@ export https_proxy=http://wwwcache.sanger.ac.uk:3128
 
 4. For a single sample, run using bsub and add '-profile sanger' as an option, e.g.
 ```
-bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --run_surfacetyper --run_pbptyper --run_mlst --output 'sampleID' -profile sanger,lsf"
+bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'sampleID' -profile sanger,lsf"
 ```
 
 5. For multiple samples, also run using bsub and add '-profile sanger,lsf', e.g.
 ```
-bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --run_surfacetyper --run_pbptyper --run_mlst --output 'output_file_prefix' -profile sanger,lsf"
+bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'output_file_prefix' -profile sanger,lsf"
 ```
 This will instruct Nextflow to run tasks as separate LSF jobs in parallel and can be significantly faster. The default is to run up to 20 jobs at a time. The default settings can be tuned to your requirements by editing the **lsf** profile within the nextflow.config file.
 
@@ -116,11 +116,11 @@ Add a **-N 'my-email-address'** to the end of the command line if you wish to be
 
 <a name="main"></a>
 ### Main Report
-You must specific `--run_surfacetyper`, `--run_pbptyper` and `--run_mlst` to generate the report. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants for GYRA and PARC.
+You must specific `--run_sero_res`, `--run_surfacetyper` and `--run_mlst` to generate the report. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants for GYRA and PARC.
 
 <a name="serores"></a>
 ### Serotyping and Resistance Typing Output
-**When specifying `--run_surfacetyper`**
+**When specifying `--run_sero_res`**
 
 This will create three tab-delimited files in a 'results' directory within the current directory. Specifying multiple samples will produce a row per sample:
 1. **<output>_serotype_res_incidence.txt** - Gives the serotype and presence/absence (i.e. +/-) of antibiotic resistance genes (GBS-specific alleles and ResFinder/ARG-ANNOT genes)
