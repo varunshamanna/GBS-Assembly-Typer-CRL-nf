@@ -21,6 +21,7 @@ The GBS Typer is for characterising Group B Strep by serotyping, resistance typi
 - [ Other examples of running pipelines ](#examples)
 - [ Additional options ](#additional)
 - [ Troubleshooting for errors](#errors)
+- [ Clean Up ](#cleanup)
 - [ Other information ](#info)
     - [ Software dependencies ](#dependencies)
     - [ For developers ](#developers)
@@ -269,6 +270,12 @@ Options can also be changed by editing the ```nextflow.config``` file.
 It is possible that the pipeline may not complete successfully due to issues with input files and/or individual steps of the pipeline. To troubleshoot potential issues, you can use the `-trace` parameter e.g. `nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -trace` to create a trace file in the current directory while the pipeline is running. The trace file will provide the status of the current directory that provides the status and the location of the log files for each sample and step. For example, if the step failed in `[00/8803ea]`, the command and the error from this step can be viewed by `cat work/00/8803ea01f8bc0fb43f68335d82831f/.command.log` (Hint: while typing `work/00/8803ea`, the complete file path can be completed with the TAB button.)
 
 Alternatively, if `-trace` was not provided in the original command, then you can also find the location of these directories in the bsub output e.g. `grep 'Error' pipeline.o | sort | uniq`.
+
+
+<a name="cleanup"></a>
+### Clean up
+
+The `work` directory keeps the intermediate files of the pipeline. You can use `bsub.py 8 nextflow clean [run_name|session_id]` to clean up or `rm -rf work` only when no other pipelines are running (more dangerous). The run names and session ids can be found by using `nextflow log -q`
 
 
 <a name="info"></a>
