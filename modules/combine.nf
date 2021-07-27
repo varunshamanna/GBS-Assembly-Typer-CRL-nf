@@ -4,7 +4,7 @@ process combine_results {
     tuple val(pair_id), file(sero_results), file(res_incidence), file(res_alleles), file(res_variants), file(surface_protein_incidence), file(surface_protein_variants), file(mlst_allelic_frequency)
 
     output:
-    path("${pair_id}_id_combined_output.txt")
+    path("${pair_id}_id_combined_output.txt") optional true
 
     """
     combine_results.py combine_all \
