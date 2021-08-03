@@ -68,6 +68,7 @@ def get_all_content(id, sero_file, res_file_inc, res_file_var, mlst_file, surf_t
     mlst['ST'] = mlst['ST'].astype(str)
     st_value = 'ST-' + mlst.iloc[0]['ST']
     mlst.at[0,'ST'] = st_value
+    mlst = mlst.astype(str)
 
     # Clean resistance incidence
     res_inc = pd.read_csv(res_file_inc, sep='\t', lineterminator='\n')
