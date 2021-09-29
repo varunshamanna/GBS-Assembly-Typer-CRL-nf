@@ -4,49 +4,7 @@ import argparse
 import sys
 from lib.file_utils import FileUtils
 import pandas as pd
-
-
-def get_content_with_id(id, file):
-    """ Include ID string with content of file """
-    content = 'ID' + '\t'
-    count = 0
-    with open(file, 'r') as f:
-        for line in f:
-            if count:
-                content += id + '\t' + line
-            else:
-                content += line
-            count += 1
-    return content
-
-
-def get_sero_res_contents(id, sero_file, res_file):
-    """ Merge serotyping and resistance typing content"""
-    header = 'ID' + '\t' + 'Serotype' + '\t'
-    type = ''
-    res_incidence = ''
-    count = 0
-    with open(sero_file, 'r') as sero:
-        next(sero) # Skip header row
-        for line in sero:
-            if count:
-                type = type + ";" + line.split('\t')[2]
-            else:
-                type = id + '\t' + line.split('\t')[2]
-            count += 1
-    if not count:
-        type = id + '\tNA'
-
-    with open(res_file, 'r') as res:
-        count = 0
-        for line in res:
-            if count:
-                res_incidence = line
-            else:
-                header += line
-            count += 1
-
-    return(header + type + '\t' + res_incidence)
+import json
 
 
 def get_all_content(id, sero_file, res_file_inc, res_file_var, mlst_file, surf_typer_file):
@@ -94,6 +52,62 @@ def get_all_content(id, sero_file, res_file_inc, res_file_var, mlst_file, surf_t
     combined = combined.rename(columns = {'index':'Sample_id'})
 
     return combined
+
+
+def read_header_json(header_file):
+    with open(header_file, 'r') as file:
+        header_json = file.read()
+
+    header_dict = json.loads(header_json)
+
+    return header_dict
+
+
+def get_content(file):
+    try:
+        df = pd.read_csv(file, sep="\t")
+    except:
+        df = pd.DataFrame()
+
+    return df
+
+
+def create_model_df(headers, id_df):
+    model_df = pd.DataFrame(columns=headers, index = [0])
+    model_df = id_df.merge(model_df, how="inner", left_index=True, right_index=True)
+
+    return model_df
+
+
+def merge_dfs(df1, df2):
+    df1 = df1.combine_first(df2)
+
+    return df1
+
+
+def create_df(headers: list, id_df: pd.DataFrame, files: list):
+    output_df = create_model_df(headers, id_df)
+
+    for file in files:
+        content_df = get_content(file)
+        output_df = merge_dfs(output_df, content_df)
+
+    headers = id_df.columns.to_list() + headers
+    return output_df.loc[:,headers]
+
+
+def replace_signs(df):
+    df.replace(to_replace=['+', '-'], value=['pos', 'neg'])
+
+    return df
+
+
+def rename_columns(df, header_dict: dict, id_df: pd.DataFrame):
+    df.rename(columns = header_dict, inplace = True)
+    headers = id_df.columns.to_list() + list(header_dict.values())
+    df = df.loc[:,headers]
+
+    return df
 
 
 def get_arguments():
@@ -159,6 +173,8 @@ def get_arguments():
 
     subparser_combine_all.add_argument('--id', '-i', dest='id', required=True,
                         help='Sample ID.')
+    subparser_combine_all.add_argument('--headers', '-t', dest='headers', required=True,
+                        help='JSON file of expected headers.')
     subparser_combine_all.add_argument('--serotyper_results', '-s', dest='sero', required=True,
                         help='Input SeroType results tab file.')
     subparser_combine_all.add_argument('--res_incidence_results', '-r', dest='inc', required=True,
@@ -180,40 +196,45 @@ def main():
     parser = get_arguments()
     args = parser.parse_args()
 
+    header_dict = read_header_json(args.headers)
+    id_df = pd.DataFrame(args.id, columns=header_dict["id"], index = [0])
+
     if args.which == "sero_res":
         # Merge serotyping and resistance typing results (including ID)
-        sero_res_output_lines = get_sero_res_contents(args.id, args.sero, args.inc)
-        FileUtils.write_output(sero_res_output_lines, args.output + "_sero_res_incidence.txt")
+        df_sero_res = create_df(header_dict["sero_res"], id_df, [args.sero, args.inc])
+        FileUtils.write_pandas_output(df_sero_res, args.output + "_sero_res_incidence.txt")
 
         # Add ID to alleles from resistance typing results
-        res_alleles_output_lines = get_content_with_id(args.id, args.alleles)
-        FileUtils.write_output(res_alleles_output_lines, args.output + "_id_alleles_variants.txt")
+        df_res_alleles = create_df(header_dict["res_alleles"], id_df, [args.alleles])
+        FileUtils.write_pandas_output(df_res_alleles, args.output + "_id_alleles_variants.txt")
 
         # Add ID to variants from resistance typing results
-        res_variants_output_lines = get_content_with_id(args.id, args.variants)
-        FileUtils.write_output(res_variants_output_lines, args.output + "_id_variants.txt")
+        df_gbs_res_variants = create_df(header_dict["gbs_res_variants"], id_df, [args.variants])
+        FileUtils.write_pandas_output(df_gbs_res_variants, args.output + "_id_variants.txt")
 
     elif args.which == "surface_typer":
         # Add ID to surface typing incidence results
         if args.surface_inc:
-            surface_protein_incidence_output_lines = get_content_with_id(args.id, args.surface_inc)
-            FileUtils.write_output(surface_protein_incidence_output_lines, args.output + "_surface_protein_incidence.txt")
+            df_surface_inc = create_df(header_dict["surface_inc"], id_df, [args.surface_inc])
+            FileUtils.write_pandas_output(df_surface_inc, args.output + "_surface_protein_incidence.txt")
 
         # Add ID to surface typing variants results
         if args.surface_variants:
-            surface_protein_variants_output_lines = get_content_with_id(args.id, args.surface_variants)
-            FileUtils.write_output(surface_protein_variants_output_lines, args.output + "_surface_protein_variants.txt")
+            df_surface_variants = create_df(header_dict["surface_variants"], id_df, [args.surface_variants])
+            FileUtils.write_pandas_output(df_surface_variants, args.output + "_surface_protein_variants.txt")
 
     elif args.which == "pbp_typer":
         # Add ID to PBP typer existing allele results
         if args.pbp_allele:
-            pbp_typer_output_lines = get_content_with_id(args.id, args.pbp_allele)
-            FileUtils.write_output(pbp_typer_output_lines, args.output + "_existing_PBP_allele.txt")
+            df_pbp_allele = create_df(header_dict["pbp_allele"], id_df, [args.pbp_allele])
+            FileUtils.write_pandas_output(df_pbp_allele, args.output + "_existing_PBP_allele.txt")
 
     elif args.which == "combine_all":
         # Combine ID, serotyping and resistance typing incidence, resistance typing variants, MLST type and allelic frequency, surface protein incidence
-        combined_output = get_all_content(args.id, args.sero, args.inc, args.variants, args.mlst, args.surface_inc)
-        FileUtils.write_pandas_output(combined_output, args.output + '_id_combined_output.txt')
+        df_combine_all = create_df(header_dict["combine_all"], id_df, [args.seo, args.inc, args.variants, args.mlst, args.surface_inc])
+        df_combine_all = replace_signs(df_combine_all)
+        df_combine_all = rename_columns(df_combine_all, header_dict["combine_all"], id_df)
+        FileUtils.write_pandas_output(df_combine_all, args.output + '_id_combined_output.txt')
 
     else:
         print("ERROR: Please specify a valid option.")

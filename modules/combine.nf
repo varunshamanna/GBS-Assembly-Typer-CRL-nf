@@ -6,9 +6,12 @@ process combine_results {
     output:
     path("${pair_id}_id_combined_output.txt") optional true
 
+    script:
+    config = params.config
     """
     combine_results.py combine_all \
         -i ${pair_id} \
+        -h ${config} \
         -s "${sero_results}" \
         -r "${res_incidence}" \
         -v "${res_variants}" \
