@@ -238,7 +238,7 @@ workflow PBP2B {
         }
 
         // Combine existing PBP alleles results in one file
-        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp, file(params.config, checkIfExists: true))
 
     emit:
         // Emit existing PBP alleles for collection
@@ -261,7 +261,7 @@ workflow PBP2X {
         }
 
         // Combine existing PBP alleles results in one file
-        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp, file(params.config, checkIfExists: true))
 
     emit:
         // Emit existing PBP alleles for collection
