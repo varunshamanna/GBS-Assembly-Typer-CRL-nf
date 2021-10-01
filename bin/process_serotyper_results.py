@@ -2,16 +2,6 @@
 import argparse
 import sys
 
-
-def write_line(gene, gene_dict, out):
-    """Write serotype to out stream of file"""
-    serotype = gene_dict[gene]
-    status = 'identical'
-    if serotype[4] != '':
-        status = 'imperfect'
-    out.write(serotype[1]+'\t'+serotype[0]+'='+status+'\t'+serotype[0]+'\t'+serotype[3]+'\n')
-
-
 def make_gene_dict(input_file, depth_threshold):
     """Get features from SRST2 input file into dictionary depending on read depth threshold"""
     gene_dict = dict()
@@ -26,14 +16,20 @@ def make_gene_dict(input_file, depth_threshold):
 
 def write_outfile(gene_dict, out_file):
     """Write serotype, match type status and average read depth to output file"""
+    matched_alleles = []
+    match_type = []
+    serotype = []
+    avgdepth = []
+    for key, values in gene_dict.items():
+        status = 'identical'
+        if values[4] != '':
+            status = 'imperfect'
+        matched_alleles = matched_alleles + [values[1]]
+        match_type = match_type + [values[0] + '=' + status]
+        serotype = serotype + [values[0]]
+        avgdepth = avgdepth + [values[3]]
     with open(out_file, 'w') as out:
-        out.write('Matched_Allele'+'\t'+'Match_Type'+'\t'+'Serotype'+'\t'+'AvgDepth'+'\n')
-        if 'III' in gene_dict.keys():
-            write_line('III', gene_dict, out)
-        if 'II' in gene_dict.keys():
-            write_line('II', gene_dict, out)
-        for key in gene_dict:
-            write_line(key, gene_dict, out)
+        out.write('Matched_Allele'+'\t'+'Match_Type'+'\t'+'Serotype'+'\t'+'AvgDepth'+'\n'+'/'.join(matched_alleles)+'\t'+'/'.join(match_type)+'\t'+'/'.join(serotype)+'\t'+'/'.join(avgdepth)+'\n')
 
 
 def get_arguments():
