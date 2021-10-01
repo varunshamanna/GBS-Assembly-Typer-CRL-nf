@@ -21,17 +21,17 @@ featureCol = {
 }
 
 binFeatureCol = {
-    'HVGA':  '-',
-    'PI1':   '-',
-    'PI2A1': '-',
-    'PI2A2': '-',
-    'PI2B':  '-',
-    'SRR1':  '-',
-    'SRR2':  '-',
-    'ALP1':  '-',
-    'ALP23': '-',
-    'ALPHA': '-',
-    'RIB':   '-',
+    'HVGA':  'neg',
+    'PI1':   'neg',
+    'PI2A1': 'neg',
+    'PI2A2': 'neg',
+    'PI2B':  'neg',
+    'SRR1':  'neg',
+    'SRR2':  'neg',
+    'ALP1':  'neg',
+    'ALP23': 'neg',
+    'ALPHA': 'neg',
+    'RIB':   'neg',
 }
 
 
@@ -52,7 +52,7 @@ def update_protein_presence_absence(
 
         for feature in bin_feature_col_dict.keys():
             if re.search(feature, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
-                bin_feature_col_dict[feature] = "+"
+                bin_feature_col_dict[feature] = "pos"
 
 
 def derive_presence_absence(input_file, min_depth, processor):

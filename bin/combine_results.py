@@ -7,53 +7,6 @@ import pandas as pd
 import json
 
 
-def get_all_content(id, sero_file, res_file_inc, res_file_var, mlst_file, surf_typer_file):
-    """Merge serotype incidence, resistance incidence, resistance GBS variants, MLST type, MLST allelic frequency and surface typer incidence"""
-
-    # Clean serotype incidence
-    sero_info = pd.read_csv(sero_file, sep='\t', lineterminator='\n')
-    cps_type = sero_info.iloc[0]['Serotype']
-    sero = pd.DataFrame({
-        'Sample_id': [id],
-        'cps_type': [cps_type]
-    })
-
-    # Clean MLST type and allelic frequencies
-    mlst = pd.read_csv(mlst_file, sep='\t', lineterminator='\n')
-    mlst = mlst.drop(['mismatches', 'uncertainty', 'depth', 'maxMAF'], axis=1)
-    mlst.rename(columns = {'Sample':'Sample_id'}, inplace = True)
-    mlst.at[0,'Sample_id'] = id
-    mlst['ST'] = mlst['ST'].astype(str)
-    st_value = 'ST-' + mlst.iloc[0]['ST']
-    mlst.at[0,'ST'] = st_value
-    mlst = mlst.astype(str)
-
-    # Clean resistance incidence
-    res_inc = pd.read_csv(res_file_inc, sep='\t', lineterminator='\n')
-    res_inc.insert(0, 'Sample_id', [id])
-
-    # Clean surface typer
-    surf_typer = pd.read_csv(surf_typer_file, sep='\t', lineterminator='\n')
-    surf_typer.insert(0, 'Sample_id', [id])
-    surf_typer = surf_typer.replace(to_replace=['+', '-'], value=['pos', 'neg'])
-
-    # Clean resistance variants
-    res_var = pd.read_csv(res_file_var, sep='\t', lineterminator='\n')
-    res_var = res_var.drop(['23S1', '23S3', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4'], axis=1)
-    res_var = res_var.replace(to_replace=list(res_var.columns), value='', regex=True)
-    res_var = res_var.replace(to_replace='-', value='', regex=True)
-    res_var = res_var.replace(to_replace='', value='*')
-    res_var = res_var.add_suffix('_variant')
-    res_var.insert(0, 'Sample_id', [id])
-
-    # Combine dataframes
-    combined = sero.set_index('Sample_id').join([mlst.set_index('Sample_id'), res_inc.set_index('Sample_id'), surf_typer.set_index('Sample_id'), res_var.set_index('Sample_id')])
-    combined.reset_index(inplace=True)
-    combined = combined.rename(columns = {'index':'Sample_id'})
-
-    return combined
-
-
 def read_header_json(header_file):
     with open(header_file, 'r') as file:
         header_json = file.read()
@@ -93,13 +46,8 @@ def create_df(headers: list, id_df: pd.DataFrame, files: list):
         output_df = merge_dfs(output_df, content_df)
 
     headers = id_df.columns.to_list() + headers
+
     return output_df.loc[:,headers]
-
-
-def replace_signs(df):
-    df.replace(to_replace=['+', '-'], value=['pos', 'neg'])
-
-    return df
 
 
 def rename_columns(df, header_dict: dict, id_df: pd.DataFrame):
@@ -123,6 +71,8 @@ def get_arguments():
 
     subparser_sero_res.add_argument('--id', '-i', dest='id', required=True,
                         help='Sample ID.')
+    subparser_sero_res.add_argument('--headers', '-t', dest='headers', required=True,
+                        help='JSON file of expected headers.')
     subparser_sero_res.add_argument('--serotyper_results', '-s', dest='sero', required=True,
                         help='Input SeroType results tab file.')
     subparser_sero_res.add_argument('--res_incidence_results', '-r', dest='inc', required=True,
@@ -143,6 +93,8 @@ def get_arguments():
 
     subparser_surface_typing.add_argument('--id', '-i', dest='id', required=True,
                         help='Sample ID.')
+    subparser_surface_typing.add_argument('--headers', '-t', dest='headers', required=True,
+                        help='JSON file of expected headers.')
     subparser_surface_typing.add_argument('--surface_incidence_results', '-x', dest='surface_inc', required=True,
                         help='Input surface typing incidence results file.')
     subparser_surface_typing.add_argument('--surface_variants_results', '-y', dest='surface_variants', required=True,
@@ -159,6 +111,8 @@ def get_arguments():
 
     subparser_pbp_typing.add_argument('--id', '-i', dest='id', required=True,
                         help='Sample ID.')
+    subparser_pbp_typing.add_argument('--headers', '-t', dest='headers', required=True,
+                        help='JSON file of expected headers.')
     subparser_pbp_typing.add_argument('--pbp_existing_allele_results', '-p', dest='pbp_allele', required=True,
                         help='Input surface typing incidence results file.')
     subparser_pbp_typing.add_argument('--output', '-o', dest='output', required=True,
@@ -231,8 +185,7 @@ def main():
 
     elif args.which == "combine_all":
         # Combine ID, serotyping and resistance typing incidence, resistance typing variants, MLST type and allelic frequency, surface protein incidence
-        df_combine_all = create_df(header_dict["combine_all"], id_df, [args.seo, args.inc, args.variants, args.mlst, args.surface_inc])
-        df_combine_all = replace_signs(df_combine_all)
+        df_combine_all = create_df(list(header_dict["combine_all"].keys()), id_df, [args.sero, args.inc, args.variants, args.mlst, args.surface_inc])
         df_combine_all = rename_columns(df_combine_all, header_dict["combine_all"], id_df)
         FileUtils.write_pandas_output(df_combine_all, args.output + '_id_combined_output.txt')
 

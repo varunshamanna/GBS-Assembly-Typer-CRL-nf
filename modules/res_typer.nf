@@ -1,20 +1,22 @@
 process res_typer {
 
     input:
-    val(pair_id) // ID
-    path(res_dir) // Directory of resistance mapping results
+    tuple val(pair_id), path(gbs_fullgenes), path(gbs_consensus), path(other_fullgenes)
     val(min_read_depth) // Minimum read depth threshold
 
     output:
-    tuple val(pair_id), file("${pair_id}_res_incidence.txt"), file("${pair_id}_res_alleles_variants.txt"), file("${pair_id}_res_gbs_variants.txt")
+    tuple val(pair_id), file(inc_output_file), file(alleles_output_file), file(variants_output_file)
 
+    script:
+    inc_output_file="${pair_id}_res_incidence.txt"
+    alleles_output_file="${pair_id}_res_alleles_variants.txt"
+    variants_output_file="${pair_id}_res_gbs_variants.txt"
     """
-    if [ -f ${res_dir}/${pair_id}/${pair_id}_OTHER_RES_*__fullgenes__*__results.txt ]
-    then
-        process_res_typer_results.py --srst2_gbs_fullgenes ${res_dir}/${pair_id}/${pair_id}_GBS_RES_*__fullgenes__*__results.txt --srst2_gbs_consensus ${res_dir}/${pair_id}/${pair_id}_consensus_seq.fna --srst2_other_fullgenes ${res_dir}/${pair_id}/${pair_id}_OTHER_RES_*__fullgenes__*__results.txt --min_read_depth ${min_read_depth} --output_prefix ${pair_id}
-    else
-        process_res_typer_results.py --srst2_gbs_fullgenes ${res_dir}/${pair_id}/${pair_id}_GBS_RES_*__fullgenes__*__results.txt --srst2_gbs_consensus ${res_dir}/${pair_id}/${pair_id}_consensus_seq.fna --min_read_depth ${min_read_depth} --output_prefix ${pair_id}
-    fi
-    rm -f ${res_dir}/${pair_id}/${pair_id}*
+    set +e
+    process_res_typer_results.py --srst2_gbs_fullgenes ${gbs_fullgenes} --srst2_gbs_consensus ${gbs_consensus} --srst2_other_fullgenes ${other_fullgenes} --min_read_depth ${min_read_depth} --output_prefix ${pair_id}
+
+    touch ${inc_output_file}
+    touch ${alleles_output_file}
+    touch ${variants_output_file}
     """
 }

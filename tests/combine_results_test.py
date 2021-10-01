@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import os
 
-from bin.combine_results import read_header_json, get_content, create_model_df, merge_dfs, create_df, replace_signs, rename_columns, get_arguments, main
+from bin.combine_results import read_header_json, get_content, create_model_df, merge_dfs, create_df, rename_columns, get_arguments, main
 from lib.file_utils import FileUtils
 
 class TestCombineResults(unittest.TestCase):
@@ -235,23 +235,20 @@ class TestCombineResults(unittest.TestCase):
     @patch('bin.combine_results.get_arguments')
     @patch('lib.file_utils.FileUtils.write_pandas_output')
     @patch('bin.combine_results.rename_columns')
-    @patch('bin.combine_results.replace_signs')
     @patch('bin.combine_results.create_df')
     @patch('bin.combine_results.read_header_json')
-    def test_main_for_combine_all(self, mock_read_header_json, mock_create_df, mock_replace_signs, mock_rename_columns, mock_write_pandas_output, mock_get_arguments):
+    def test_main_for_combine_all(self, mock_read_header_json, mock_create_df, mock_rename_columns, mock_write_pandas_output, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
         args.which = "combine_all"
         header_dict = self.header_dict
         mock_read_header_json.return_value = header_dict
         mock_create_df.return_value = 'foobar1'
-        mock_replace_signs.return_value = 'foobar2'
         mock_rename_columns.return_value = 'renamed'
         main()
         mock_create_df.assert_has_calls([
-            call(header_dict['combine_all'], ANY, [args.seo, args.inc, args.variants, args.mlst, args.surface_inc])], any_order=False)
-        mock_replace_signs.assert_has_calls([call('foobar1')])
+            call(list(header_dict["combine_all"].keys()), ANY, [args.sero, args.inc, args.variants, args.mlst, args.surface_inc])], any_order=False)
         mock_rename_columns.assert_has_calls([
-            call('foobar2', header_dict['combine_all'], ANY)
+            call('foobar1', header_dict['combine_all'], ANY)
         ])
         mock_write_pandas_output.assert_has_calls([
             call('renamed', args.output + "_id_combined_output.txt")
@@ -278,36 +275,36 @@ class TestCombineResults(unittest.TestCase):
             ], any_order=False)
 
     def test_arguments_sero_res(self):
-        actual = get_arguments().parse_args(['sero_res', '--id', 'id', '--serotyper_results', 'sero_file', '--res_incidence_results', 'res_file',
+        actual = get_arguments().parse_args(['sero_res', '--id', 'id', '--headers', 'header_file', '--serotyper_results', 'sero_file', '--res_incidence_results', 'res_file',
                                             '--res_alleles_results', 'allele_file', '--res_variants_results', 'variants_file', '--output', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(which='sero_res', id='id', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
+                         argparse.Namespace(which='sero_res', id='id', headers='header_file', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
 
     def test_arguments_surface_typing(self):
-        actual = get_arguments().parse_args(['surface_typer', '--id', 'id', '--surface_incidence_results', 'file1', '--surface_variants_results', 'file2',
+        actual = get_arguments().parse_args(['surface_typer', '--id', 'id', '--headers', 'header_file', '--surface_incidence_results', 'file1', '--surface_variants_results', 'file2',
                                              '--output', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(which='surface_typer', id='id', surface_inc='file1', surface_variants='file2', output='output_prefix'))
+                         argparse.Namespace(which='surface_typer', id='id', headers='header_file', surface_inc='file1', surface_variants='file2', output='output_prefix'))
 
     def test_arguments_pbp_typing(self):
-        actual = get_arguments().parse_args(['pbp_typer', '--id', 'id', '--pbp_existing_allele_results', 'pbp_file', '--output', 'output_prefix'])
+        actual = get_arguments().parse_args(['pbp_typer', '--id', 'id', '--headers', 'header_file', '--pbp_existing_allele_results', 'pbp_file', '--output', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(which='pbp_typer', id='id', pbp_allele='pbp_file', output='output_prefix'))
+                         argparse.Namespace(which='pbp_typer', id='id', headers='header_file', pbp_allele='pbp_file', output='output_prefix'))
 
     def test_arguments_short_options_sero_res(self):
-        actual = get_arguments().parse_args(['sero_res', '-i', 'id', '-s', 'sero_file', '-r', 'res_file', '-a', 'allele_file', '-v', 'variants_file', '-o', 'output_prefix'])
+        actual = get_arguments().parse_args(['sero_res', '-i', 'id', '-t', 'header_file', '-s', 'sero_file', '-r', 'res_file', '-a', 'allele_file', '-v', 'variants_file', '-o', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(which='sero_res', id='id', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
+                         argparse.Namespace(which='sero_res', id='id', headers='header_file', sero='sero_file', inc='res_file', alleles='allele_file', variants='variants_file', output='output_prefix'))
 
     def test_arguments_short_options_surface_typing(self):
-        actual = get_arguments().parse_args(['surface_typer', '-i', 'id', '-x', 'file1', '-y', 'file2', '-o', 'output_prefix'])
+        actual = get_arguments().parse_args(['surface_typer', '-i', 'id', '-t', 'header_file', '-x', 'file1', '-y', 'file2', '-o', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(which='surface_typer', id='id', surface_inc='file1', surface_variants='file2', output='output_prefix'))
+                         argparse.Namespace(which='surface_typer', id='id', headers='header_file', surface_inc='file1', surface_variants='file2', output='output_prefix'))
 
     def test_arguments_short_options_pbp_typing(self):
-        actual = get_arguments().parse_args(['pbp_typer', '-i', 'id', '-p', 'pbp_file', '-o', 'output_prefix'])
+        actual = get_arguments().parse_args(['pbp_typer', '-i', 'id', '-t', 'header_file', '-p', 'pbp_file', '-o', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(which='pbp_typer', id='id', pbp_allele='pbp_file', output='output_prefix'))
+                         argparse.Namespace(which='pbp_typer', id='id', headers='header_file', pbp_allele='pbp_file', output='output_prefix'))
 
     def test_arguments_short_options_pbp_typing(self):
         actual = get_arguments().parse_args(['combine_all', '-i', 'id', '-t', 'header_file', '-s', 'sero_file', '-r', 'res_file', '-v', 'variants_file', '-m', 'mlst_file', '-x', 'surface_typer_file', '-o', 'output_prefix'])

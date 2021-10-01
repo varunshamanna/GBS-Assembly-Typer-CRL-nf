@@ -2,38 +2,20 @@ process srst2_for_res_typing {
 
     input:
     tuple val(pair_id), file(reads) // ID and paired read files
-    val(dbs) // String of resistance database file(s)
-    path(db_dir) // Path to database file(s)
-    path(tmp_dir) // Path to temporary directory
-    val(db_name) // Type of resistance database i.e. GBS or OTHER
+    path db // File of resistance database file(s)
     val(min_coverage) // String of minimum coverage parameter(s) for SRST2
     val(max_divergence) // String of maximum coverage parameter(s) for SRST2
 
-    publishDir "./${tmp_dir}/${pair_id}", mode: 'copy', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
-
     output:
     tuple val(pair_id), file("${pair_id}*.bam"), emit: bam_files
-    val(pair_id), emit: id
-    file("${pair_id}_${db_name}_*__fullgenes__*__results.txt") optional true
+    tuple val(pair_id), file("${pair_id}__fullgenes__${db_name}__results.txt"), emit: fullgenes
 
+    script:
+    db_name=db.getSimpleName()
     """
-    db_list='${dbs}'
-    db_array=(\$db_list)
-
-    min_cov_list='${min_coverage}'
-    min_cov_array=(\$min_cov_list)
-
-    max_div_list='${max_divergence}'
-    max_div_array=(\$max_div_list)
-
-    for ((i=0;i<\${#db_array[@]};i++));
-    do
-        mkdir -p ${tmp_dir}/${pair_id}
-        cp ${db_dir}/\${db_array[i]} ${tmp_dir}/${pair_id}/
-        db_file=\$(basename \${db_array[i]})
-        srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id}_${db_name}_\${db_file} --log --save_scores --min_coverage \${min_cov_array[i]} --max_divergence \${max_div_array[i]} --gene_db ${tmp_dir}/${pair_id}/\${db_file}
-        rm ${tmp_dir}/${pair_id}/\${db_file}*
-    done
+    set +e
+    srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --log --save_scores --min_coverage ${min_coverage} --max_divergence ${max_divergence} --gene_db ${db}
+    touch ${pair_id}__fullgenes__${db_name}__results.txt
     """
 }
 
@@ -79,13 +61,9 @@ process freebayes {
     file(target_bam) // BAM file from a mapped target sequence of interest
     file(target_bai) // Corresponding BAM index file
     file(target_ref) // FASTA file of target sequence
-    path(tmp_dir)
-
-    publishDir "./${tmp_dir}/${pair_id}", mode: 'copy', overwrite: true
 
     output:
-    val(pair_id), emit: id
-    file("${pair_id}_consensus_seq.fna")
+    tuple val(pair_id), file("${pair_id}_consensus_seq.fna"), emit: consensus
 
     """
     for check_bam_file in CHECK_*_${pair_id}*.bam; do
