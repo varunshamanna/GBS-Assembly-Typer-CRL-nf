@@ -8,6 +8,8 @@ from bin.process_res_typer_results import get_arguments, codon2aa, derive_presen
     get_gene_names_from_consensus, get_variants, run, main, get_seq_content, \
     geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, GBS_Res_Targets, clear_arg_res
 
+global MIN_DEPTH
+MIN_DEPTH = 30
 
 class TestProcessResTyperResults(unittest.TestCase):
 
@@ -18,8 +20,6 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_FASTA_FILE = "test_data/input/test-db.fasta"
     TEST_CONSENSUS_SEQ_FILE = "test_data/input/" + TEST_LANE + "_consensus_seq.fna"
     TEST_OUTPUT = "test_data/output/" + TEST_LANE + "_output.txt"
-
-    MIN_DEPTH = 30
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
@@ -270,7 +270,7 @@ class TestProcessResTyperResults(unittest.TestCase):
             )
 
     def test_update_presence_absence_target(self):
-        depth = self.MIN_DEPTH+1
+        depth = MIN_DEPTH+1
 
 
         # ============== Test misc ==================
@@ -287,13 +287,13 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         # ============== Test depth ==================
         gbs_res_target_dict = {}
-        update_presence_absence_target("GENE1", "***RPOBGBS-1***", self.MIN_DEPTH-1, gbs_res_target_dict)
+        update_presence_absence_target("GENE1", "***RPOBGBS-1***", MIN_DEPTH-1, gbs_res_target_dict)
         self.assertEqual({}, gbs_res_target_dict)
 
         # TODO there is a suspected bug in this perl code - see Python module
 
     def test_update_presence_absence_target_for_arg_res(self):
-        depth = self.MIN_DEPTH+1
+        depth = MIN_DEPTH+1
 
         # ============== Test ERMB ==================
         drug_res_col_dict = {"EC": "neg"}
@@ -308,7 +308,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # Check low depth
         drug_res_col_dict = {"EC": "neg"}
         res_target_dict = {"ERMB": "neg"}
-        update_presence_absence_target_for_arg_res("GENE2", "***ERMB***", self.MIN_DEPTH-1, drug_res_col_dict, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE2", "***ERMB***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict)
         self.assertEqual({"EC": "neg"}, drug_res_col_dict)
         self.assertEqual({"ERMB": "neg"}, res_target_dict)
 
@@ -584,7 +584,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # ============== Test depth ==================
         drug_res_col_dict = {}
         res_target_dict = {}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", self.MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
         self.assertEqual({}, drug_res_col_dict)
         self.assertEqual({}, res_target_dict)
 
@@ -596,7 +596,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         mock.assert_has_calls(calls, any_order=False)
 
     @patch('bin.process_res_typer_results.update_presence_absence_target_for_arg_res')
-    def derive_presence_absence_targets_for_arg_res(self, mock):
+    def test_derive_presence_absence_targets_for_arg_res(self, mock):
         calls = [
             call("tet(M)", "tet(M)_12", 132.04, ANY, ANY),
             call("tet(M)", "tet(M)_4", 185.331, ANY, ANY),
