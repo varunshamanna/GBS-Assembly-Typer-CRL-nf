@@ -6,7 +6,7 @@ from bin.process_res_typer_results import get_arguments, codon2aa, derive_presen
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
     get_gene_names_from_consensus, get_variants, run, main, get_seq_content, \
-    geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, GBS_Res_Targets
+    geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, GBS_Res_Targets, clear_arg_res
 
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -602,7 +602,7 @@ class TestProcessResTyperResults(unittest.TestCase):
             call("tet(M)", "tet(M)_4", 185.331, ANY, ANY),
             call("tet(M)", "tet(M)_10", 120.412, ANY, ANY),
         ]
-        derive_presence_absence_targets_for_arg_res(self.TEST_RESFINDER_FULLGENES_RESULTS_FILE)
+        derive_presence_absence_targets_for_arg_res([self.TEST_RESFINDER_FULLGENES_RESULTS_FILE], drugRes_Col, Res_Targets)
         mock.assert_has_calls(calls, any_order=False)
 
     def test_find_amino_acid_mismatches(self):
@@ -741,6 +741,18 @@ class TestProcessResTyperResults(unittest.TestCase):
         }
         actual = get_gene_names_from_consensus(consensus_seq_dict)
         self.assertEqual(actual, ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4'])
+
+    def test_clear_arg_res(self):
+        actual = clear_arg_res(GBS_Res_var)
+        self.assertEqual(GBS_Res_var, {
+            '23S1_variant': '',
+            '23S3_variant': '',
+            'GYRA_variant': '',
+            'PARC_variant': '',
+            'RPOBGBS-1_variant': '',
+            'RPOBGBS-2_variant': '',
+            'RPOBGBS-3_variant': '',
+            'RPOBGBS-4_variant': ''})
 
     @patch('bin.process_res_typer_results.get_seq_content')
     @patch('bin.process_res_typer_results.get_gene_names_from_consensus')

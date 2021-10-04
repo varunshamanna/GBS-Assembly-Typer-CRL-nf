@@ -26,7 +26,7 @@ class TestProcessResults(unittest.TestCase):
                             ['Matched_Allele\tMatch_Type\tSerotype\tAvgDepth\n','III-1\tIII=imperfect\tIII\t267.595\n'])
         os.remove(self.TEST_OUTPUT)
 
-    def test_write_outfile(self):
+    def test_write_outfile_multi(self):
         gene_dict = make_gene_dict(self.TEST_SEROTYPE_FULLGENES_MULTI, 10)
         write_outfile(gene_dict, self.TEST_OUTPUT)
         f = open(self.TEST_OUTPUT, 'r')

@@ -260,18 +260,15 @@ class TestCombineResults(unittest.TestCase):
     @patch('bin.combine_results.read_header_json')
     def test_main_for_pbp_typer(self, mock_read_header_json, mock_create_df, mock_write_pandas_output, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
-        args.which = "surface_typer"
+        args.which = "pbp_typer"
         header_dict = self.header_dict
         mock_read_header_json.return_value = header_dict
         mock_create_df.return_value = 'foobar1'
         main()
         mock_create_df.assert_has_calls([
-            call(header_dict['surface_inc'], ANY, [args.surface_inc]),
-            call(header_dict['surface_variants'], ANY, [args.surface_variants])
-            ], any_order=False)
+            call(header_dict['pbp_allele'], ANY, [args.pbp_allele])], any_order=False)
         mock_write_pandas_output.assert_has_calls([
-            call('foobar1', args.output + "_surface_protein_incidence.txt"),
-            call('foobar1', args.output + "_surface_protein_variants.txt")
+            call('foobar1', args.output + "_existing_PBP_allele.txt")
             ], any_order=False)
 
     def test_arguments_sero_res(self):
@@ -306,7 +303,7 @@ class TestCombineResults(unittest.TestCase):
         self.assertEqual(actual,
                          argparse.Namespace(which='pbp_typer', id='id', headers='header_file', pbp_allele='pbp_file', output='output_prefix'))
 
-    def test_arguments_short_options_pbp_typing(self):
+    def test_arguments_short_options_combine_all(self):
         actual = get_arguments().parse_args(['combine_all', '-i', 'id', '-t', 'header_file', '-s', 'sero_file', '-r', 'res_file', '-v', 'variants_file', '-m', 'mlst_file', '-x', 'surface_typer_file', '-o', 'output_prefix'])
         self.assertEqual(actual,
                          argparse.Namespace(which='combine_all', id='id', headers='header_file', sero='sero_file', inc='res_file', variants='variants_file', mlst='mlst_file', surface_inc='surface_typer_file', output='output_prefix'))
