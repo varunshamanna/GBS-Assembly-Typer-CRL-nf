@@ -41,16 +41,19 @@ process split_target_RES_seq_from_sam_file {
 
     output:
     val(pair_id)
-    file("CHECK_*_${pair_id}*.bam")
-    file("CHECK_*_${pair_id}*.bai")
+    file("*_*_${pair_id}*.bam")
+    file("*_*_${pair_id}*.bai")
 
     """
+    set +e
     samtools view -h ${bam_file} > \$(basename ${bam_file} .bam).sam
     get_targets_from_samfile.py -s \$(basename ${bam_file} .bam).sam -t ${targets_file} -i ${pair_id} -o CHECK_
     for check_sam_file in CHECK_*_${pair_id}*.sam; do
         samtools view -bS \${check_sam_file} > \$(basename \${check_sam_file} .sam).bam
         samtools index \$(basename \${check_sam_file} .sam).bam \$(basename \${check_sam_file} .sam).bai
     done
+    touch dummy_dummy_${pair_id}_dummy.bam
+    touch dummy_dummy_${pair_id}_dummy.bai
     """
 }
 
@@ -66,6 +69,7 @@ process freebayes {
     tuple val(pair_id), file("${pair_id}_consensus_seq.fna"), emit: consensus
 
     """
+    set +e
     for check_bam_file in CHECK_*_${pair_id}*.bam; do
         target=\$(echo \${check_bam_file} | sed 's/CHECK_//g' | sed 's/_${pair_id}.*//g')
         freebayes -q 20 -p 1 -f CHECK_\${target}_ref.fna \${check_bam_file} -v CHECK_\${target}_${pair_id}_seq.vcf
@@ -73,5 +77,6 @@ process freebayes {
         tabix -p vcf CHECK_\${target}_${pair_id}_seq.vcf.gz
         cat CHECK_\${target}_ref.fna | vcf-consensus CHECK_\${target}_${pair_id}_seq.vcf.gz >> ${pair_id}_consensus_seq.fna
     done
+    touch ${pair_id}_consensus_seq.fna
     """
 }
