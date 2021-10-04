@@ -36,6 +36,7 @@ process get_mlst_allele_and_pileup {
     path("${pair_id}_new_mlst_alleles.log"), emit: new_alleles_status
 
     """
+    set +e
     # Get alleles from mismatches in SRST2 MLST results file
     samtools index ${bam_file}
     get_alleles_from_srst2_mlst.py --mlst_results_file ${results_file} --min_read_depth ${min_read_depth} --output_prefix ${pair_id}
@@ -74,7 +75,8 @@ process get_mlst_allele_and_pileup {
     else
         echo "${pair_id}: No new MLST alleles found." > ${pair_id}_new_mlst_alleles.log
     fi
-
+    
+    touch ${pair_id}_new_mlst_alleles.log
     """
 
 }
