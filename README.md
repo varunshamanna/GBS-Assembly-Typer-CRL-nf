@@ -6,8 +6,6 @@ The GBS Typer is for characterising Group B Strep by serotyping, resistance typi
 [![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/main/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)
 
 ## Contents
-- [ Acknowledge us ](#acknowledge)
-- [ Reporting issues ](#issues)
 - [ Running the serotyping and resistance typing pipeline on a local machine ](#local)
     - [ Installation ](#localinstall)
     - [ Usage ](#localusage)
@@ -25,16 +23,8 @@ The GBS Typer is for characterising Group B Strep by serotyping, resistance typi
 - [ Other information ](#info)
     - [ Software dependencies ](#dependencies)
     - [ For developers ](#developers)
-
-<a name="acknowledge"></a>
-## Acknowledge us
-If you use this software, please acknowledge as appropriate.
-
-Contributors: Victoria Carr (Sanger), Kevin Pepper (Sanger), Ben Metcalf (CDC)
-
-<a name="issues"></a>
-## Reporting issues
-If any questions or problems, please post them under [Issues](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/issues).
+- [ Acknowledge us ](#acknowledge)
+- [ Reporting issues ](#issues)
 
 <a name="local"></a>
 ## Running the pipeline on a local machine
@@ -63,18 +53,18 @@ If running on an LSF head node you will need to bsub the **nextflow clone** comm
 ### Usage
 Note: Running the pipeline requires an internet connection to allow the pipeline to automatically download its [dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf).
 
-#### To run on one sample:
+- To run on one sample (replacing `sampleID`)
 ```
-nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID'
+nextflow run main.nf --run_sero_res --run_surfacetyper --run_mlst --reads 'data/sampleID_{1,2}.fastq.gz' --output 'sampleID'
 ```
 
-#### To run on multiple samples in a directory:
+- To run on multiple samples in a directory (replacing `output_file_prefix`)
 ```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix'
+nextflow run main.nf --run_sero_res --run_surfacetyper --run_mlst --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix'
 ```
 
 <a name="farm"></a>
-## Running the serotyping and resistance typing pipeline on the farm at Sanger:
+## Running the pipeline on the farm at Sanger:
 Please refer to the internal Sanger wiki 'Pathogen Informatics Nextflow Pipelines' and then follow the steps below.
 
 Note: Running the pipeline requires an internet connection and should be done in lustre storage.
@@ -99,12 +89,12 @@ export https_proxy=http://wwwcache.sanger.ac.uk:3128
 
 **4. Run using bsub**
 
--  For a single sample
+-  For a single sample (replacing `sampleID`)
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/sampleID_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'sampleID' -profile sanger,lsf"
 ```
 
-- For multiple samples
+- For multiple samples (replacing `output_file_prefix`)
 ```
 bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --run_sero_res --run_surfacetyper --run_mlst --output 'output_file_prefix' -profile sanger,lsf"
 ```
@@ -117,31 +107,31 @@ Add a **-N 'my-email-address'** to the end of the command line if you wish to be
 
 <a name="main"></a>
 ### Main Report
-You must specific `--run_sero_res`, `--run_surfacetyper` and `--run_mlst` to generate the report. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants for GYRA and PARC.
+Running the command with `--run_sero_res`, `--run_surfacetyper` and `--run_mlst` will generate the main report `<sampleID>_gbs_typer_report.txt` for one sample or `<output_file_prefix>_gbs_typer_report.txt` for multiple samples. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants.
 
 <a name="serores"></a>
 ### Serotyping and Resistance Typing Output
 **When specifying `--run_sero_res`**
 
 This will create three tab-delimited files in a 'results' directory within the current directory. Specifying multiple samples will produce a row per sample:
-1. **<output>_serotype_res_incidence.txt** - Gives the serotype and presence/absence (i.e. +/-) of antibiotic resistance genes (GBS-specific alleles and ResFinder/ARG-ANNOT genes)
+1. **\<output_file_prefix\>_serotype_res_incidence.txt** - Gives the serotype and presence/absence (i.e. +/-) of antibiotic resistance genes (GBS-specific alleles and ResFinder/ARG-ANNOT genes)
 e.g. Isolate Strep B sample 25292_2#105 has serotype II and have genes: 23S1, 23S3, GYRA, LSAC and TETM
 
-ID | Serotype | 23S1 | 23S3 | CAT | ERMB | ERMT | FOSA | GYRA | LNUB | LSAC | MEFA | MPHC | MSRA | MSRD | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4 | SUL2 | TETB | TETL | TETM | TETO | TETS
+Sample_id | Serotype | 23S1 | 23S3 | CAT | ERMB | ERMT | FOSA | GYRA | LNUB | LSAC | MEFA | MPHC | MSRA | MSRD | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4 | SUL2 | TETB | TETL | TETM | TETO | TETS
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
-25292_2#105 | II | + | + | - | - | - | - | + | - | + | - | - | - | - | - | - | - | - | - | - | - | - | + | - | -
+25292_2#105 | II | pos | pos | neg | neg | neg | neg | pos | neg | pos | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | pos | neg | neg
 
-2. **<output>_gbs_res_variants.txt** - Gives the SNP variants for GBS-specific resistance genes
+2. **\<output_file_prefix\>_gbs_res_variants.txt** - Gives the SNP variants for GBS-specific resistance genes
 e.g. Isolate Strep B sample 25292_2#105 have common variants 23S1, 23S3 and GYRA, but replacement of amino acid S by Q in position 17 of the PARC protein sequence
 
-ID | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4
+Sample_id | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
-25292_2#105 | 23S1 | 23S3 | GYRA | PARC-Q17S | | | | |
+25292_2#105 | * | * | * | Q17S | | | | |
 
-3. **<output>_drug_cat_alleles_variants.txt** - Gives the GBS-specific variants and other resistance genes and alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
+3. **\<output_file_prefix\>_drug_cat_alleles_variants.txt** - Gives the GBS-specific variants and other resistance genes and alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
 e.g. Isolate Step B sample 25292_2#105 have GBS-specific variants: erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA, and other resistance allele tetracycline-resistant tet(M)_1 of gene tet(M) (as specified by gene[allele])
 
-ID | EC | FQ | OTHER | TET
+Sample_id | EC | FQ | OTHER | TET
 :---: | :---: | :---: | :---: | :---:
 25292_2#105 | 23S1:23S3 | PARC-Q17S:GYRA | neg | tet(M)[tet(M)_1]
 
@@ -158,17 +148,17 @@ For other samples that have no new MLST alleles and only have existing sequence 
 **When specifying `--run_surfacetyper`**
 
 This will create two tab-delimited files in the 'results' directory
-1. **<output>_surface_protein_incidence.txt**
+1. **\<output_file_prefix\>_surface_protein_incidence.txt**
 This shows the incidence of different surface protein alleles in the Strep B sample(s), e.g.
 
-ID | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
+Sample_id | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
 26189_8#338 | neg | pos | neg | neg | pos | pos | neg | neg | neg | pos | neg
 
-2. **<output>_surface_protein_variants.txt**
+2. **\<output_file_prefix\>_surface_protein_variants.txt**
 This shows all the surface proteins in the Strep B sample(s), e.g.
 
-ID | ALPH | HVGA | PILI | SRR
+Sample_id | ALPH | HVGA | PILI | SRR
 :---: | :---: | :---: | :---: | :---:
 26189_8#338 | ALP23 | neg | PI1:PI2A1 | SRR1
 
@@ -181,7 +171,7 @@ nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefi
 
 If existing PBP alleles are found, a tab-delimited file is created in the 'results' directory. The file contains the sample IDs (that are determined from the contig FASTA file names e.g. 25292_2#85 from data/25292_2#85.fa), the contig identifiers with start, end and forward(+)/reverse(-) positions, and the PBP allele identifier.
 
-ID | Contig | PBP_allele
+Sample_id | Contig | PBP_allele
 :---: | :---: | :---:
 25292_2#85 | .25292_2_85.9:39495-40455(+) | 2\|\|GBS_1A
 26077_6#118 | .26077_6_118.11:39458-40418(+) | 1\|\|GBS_1A
@@ -233,17 +223,16 @@ The **--reads** parameter is not needed for the PBP typing pipeline.
 ### Inputs
     --contigs                       Path of file containing FASTA contigs. Only use when --run_pbptyper is specified. (Use wildcard '*' to specify multiple files, e.g. 'data/*.fa')
     --db_version                    Database version. (Default: 0.1.2)
-    --other_res_dbs                 Paths to other resistance reference database(s). Must be FASTA format. Specify 'none' to omit using other resistance databases. (Default: 'db/0.1.1/ARGannot-DB/ARG-ANNOT.fasta' from ARGannot_r3 of the SRST2 software, which includes non-redundant ResFinder and CARD database genes).
+    --other_res_dbs                 Path to other resistance reference database. Must be FASTA format. (Default: 'db/0.1.2/ARGannot-DB/ARG-ANNOT.fasta' from ARGannot_r3 of the SRST2 software, which includes non-redundant ResFinder and CARD database genes).
 
 ### Outputs
     --results_dir                   Results directory for output files. (Default: './results')
-    --tmp_dir                       Temporary directory for intermediate files. (Default: './tmp')
 
 ### Parameters
     --gbs_res_min_coverage          Minimum coverage for mapping to the GBS resistance database. (Default: 99.9)
     --gbs_res_max_divergence        Maximum divergence for mapping to the GBS resistance database. (Default: 5, i.e. report only hits with <5% divergence)
-    --other_res_min_coverage        Minimum coverage for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: 70)
-    --other_res_max_divergence      Maximum divergence for mapping to other resistance reference database(s). Number of values must equal the number of resistance reference database files and must correspond to the order specified in --other_res_dbs. (Default: 30, i.e. report only hits with <30% divergence)
+    --other_res_min_coverage        Minimum coverage for mapping to other resistance reference database(s). (Default: 70)
+    --other_res_max_divergence      Maximum divergence for mapping to other resistance reference database. (Default: 30, i.e. report only hits with <30% divergence)
     --restyper_min_read_depth       Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
     --serotyper_min_read_depth      Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
 
@@ -267,9 +256,9 @@ Options can also be changed by editing the ```nextflow.config``` file.
 
 <a name="errors"></a>
 ## Troubleshooting for errors
-It is possible that the pipeline may not complete successfully due to issues with input files and/or individual steps of the pipeline. To troubleshoot potential issues, you can use the `-trace` parameter e.g. `nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -trace` to create a trace file in the current directory while the pipeline is running. The trace file will provide the status of the current directory that provides the status and the location of the log files for each sample and step. For example, if the step failed in `[00/8803ea]`, the command and the error from this step can be viewed by `cat work/00/8803ea01f8bc0fb43f68335d82831f/.command.log` (Hint: while typing `work/00/8803ea`, the complete file path can be completed with the TAB button.)
+It is possible that the pipeline may not complete successfully due to issues with input files and/or individual steps of the pipeline. To troubleshoot potential issues, you can use the `-with-trace` parameter e.g. `nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output 'output_file_prefix' -with-trace` to create a trace file in the current directory while the pipeline is running. The trace file will provide the status of the current directory that provides the status and the location of the log files for each sample and step. For example, if the step failed in `[00/8803ea]`, the command and the error from this step can be viewed by `cat work/00/8803ea01f8bc0fb43f68335d82831f/.command.log` (Hint: while typing `work/00/8803ea`, the complete file path can be completed with the TAB button.)
 
-Alternatively, if `-trace` was not provided in the original command, then you can also find the location of these directories in the bsub output e.g. `grep 'Error' pipeline.o | sort | uniq`.
+Alternatively, if `-with-trace` was not provided in the original command, then you can also find the location of these directories in the bsub output e.g. `grep 'Error' pipeline.o | sort | uniq`.
 
 
 <a name="cleanup"></a>
@@ -309,3 +298,11 @@ python3 -m pytest
 2. Make sure the container specified in the `nextflow.config` has the same tag and push this to your branch.
 3. Make a pull request. (If the build fails because the container does not exist then you may need to go to [quay.io](https://quay.io/repository/sangerpathogens/gbs-typer-sanger-nf?tab=builds) to trigger a build of the Docker image. Click the wheel at the bottom and Run Trigger Now. If you cannot access it, you will need to create a new quay account and ask a member of Pathogen Informatics to add you to the sangerpathogens organisation.)
 4. Remember to tag the main branch
+
+<a name="acknowledge"></a>
+## Acknowledge us
+If you use this software, please acknowledge the contributors as appropriate.
+
+<a name="issues"></a>
+## Reporting issues
+If any questions or problems, please post them under [Issues](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/issues).

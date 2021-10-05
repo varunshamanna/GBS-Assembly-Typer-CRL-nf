@@ -158,7 +158,9 @@ class TestGetPBPGenesFromContigs(unittest.TestCase):
         args.frac_align = 0.5
         args.frac_ident = 0.5
         args.output = self.TEST_OUTPUT_PREFIX
-        main()
-        fo = open('test_data/output/TEST_GBS1A-1.bed', 'r')
 
+        main()
+
+        fo = open('test_data/output/TEST_GBS1A-1.bed', 'r')
+        
         self.assertEqual(fo.readlines(), ['.26077_6_118.11\t39458\t40418\tforward\t1\t+\n'])

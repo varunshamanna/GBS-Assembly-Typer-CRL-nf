@@ -22,17 +22,17 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
         }
 
         self.bin_features = {
-            'HVGA': '-',
-            'PI1': '-',
-            'PI2A1': '-',
-            'PI2A2': '-',
-            'PI2B': '-',
-            'SRR1': '-',
-            'SRR2': '-',
-            'ALP1': '-',
-            'ALP23': '-',
-            'ALPHA': '-',
-            'RIB': '-',
+            'HVGA': 'neg',
+            'PI1': 'neg',
+            'PI2A1': 'neg',
+            'PI2A2': 'neg',
+            'PI2B': 'neg',
+            'SRR1': 'neg',
+            'SRR2': 'neg',
+            'ALP1': 'neg',
+            'ALP23': 'neg',
+            'ALPHA': 'neg',
+            'RIB': 'neg',
         }
 
     @patch('bin.process_surface_typer_results.update_protein_presence_absence')
@@ -54,17 +54,17 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
         self.assertEqual(self.features, {'ALPH': 'neg', 'SRR': 'SRR1', 'PILI': 'neg', 'HVGA': 'neg'})
         self.assertEqual(self.bin_features,
                          {
-                            'HVGA':  '-',
-                            'PI1':   '-',
-                            'PI2A1': '-',
-                            'PI2A2': '-',
-                            'PI2B':  '-',
-                            'SRR1':  '+',
-                            'SRR2':  '-',
-                            'ALP1':  '-',
-                            'ALP23': '-',
-                            'ALPHA': '-',
-                            'RIB':   '-'})
+                            'HVGA':  'neg',
+                            'PI1':   'neg',
+                            'PI2A1': 'neg',
+                            'PI2A2': 'neg',
+                            'PI2B':  'neg',
+                            'SRR1':  'pos',
+                            'SRR2':  'neg',
+                            'ALP1':  'neg',
+                            'ALP23': 'neg',
+                            'ALPHA': 'neg',
+                            'RIB':   'neg'})
 
     def test_update_protein_presence_absence_ALPH(self):
         update_protein_presence_absence(
@@ -73,17 +73,17 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
         self.assertEqual(self.features, {'ALPH': 'ALP23', 'SRR': 'neg', 'PILI': 'neg', 'HVGA': 'neg'})
         self.assertEqual(self.bin_features,
                          {
-                            'HVGA':  '-',
-                            'PI1':   '-',
-                            'PI2A1': '-',
-                            'PI2A2': '-',
-                            'PI2B':  '-',
-                            'SRR1':  '-',
-                            'SRR2':  '-',
-                            'ALP1':  '-',
-                            'ALP23': '+',
-                            'ALPHA': '-',
-                            'RIB':   '-'})
+                            'HVGA':  'neg',
+                            'PI1':   'neg',
+                            'PI2A1': 'neg',
+                            'PI2A2': 'neg',
+                            'PI2B':  'neg',
+                            'SRR1':  'neg',
+                            'SRR2':  'neg',
+                            'ALP1':  'neg',
+                            'ALP23': 'pos',
+                            'ALPHA': 'neg',
+                            'RIB':   'neg'})
 
     def test_update_protein_presence_absence_PI1(self):
         update_protein_presence_absence(
@@ -92,17 +92,17 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
         self.assertEqual(self.features, {'ALPH': 'neg', 'SRR': 'neg', 'PILI': 'PI1', 'HVGA': 'neg'})
         self.assertEqual(self.bin_features,
                          {
-                            'HVGA':  '-',
-                            'PI1':   '-',
-                            'PI2A1': '-',
-                            'PI2A2': '+',
-                            'PI2B':  '-',
-                            'SRR1':  '-',
-                            'SRR2':  '-',
-                            'ALP1':  '-',
-                            'ALP23': '-',
-                            'ALPHA': '-',
-                            'RIB':   '-'})
+                            'HVGA':  'neg',
+                            'PI1':   'neg',
+                            'PI2A1': 'neg',
+                            'PI2A2': 'pos',
+                            'PI2B':  'neg',
+                            'SRR1':  'neg',
+                            'SRR2':  'neg',
+                            'ALP1':  'neg',
+                            'ALP23': 'neg',
+                            'ALPHA': 'neg',
+                            'RIB':   'neg'})
 
     def test_update_protein_presence_absence_HVGA(self):
         update_protein_presence_absence(
@@ -111,17 +111,17 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
         self.assertEqual(self.features, {'ALPH': 'neg', 'SRR': 'neg', 'PILI': 'PI1', 'HVGA': 'neg'})
         self.assertEqual(self.bin_features,
                          {
-                            'HVGA':  '-',
-                            'PI1':   '-',
-                            'PI2A1': '-',
-                            'PI2A2': '+',
-                            'PI2B':  '-',
-                            'SRR1':  '-',
-                            'SRR2':  '-',
-                            'ALP1':  '-',
-                            'ALP23': '-',
-                            'ALPHA': '-',
-                            'RIB':   '-'})
+                            'HVGA':  'neg',
+                            'PI1':   'neg',
+                            'PI2A1': 'neg',
+                            'PI2A2': 'pos',
+                            'PI2B':  'neg',
+                            'SRR1':  'neg',
+                            'SRR2':  'neg',
+                            'ALP1':  'neg',
+                            'ALP23': 'neg',
+                            'ALPHA': 'neg',
+                            'RIB':   'neg'})
 
     def test_update_protein_presence_absence_min_depth(self):
         update_protein_presence_absence(
@@ -130,17 +130,17 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
         self.assertEqual(self.features, {'ALPH': 'neg', 'SRR': 'neg', 'PILI': 'neg', 'HVGA': 'neg'})
         self.assertEqual(self.bin_features,
                          {
-                            'HVGA':  '-',
-                            'PI1':   '-',
-                            'PI2A1': '-',
-                            'PI2A2': '-',
-                            'PI2B':  '-',
-                            'SRR1':  '-',
-                            'SRR2':  '-',
-                            'ALP1':  '-',
-                            'ALP23': '-',
-                            'ALPHA': '-',
-                            'RIB':   '-'})
+                            'HVGA':  'neg',
+                            'PI1':   'neg',
+                            'PI2A1': 'neg',
+                            'PI2A2': 'neg',
+                            'PI2B':  'neg',
+                            'SRR1':  'neg',
+                            'SRR2':  'neg',
+                            'ALP1':  'neg',
+                            'ALP23': 'neg',
+                            'ALPHA': 'neg',
+                            'RIB':   'neg'})
 
     def test_update_protein_presence_absence_OTHER(self):
         update_protein_presence_absence(
@@ -149,17 +149,17 @@ class TestProcessSurfaceTyperResults(unittest.TestCase):
         self.assertEqual(self.features, {'ALPH': 'neg', 'SRR': 'neg', 'PILI': 'neg', 'HVGA': 'neg'})
         self.assertEqual(self.bin_features,
                          {
-                            'HVGA':  '-',
-                            'PI1':   '-',
-                            'PI2A1': '-',
-                            'PI2A2': '-',
-                            'PI2B':  '-',
-                            'SRR1':  '-',
-                            'SRR2':  '-',
-                            'ALP1':  '-',
-                            'ALP23': '-',
-                            'ALPHA': '-',
-                            'RIB':   '-'})
+                            'HVGA':  'neg',
+                            'PI1':   'neg',
+                            'PI2A1': 'neg',
+                            'PI2A2': 'neg',
+                            'PI2B':  'neg',
+                            'SRR1':  'neg',
+                            'SRR2':  'neg',
+                            'ALP1':  'neg',
+                            'ALP23': 'neg',
+                            'ALPHA': 'neg',
+                            'RIB':   'neg'})
 
     def test_get_arguments(self):
         actual = get_arguments().parse_args(

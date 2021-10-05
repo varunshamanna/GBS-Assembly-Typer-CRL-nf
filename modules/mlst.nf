@@ -9,11 +9,16 @@ process srst2_for_mlst {
     //publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
 
     output:
-    tuple val(pair_id), file("${pair_id}*.bam"), file("${pair_id}__mlst__*__results.txt"), emit: bam_and_srst2_results
-    tuple val(pair_id), file("${pair_id}__mlst__*__results.txt"), emit: srst2_results
+    tuple val(pair_id), file("${pair_id}*.bam"), file("${pair_id}__mlst__${mlst_name}__results.txt"), emit: bam_and_srst2_results
+    tuple val(pair_id), file("${pair_id}__mlst__${mlst_name}__results.txt"), emit: srst2_results
+
+    script:
+    mlst_name=mlst_alleles.getSimpleName()
 
     """
+    set +e
     srst2 --samtools_args '\\-A' --mlst_delimiter '_' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_alleles} --mlst_definitions ${mlst_definitions} --min_coverage ${min_coverage}
+    touch ${pair_id}__mlst__${mlst_name}__results.txt
     """
 }
 
@@ -31,6 +36,7 @@ process get_mlst_allele_and_pileup {
     path("${pair_id}_new_mlst_alleles.log"), emit: new_alleles_status
 
     """
+    set +e
     # Get alleles from mismatches in SRST2 MLST results file
     samtools index ${bam_file}
     get_alleles_from_srst2_mlst.py --mlst_results_file ${results_file} --min_read_depth ${min_read_depth} --output_prefix ${pair_id}
@@ -69,7 +75,8 @@ process get_mlst_allele_and_pileup {
     else
         echo "${pair_id}: No new MLST alleles found." > ${pair_id}_new_mlst_alleles.log
     fi
-
+    
+    touch ${pair_id}_new_mlst_alleles.log
     """
 
 }

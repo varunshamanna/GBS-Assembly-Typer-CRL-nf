@@ -6,8 +6,9 @@ from bin.process_res_typer_results import get_arguments, codon2aa, derive_presen
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
     get_gene_names_from_consensus, get_variants, run, main, get_seq_content, \
-    geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP
+    geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, GBS_Res_Targets, clear_arg_res
 
+MIN_DEPTH = 30
 
 class TestProcessResTyperResults(unittest.TestCase):
 
@@ -18,8 +19,6 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_FASTA_FILE = "test_data/input/test-db.fasta"
     TEST_CONSENSUS_SEQ_FILE = "test_data/input/" + TEST_LANE + "_consensus_seq.fna"
     TEST_OUTPUT = "test_data/output/" + TEST_LANE + "_output.txt"
-
-    MIN_DEPTH = 30
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
@@ -270,7 +269,7 @@ class TestProcessResTyperResults(unittest.TestCase):
             )
 
     def test_update_presence_absence_target(self):
-        depth = self.MIN_DEPTH+1
+        depth = MIN_DEPTH+1
 
 
         # ============== Test misc ==================
@@ -287,13 +286,13 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         # ============== Test depth ==================
         gbs_res_target_dict = {}
-        update_presence_absence_target("GENE1", "***RPOBGBS-1***", self.MIN_DEPTH-1, gbs_res_target_dict)
+        update_presence_absence_target("GENE1", "***RPOBGBS-1***", MIN_DEPTH-1, gbs_res_target_dict)
         self.assertEqual({}, gbs_res_target_dict)
 
         # TODO there is a suspected bug in this perl code - see Python module
 
     def test_update_presence_absence_target_for_arg_res(self):
-        depth = self.MIN_DEPTH+1
+        depth = MIN_DEPTH+1
 
         # ============== Test ERMB ==================
         drug_res_col_dict = {"EC": "neg"}
@@ -308,7 +307,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # Check low depth
         drug_res_col_dict = {"EC": "neg"}
         res_target_dict = {"ERMB": "neg"}
-        update_presence_absence_target_for_arg_res("GENE2", "***ERMB***", self.MIN_DEPTH-1, drug_res_col_dict, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE2", "***ERMB***", MIN_DEPTH-1, drug_res_col_dict, res_target_dict)
         self.assertEqual({"EC": "neg"}, drug_res_col_dict)
         self.assertEqual({"ERMB": "neg"}, res_target_dict)
 
@@ -584,7 +583,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # ============== Test depth ==================
         drug_res_col_dict = {}
         res_target_dict = {}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", self.MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
         self.assertEqual({}, drug_res_col_dict)
         self.assertEqual({}, res_target_dict)
 
@@ -592,17 +591,21 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_derive_presence_absence_targets(self, mock):
 
         calls = [call("23S1", "23S1-1", 1135.571, ANY), call("23S3", "23S3-3", 1265.721, ANY)]
-        derive_presence_absence_targets(self.TEST_GBS_FULLGENES_RESULTS_FILE)
+
+        derive_presence_absence_targets(self.TEST_GBS_FULLGENES_RESULTS_FILE, GBS_Res_Targets)
+
         mock.assert_has_calls(calls, any_order=False)
 
     @patch('bin.process_res_typer_results.update_presence_absence_target_for_arg_res')
-    def derive_presence_absence_targets_for_arg_res(self, mock):
+    def test_derive_presence_absence_targets_for_arg_res(self, mock):
         calls = [
             call("tet(M)", "tet(M)_12", 132.04, ANY, ANY),
             call("tet(M)", "tet(M)_4", 185.331, ANY, ANY),
             call("tet(M)", "tet(M)_10", 120.412, ANY, ANY),
         ]
-        derive_presence_absence_targets_for_arg_res(self.TEST_RESFINDER_FULLGENES_RESULTS_FILE)
+
+        derive_presence_absence_targets_for_arg_res([self.TEST_RESFINDER_FULLGENES_RESULTS_FILE], drugRes_Col, Res_Targets)
+
         mock.assert_has_calls(calls, any_order=False)
 
     def test_find_amino_acid_mismatches(self):
@@ -640,60 +643,62 @@ class TestProcessResTyperResults(unittest.TestCase):
     @patch('bin.process_res_typer_results.six_frame_translate')
     def test_get_seq_diffs(self, mock_six_frame_translate):
         mock_six_frame_translate.return_value = 'HPHGDSSIYDAMVRMSQ'
+
         get_seq_diffs('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', geneToRef['PARC'])
+
         self.assertEqual(mock_six_frame_translate.call_args_list, [call('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', 1)])
 
     def test_update_GBS_Res_var(self):
         # ============== Test PARC ==================
         update_GBS_Res_var('PARC', ['Q17S'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC':'PARC-Q17S',
-            'GYRA': '',
-            '23S1': '',
-            '23S3': '',
-            'RPOBGBS-1': '',
-            'RPOBGBS-2': '',
-            'RPOBGBS-3': '',
-            'RPOBGBS-4': ''
+            'PARC_variant':'Q17S',
+            'GYRA_variant': '',
+            '23S1_variant': '',
+            '23S3_variant': '',
+            'RPOBGBS-1_variant': '',
+            'RPOBGBS-2_variant': '',
+            'RPOBGBS-3_variant': '',
+            'RPOBGBS-4_variant': ''
         })
 
         # ============== Test PARC with new variant ==================
         update_GBS_Res_var('PARC', ['Q18S'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC':'PARC-Q18S',
-            'GYRA': '',
-            '23S1': '',
-            '23S3': '',
-            'RPOBGBS-1': '',
-            'RPOBGBS-2': '',
-            'RPOBGBS-3': '',
-            'RPOBGBS-4': ''
+            'PARC_variant':'Q18S',
+            'GYRA_variant': '',
+            '23S1_variant': '',
+            '23S3_variant': '',
+            'RPOBGBS-1_variant': '',
+            'RPOBGBS-2_variant': '',
+            'RPOBGBS-3_variant': '',
+            'RPOBGBS-4_variant': ''
         })
 
         # ============== Test GYRA with no variant ==================
         update_GBS_Res_var('GYRA', [], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC':'PARC-Q18S',
-            'GYRA': 'GYRA',
-            '23S1': '',
-            '23S3': '',
-            'RPOBGBS-1': '',
-            'RPOBGBS-2': '',
-            'RPOBGBS-3': '',
-            'RPOBGBS-4': ''
+            'PARC_variant':'Q18S',
+            'GYRA_variant': '*',
+            '23S1_variant': '',
+            '23S3_variant': '',
+            'RPOBGBS-1_variant': '',
+            'RPOBGBS-2_variant': '',
+            'RPOBGBS-3_variant': '',
+            'RPOBGBS-4_variant': ''
         })
 
         # ============== Test 23S1 with two SNPs ==================
         update_GBS_Res_var('23S1', ['G1A', 'G34T'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC':'PARC-Q18S',
-            'GYRA': 'GYRA',
-            '23S1': '23S1-G1A,G34T',
-            '23S3': '',
-            'RPOBGBS-1': '',
-            'RPOBGBS-2': '',
-            'RPOBGBS-3': '',
-            'RPOBGBS-4': ''
+            'PARC_variant':'Q18S',
+            'GYRA_variant': '*',
+            '23S1_variant': 'G1A,G34T',
+            '23S3_variant': '',
+            'RPOBGBS-1_variant': '',
+            'RPOBGBS-2_variant': '',
+            'RPOBGBS-3_variant': '',
+            'RPOBGBS-4_variant': ''
         })
 
     def test_update_drug_res_col_dict(self):
@@ -742,6 +747,18 @@ class TestProcessResTyperResults(unittest.TestCase):
         actual = get_gene_names_from_consensus(consensus_seq_dict)
         self.assertEqual(actual, ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4'])
 
+    def test_clear_arg_res(self):
+        actual = clear_arg_res(GBS_Res_var)
+        self.assertEqual(GBS_Res_var, {
+            '23S1_variant': '',
+            '23S3_variant': '',
+            'GYRA_variant': '',
+            'PARC_variant': '',
+            'RPOBGBS-1_variant': '',
+            'RPOBGBS-2_variant': '',
+            'RPOBGBS-3_variant': '',
+            'RPOBGBS-4_variant': ''})
+
     @patch('bin.process_res_typer_results.get_seq_content')
     @patch('bin.process_res_typer_results.get_gene_names_from_consensus')
     @patch('bin.process_res_typer_results.get_seq_diffs')
@@ -760,7 +777,9 @@ class TestProcessResTyperResults(unittest.TestCase):
         }
         mock_get_gene_names_from_consensus.return_value = ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4']
         mock_get_seq_diffs.return_value = ['Q17S']
+
         get_variants(self.TEST_CONSENSUS_SEQ_FILE)
+
         self.assertEqual(mock_get_seq_content.call_args_list, [call(self.TEST_CONSENSUS_SEQ_FILE)])
         self.assertEqual(mock_get_gene_names_from_consensus.call_args_list, [call(mock_get_seq_content.return_value)])
         self.assertEqual(mock_get_seq_diffs.call_args_list, [])
@@ -778,11 +797,13 @@ class TestProcessResTyperResults(unittest.TestCase):
             '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
             '--min_read_depth', '30', '--output_prefix', 'output'])
         mock_create_output_contents.return_value = 'foobar'
+
         run(args)
-        self.assertEqual(mock_derive_presence_absence_targets.call_args_list, [call(args.srst2_gbs_fg_output)])
-        self.assertEqual(mock_derive_presence_absence_targets_for_arg_res.call_args_list, [call(args.srst2_other_fg_output)])
+
+        self.assertEqual(mock_derive_presence_absence_targets.call_args_list, [call(args.srst2_gbs_fg_output, ANY)])
+        self.assertEqual(mock_derive_presence_absence_targets_for_arg_res.call_args_list, [call(args.srst2_other_fg_output, ANY, ANY)])
         mock_create_output_contents.assert_has_calls([
-            call(Res_Targets),
+            call(GBS_Res_Targets),
             call(GBS_Res_var),
             call(drugRes_Col)
         ], any_order = False)
@@ -809,5 +830,7 @@ class TestProcessResTyperResults(unittest.TestCase):
     @patch('bin.process_res_typer_results.run')
     def test_main(self, mock_run, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
+
         main()
+
         self.assertEqual(ANY, [call(args)])

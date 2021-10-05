@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import sys
+import os
 import re
 import glob
 import subprocess
@@ -87,14 +88,14 @@ GBS_Res_Targets = {
 
 # GBS Gene Resistance Variants dictionary
 GBS_Res_var = {
-    'GYRA': '', #10
-    'PARC': '', #14
-    '23S1': '', #0
-    '23S3': '', #1
-    'RPOBGBS-1': '', #6
-    'RPOBGBS-2': '', #7
-    'RPOBGBS-3': '', #8
-    'RPOBGBS-4': '', #9,
+    'GYRA_variant': '', #10
+    'PARC_variant': '', #14
+    '23S1_variant': '', #0
+    '23S3_variant': '', #1
+    'RPOBGBS-1_variant': '', #6
+    'RPOBGBS-2_variant': '', #7
+    'RPOBGBS-3_variant': '', #8
+    'RPOBGBS-4_variant': '', #9,
 }
 
 # Reference sequence dictionary
@@ -136,7 +137,7 @@ def update_presence_absence_target(gene, allele, depth, gbs_res_target_dict):
                 gbs_res_target_dict[gene_name] = "pos"
 
 
-def derive_presence_absence_targets(input_file):
+def derive_presence_absence_targets(input_file, GBS_Res_Targets):
     """Find gene presence/absence for the GBS resistance database"""
     try:
         with open(input_file, 'r') as fd:
@@ -179,22 +180,30 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
                 drug_res_col_dict["OTHER"] = drug_res_col_dict["OTHER"] + ":" + gene + '[' + allele + ']'
 
 
-def derive_presence_absence_targets_for_arg_res(input_files):
+def clear_arg_res(res_target_dict):
+    for key in res_target_dict:
+        res_target_dict[key] = ''
+
+
+def derive_presence_absence_targets_for_arg_res(input_files, drugRes_Col, Res_Targets):
     """Find gene presence/absence for other resistance databases"""
     for input_file in input_files:
-        try:
-            with open(input_file, 'r') as fd:
-                # Skip header row
-                next(fd)
-                # Process file lines
-                for line in fd:
-                    fields = line.split('\t')
-                    gene = fields[2]
-                    allele = fields[3]
-                    depth = float(fields[5])
-                    update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
-        except IOError:
-            print('Cannot open {}.'.format(input_file))
+        if os.stat(input_file).st_size != 0:
+            try:
+                with open(input_file, 'r') as fd:
+                    # Skip header row
+                    next(fd)
+                    # Process file lines
+                    for line in fd:
+                        fields = line.split('\t')
+                        gene = fields[2]
+                        allele = fields[3]
+                        depth = float(fields[5])
+                        update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
+            except IOError:
+                print('Cannot open {}.'.format(input_file))
+        else:
+            clear_arg_res(Res_Targets)
 
 
 def find_mismatches(seq_diffs, query_Seq, ref_Seq):
@@ -218,9 +227,9 @@ def get_seq_diffs(query_Seq, ref_Seq):
 def update_GBS_Res_var(gene_name, seq_diffs, bin_res_arr):
     """Update GBS Gene Resistance Variants dictionary with gene variants"""
     if seq_diffs:
-        bin_res_arr[gene_name] = gene_name + '-' + ','.join(seq_diffs)
+        bin_res_arr[gene_name + '_variant'] = ','.join(seq_diffs)
     else:
-        bin_res_arr[gene_name] = gene_name
+        bin_res_arr[gene_name + '_variant'] = '*'
 
 
 def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, geneToClass):
@@ -264,14 +273,13 @@ def run(args):
     MIN_DEPTH = args.min_depth
 
     # Get presence/absence of genes
-    derive_presence_absence_targets(args.srst2_gbs_fg_output)
+    derive_presence_absence_targets(args.srst2_gbs_fg_output, GBS_Res_Targets)
 
     if args.srst2_other_fg_output is not None:
-        derive_presence_absence_targets_for_arg_res(args.srst2_other_fg_output)
-        Res_Targets.update(GBS_Res_Targets)
-        inc_out = FileUtils.create_output_contents(Res_Targets)
-    else:
-        inc_out = FileUtils.create_output_contents(GBS_Res_Targets)
+        derive_presence_absence_targets_for_arg_res(args.srst2_other_fg_output, drugRes_Col, Res_Targets)
+        GBS_Res_Targets.update(Res_Targets)
+
+    inc_out = FileUtils.create_output_contents(GBS_Res_Targets)
 
     # Get variants
     get_variants(args.srst2_gbs_cs_output)

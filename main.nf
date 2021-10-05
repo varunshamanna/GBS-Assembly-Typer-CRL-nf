@@ -48,28 +48,6 @@ if (!params.run_sero_res && !params.run_surfacetyper && !params.run_mlst && !par
     System.exit(1)
 }
 
-if (params.other_res_dbs.toString() != 'none'){
-
-    // Check other resistance databases exist
-    other_res_db_list = params.other_res_dbs.toString().tokenize(' ')
-    for (db in other_res_db_list) {
-        other_db = file(db, checkIfExists: true)
-    }
-
-    // Check number of resistance databases matches number of minimum coverage and max divergence parameters
-    if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_min_coverage.toString().tokenize(' ').size()){
-        println("Number of --other_res_min_coverage values is not equal to the number of --other_res_dbs files")
-        println("Please specify an equal number of values.")
-        System.exit(1)
-    }
-
-    if (params.other_res_dbs.toString().tokenize(' ').size() != params.other_res_max_divergence.toString().tokenize(' ').size()){
-        println("Number of --other_res_max_divergence values is not equal to the number of --other_res_dbs files")
-        println("Please specify an equal number of values.")
-        System.exit(1)
-    }
-}
-
 // Check parameters are within range
 if (params.gbs_res_min_coverage < 0 | params.gbs_res_min_coverage > 100){
     println("--gbs_res_min_coverage value not in range. Please specify a value between 0 and 100.")
@@ -132,10 +110,6 @@ if (params.surfacetyper_min_read_depth < 0){
     System.exit(1)
 }
 
-// Create tmp directory if it doesn't already exist
-tmp_dir = file(params.tmp_dir)
-tmp_dir.mkdir()
-
 // Create results directory if it doesn't already exist
 results_dir = file(params.results_dir)
 results_dir.mkdir()
@@ -165,21 +139,20 @@ workflow GBS_RES {
         // Split GBS target sequences from GBS resistance database into separate FASTA files per sequence
         split_target_RES_sequences(gbs_res_typer_db, gbs_res_targets_db)
 
-        // Get path and name of GBS resistance database
-        db_path = gbs_res_typer_db.getParent()
-        db_name = gbs_res_typer_db.getName()
-
         // Map genomes to GBS resistance database using SRST2
-        srst2_for_res_typing(reads, db_name, db_path, tmp_dir, 'GBS_RES', params.gbs_res_min_coverage, params.gbs_res_max_divergence)
+        srst2_for_res_typing(reads, gbs_res_typer_db, params.gbs_res_min_coverage, params.gbs_res_max_divergence)
+        fullgenes = srst2_for_res_typing.out.fullgenes
 
         // Split sam file for each GBS target sequence
         split_target_RES_seq_from_sam_file(srst2_for_res_typing.out.bam_files, gbs_res_targets_db)
 
         // Get consensus sequence using freebayes
-        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out, tmp_dir)
+        freebayes(split_target_RES_seq_from_sam_file.out, split_target_RES_sequences.out)
+        consensus = freebayes.out.consensus
 
     emit:
-        freebayes.out.id
+        fullgenes
+        consensus
 }
 
 // Resistance mapping with the other resistance databases
@@ -189,11 +162,13 @@ workflow OTHER_RES {
         reads
 
     main:
+        other_res_db = file(params.other_res_db, checkIfExists: true)
         // Map genomes to resistance database using SRST2
-        srst2_for_res_typing(reads, params.other_res_dbs, file('.'), tmp_dir, 'OTHER_RES', params.other_res_min_coverage, params.other_res_max_divergence)
+        srst2_for_res_typing(reads, other_res_db, params.other_res_min_coverage, params.other_res_max_divergence)
+        fullgenes = srst2_for_res_typing.out.fullgenes
 
     emit:
-        srst2_for_res_typing.out.id
+        fullgenes
 }
 
 // MLST pipeline
@@ -240,7 +215,7 @@ workflow PBP1A {
         }
 
         // Combine existing PBP alleles results in one file
-        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp, file(params.config, checkIfExists: true))
 
     emit:
         // Emit existing PBP alleles for collection
@@ -263,7 +238,7 @@ workflow PBP2B {
         }
 
         // Combine existing PBP alleles results in one file
-        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp, file(params.config, checkIfExists: true))
 
     emit:
         // Emit existing PBP alleles for collection
@@ -286,7 +261,7 @@ workflow PBP2X {
         }
 
         // Combine existing PBP alleles results in one file
-        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp)
+        finalise_pbp_existing_allele_results(get_pbp_alleles.out.existing_pbp, file(params.config, checkIfExists: true))
 
     emit:
         // Emit existing PBP alleles for collection
@@ -309,21 +284,20 @@ workflow {
 
             // Resistance Mapping Workflows
             GBS_RES(read_pairs_ch)
-
-            if (params.other_res_dbs != 'none'){
-                OTHER_RES(read_pairs_ch)
-                id_ch = GBS_RES.out.join(OTHER_RES.out)
-            } else {
-                id_ch = GBS_RES.out
-            }
+            OTHER_RES(read_pairs_ch)
 
             // Once GBS or both resistance workflows are complete, trigger resistance typing
-            res_typer(id_ch, tmp_dir, params.restyper_min_read_depth)
+            GBS_RES.out.fullgenes
+            .join(GBS_RES.out.consensus)
+            .join(OTHER_RES.out.fullgenes)
+            .set { res_files_ch }
+
+            res_typer(res_files_ch, params.restyper_min_read_depth)
 
             // Combine serotype and resistance type results for each sample
             sero_res_ch = serotyping.out.join(res_typer.out)
 
-            finalise_sero_res_results(sero_res_ch)
+            finalise_sero_res_results(sero_res_ch, file(params.config, checkIfExists: true))
 
             // Combine samples and output results files
             finalise_sero_res_results.out.sero_res_incidence
@@ -361,7 +335,7 @@ workflow {
                 params.surfacetyper_min_read_depth, params.surfacetyper_min_coverage,
                 params.surfacetyper_max_divergence)
 
-            finalise_surface_typer_results(surface_typer.out)
+            finalise_surface_typer_results(surface_typer.out, file(params.config, checkIfExists: true))
 
             // Combine results for surface typing
             finalise_surface_typer_results.out.surface_protein_incidence
@@ -409,7 +383,7 @@ workflow {
                 .join(surface_typer.out)
                 .join(MLST.out.srst2_results)
 
-            combine_results(combined_ch)
+            combine_results(combined_ch, file(params.config, checkIfExists: true))
 
             combine_results.out
                 .collectFile(name: file("${results_dir}/${params.gbs_typer_report}"), keepHeader: true, sort: true)

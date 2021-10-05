@@ -1,2 +1,2 @@
-ID	23S1	23S3	GYRA	PARC	RPOBGBS-1	RPOBGBS-2	RPOBGBS-3	RPOBGBS-4
-test	23S1	23S3	GYRA	PARC				
+Sample_id	23S1_variant	23S3_variant	GYRA_variant	PARC_variant	RPOBGBS-1_variant	RPOBGBS-2_variant	RPOBGBS-3_variant	RPOBGBS-4_variant
+test	*	*	*	*				
