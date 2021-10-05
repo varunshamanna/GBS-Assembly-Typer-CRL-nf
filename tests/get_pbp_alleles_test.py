@@ -147,9 +147,11 @@ class TestGetPBPAlleles(unittest.TestCase):
         args.blast_out = self.TEST_BLAST_DATA
         args.fasta_qu = self.TEST_SEQ_DATA
         args.output = self.TEST_OUTPUT_PREFIX + '_MAIN'
-        main()
-        fo = open(self.TEST_OUTPUT_PREFIX + '_MAIN_existing_allele.txt', 'r')
 
+        main()
+
+        fo = open(self.TEST_OUTPUT_PREFIX + '_MAIN_existing_allele.txt', 'r')
+        
         self.assertEqual(fo.readlines(), ['Contig\tPBP_allele\n', '.26077_6_118.11:39458-40418(+)\t1||GBS_1A\n'])
 
 
@@ -159,7 +161,9 @@ class TestGetPBPAlleles(unittest.TestCase):
         args.blast_out = self.TEST_BLAST_IMPERFECT_DATA
         args.fasta_qu = self.TEST_SEQ_DATA
         args.output = self.TEST_OUTPUT_PREFIX + '_MAIN'
+
         main()
+
         fo = open(self.TEST_OUTPUT_PREFIX + '_MAIN_new_allele.faa', 'r')
 
         self.assertEqual(fo.readlines(), ['>.26077_6_118.11:39458-40418(+)\n', 'DIYNSDTYIAYPNNELQIASTIMDATNGKVIAQLGGRHQNENISFGTNQSVLTDRDWGSTMKPISAYAPAIDSGVYNSTGQSLNDSVYYWPGTSTQLYDWDRQYMGWMSMQTAIQQSRNVPAVRALEAAGLDEAKSFLEKLGIYYPEMNYSNAISSNNSSSDAKYGASSEKMAAAYSAFANGGTYYKPQYVNKIEFSDGTNDTYAASGSRAMKETTAYMMTDMLKTVLTFGTGTKAAIPGVAQAGKTGTSNYTEDELAKIEATTGIYNSAVGTMAPDENFVGYTSKYTMAIWTGYKNRLTPLYGSQLDIATEVYRAMMSY\n'])

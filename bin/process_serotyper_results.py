@@ -21,9 +21,7 @@ def write_outfile(gene_dict, out_file):
     serotype = []
     avgdepth = []
     for key, values in gene_dict.items():
-        status = 'identical'
-        if values[4] != '':
-            status = 'imperfect'
+        status = 'imperfect' if values[4] != '' else 'identical'
         matched_alleles = matched_alleles + [values[1]]
         match_type = match_type + [values[0] + '=' + status]
         serotype = serotype + [values[0]]

@@ -8,7 +8,6 @@ from bin.process_res_typer_results import get_arguments, codon2aa, derive_presen
     get_gene_names_from_consensus, get_variants, run, main, get_seq_content, \
     geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, GBS_Res_Targets, clear_arg_res
 
-global MIN_DEPTH
 MIN_DEPTH = 30
 
 class TestProcessResTyperResults(unittest.TestCase):
@@ -592,7 +591,9 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_derive_presence_absence_targets(self, mock):
 
         calls = [call("23S1", "23S1-1", 1135.571, ANY), call("23S3", "23S3-3", 1265.721, ANY)]
+
         derive_presence_absence_targets(self.TEST_GBS_FULLGENES_RESULTS_FILE, GBS_Res_Targets)
+
         mock.assert_has_calls(calls, any_order=False)
 
     @patch('bin.process_res_typer_results.update_presence_absence_target_for_arg_res')
@@ -602,7 +603,9 @@ class TestProcessResTyperResults(unittest.TestCase):
             call("tet(M)", "tet(M)_4", 185.331, ANY, ANY),
             call("tet(M)", "tet(M)_10", 120.412, ANY, ANY),
         ]
+
         derive_presence_absence_targets_for_arg_res([self.TEST_RESFINDER_FULLGENES_RESULTS_FILE], drugRes_Col, Res_Targets)
+
         mock.assert_has_calls(calls, any_order=False)
 
     def test_find_amino_acid_mismatches(self):
@@ -640,7 +643,9 @@ class TestProcessResTyperResults(unittest.TestCase):
     @patch('bin.process_res_typer_results.six_frame_translate')
     def test_get_seq_diffs(self, mock_six_frame_translate):
         mock_six_frame_translate.return_value = 'HPHGDSSIYDAMVRMSQ'
+
         get_seq_diffs('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', geneToRef['PARC'])
+
         self.assertEqual(mock_six_frame_translate.call_args_list, [call('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', 1)])
 
     def test_update_GBS_Res_var(self):
@@ -772,7 +777,9 @@ class TestProcessResTyperResults(unittest.TestCase):
         }
         mock_get_gene_names_from_consensus.return_value = ['PARC','GYRA','23S1','23S3','RPOBGBS-1','RPOBGBS-2','RPOBGBS-3','RPOBGBS-4']
         mock_get_seq_diffs.return_value = ['Q17S']
+
         get_variants(self.TEST_CONSENSUS_SEQ_FILE)
+
         self.assertEqual(mock_get_seq_content.call_args_list, [call(self.TEST_CONSENSUS_SEQ_FILE)])
         self.assertEqual(mock_get_gene_names_from_consensus.call_args_list, [call(mock_get_seq_content.return_value)])
         self.assertEqual(mock_get_seq_diffs.call_args_list, [])
@@ -790,7 +797,9 @@ class TestProcessResTyperResults(unittest.TestCase):
             '--srst2_other_fullgenes', 'srst2_argannot_fullgenes', 'srst2_resfinder_fullgenes',
             '--min_read_depth', '30', '--output_prefix', 'output'])
         mock_create_output_contents.return_value = 'foobar'
+
         run(args)
+
         self.assertEqual(mock_derive_presence_absence_targets.call_args_list, [call(args.srst2_gbs_fg_output, ANY)])
         self.assertEqual(mock_derive_presence_absence_targets_for_arg_res.call_args_list, [call(args.srst2_other_fg_output, ANY, ANY)])
         mock_create_output_contents.assert_has_calls([
@@ -821,5 +830,7 @@ class TestProcessResTyperResults(unittest.TestCase):
     @patch('bin.process_res_typer_results.run')
     def test_main(self, mock_run, mock_get_arguments):
         args = mock_get_arguments.return_value.parse_args()
+
         main()
+
         self.assertEqual(ANY, [call(args)])

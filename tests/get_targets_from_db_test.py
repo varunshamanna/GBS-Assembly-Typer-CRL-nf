@@ -53,7 +53,9 @@ class TestProcessResults(unittest.TestCase):
             '17__RPOBgbs__RPOBgbs-2__17',
             '18__RPOBgbs__RPOBgbs-3__18',
             '19__RPOBgbs__RPOBgbs-4__19']
+
         write_target_fasta_files(targets, self.TEST_FASTA, 'test_data/output/CHECK_')
+        
         mock_write_fasta_file.assert_has_calls([
             call(self.TEST_FASTA, '7__PARCGBS__PARCGBS-1__7', 'test_data/output/CHECK_'),
             call(self.TEST_FASTA, '5__GYRAGBS__GYRAGBS-1__5', 'test_data/output/CHECK_'),

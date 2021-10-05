@@ -200,7 +200,9 @@ class TestCombineResults(unittest.TestCase):
         header_dict = self.header_dict
         mock_read_header_json.return_value = header_dict
         mock_create_df.return_value = 'foobar1'
+
         main()
+
         mock_create_df.assert_has_calls([
             call(header_dict['sero_res'], ANY, [args.sero, args.inc]),
             call(header_dict['res_alleles'], ANY, [args.alleles]),
@@ -222,7 +224,9 @@ class TestCombineResults(unittest.TestCase):
         header_dict = self.header_dict
         mock_read_header_json.return_value = header_dict
         mock_create_df.return_value = 'foobar1'
+
         main()
+
         mock_create_df.assert_has_calls([
             call(header_dict['surface_inc'], ANY, [args.surface_inc]),
             call(header_dict['surface_variants'], ANY, [args.surface_variants])
@@ -244,7 +248,9 @@ class TestCombineResults(unittest.TestCase):
         mock_read_header_json.return_value = header_dict
         mock_create_df.return_value = 'foobar1'
         mock_rename_columns.return_value = 'renamed'
+
         main()
+
         mock_create_df.assert_has_calls([
             call(list(header_dict["combine_all"].keys()), ANY, [args.sero, args.inc, args.variants, args.mlst, args.surface_inc])], any_order=False)
         mock_rename_columns.assert_has_calls([
@@ -264,7 +270,9 @@ class TestCombineResults(unittest.TestCase):
         header_dict = self.header_dict
         mock_read_header_json.return_value = header_dict
         mock_create_df.return_value = 'foobar1'
+
         main()
+        
         mock_create_df.assert_has_calls([
             call(header_dict['pbp_allele'], ANY, [args.pbp_allele])], any_order=False)
         mock_write_pandas_output.assert_has_calls([
