@@ -1,2 +1,2 @@
 Sample_id	EC	FQ	OTHER	TET
-test	23S1:23S3	PARC:GYRA	neg	neg
+test	erm(A)_2_AF002716[erm(A)_2_AF002716]:23S1:23S3	PARC:GYRA	mre(A)_1_U92073[mre(A)_1_U92073]	neg

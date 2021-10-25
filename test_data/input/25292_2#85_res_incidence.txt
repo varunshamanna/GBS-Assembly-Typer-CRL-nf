@@ -1,2 +1,2 @@
-23S1	23S3	CAT	ERMB	ERMT	FOSA	GYRA	LNUB	LSAC	MEFA	MPHC	MSRA	MSRD	PARC	RPOBGBS-1	RPOBGBS-2	RPOBGBS-3	RPOBGBS-4	SUL2	TETB	TETL	TETM	TETO	TETS
-pos	pos	neg	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg
+23S1	23S3	AAC630AAC6	ANT6	APH3	CAT	ERMA	ERMB	ERMT	FOSA	GYRA	LNUB	LNUC	LSAC	MEFA	MPHC	MSRA	MSRD	PARC	RPOBGBS-1	RPOBGBS-2	RPOBGBS-3	RPOBGBS-4	SUL2	TETB	TETL	TETM	TETO	TETS
+pos	pos	neg	neg	neg	neg	pos	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg

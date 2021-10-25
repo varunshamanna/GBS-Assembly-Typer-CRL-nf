@@ -20,6 +20,7 @@ class aSeq(str): # Amino acid sequence
 
 # Drug Class Resistance dictionary
 drugRes_Col = {
+    'AG': 'neg',
     'TET': 'neg',
     'EC': 'neg',
     'FQ': 'neg',
@@ -28,11 +29,16 @@ drugRes_Col = {
 
 # Gene to Drug Class Resistance lookup dictionary
 geneToClass = {
+    'AAC630AAC6': 'AG',
+    'ANT6': 'AG',
+    'APH3': 'AG',
     'CAT': 'OTHER',
+    'ERMA': 'EC',
     'ERMB': 'EC',
     'ERMT': 'EC',
     'FOSA': 'OTHER',
     'LNUB': 'EC',
+    'LNUC': 'EC',
     'LSAC': 'EC',
     'MEFA': 'EC',
     'MPHC': 'EC',
@@ -56,22 +62,27 @@ geneToClass = {
 
 # Other Resistance Targets dictionary
 Res_Targets = {
+    'AAC630AAC6': 'neg',
+    'ANT6': 'neg',
+    'APH3': 'neg',
     'CAT': 'neg',
+    'ERMA': 'neg',
     'ERMB': 'neg',
     'ERMT': 'neg',
     'FOSA': 'neg',
     'LNUB': 'neg',
+    'LNUC': 'neg',
     'LSAC': 'neg',
     'MEFA': 'neg',
     'MPHC': 'neg',
     'MSRA': 'neg',
     'MSRD': 'neg',
+    'SUL2': 'neg',
     'TETB': 'neg',
     'TETL': 'neg',
     'TETM': 'neg',
     'TETO': 'neg',
     'TETS': 'neg',
-    'SUL2': 'neg',
 }
 
 # GBS Resistance Targets dictionary
