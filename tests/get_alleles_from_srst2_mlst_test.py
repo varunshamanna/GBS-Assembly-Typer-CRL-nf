@@ -1,4 +1,5 @@
 import argparse
+import os
 import unittest
 
 from bin.get_alleles_from_srst2_mlst import get_mismatch_and_depth, get_new_and_existing_alleles, write_alleles_file, get_arguments
@@ -17,24 +18,28 @@ class TestProcessResults(unittest.TestCase):
         f = open(self.TEST_OUTPUT_PREFIX + '_new_mlst_alleles.txt', "r")
         actual = "".join(f.readlines())
         self.assertEqual(actual, """Alleles found\nadhP_1\n""")
+        os.remove(self.TEST_OUTPUT_PREFIX + '_new_mlst_alleles.txt')
 
     def test_get_new_and_existing_alleles_low_depth(self):
         actual = get_new_and_existing_alleles(('adhP_1/1snp', 29.99, 'ST-1'), 30, self.TEST_OUTPUT_PREFIX)
         f = open(self.TEST_OUTPUT_PREFIX + '_new_mlst_alleles.txt', "r")
         actual = "".join(f.readlines())
         self.assertEqual(actual, """test: No new MLST alleles were found with sufficient read depth above 30.\n""")
+        os.remove(self.TEST_OUTPUT_PREFIX + '_new_mlst_alleles.txt')
 
     def test_get_new_and_existing_alleles_multi_alleles(self):
         actual = get_new_and_existing_alleles(('adhP_1/1snp;pheS_1/1snp', 173.614142857, 'ST-1'), 30, self.TEST_OUTPUT_PREFIX)
         f = open(self.TEST_OUTPUT_PREFIX + '_new_mlst_alleles.txt', "r")
         actual = "".join(f.readlines())
         self.assertEqual(actual, """Alleles found\nadhP_1\npheS_1\n""")
+        os.remove(self.TEST_OUTPUT_PREFIX + '_new_mlst_alleles.txt')
 
     def test_get_new_and_existing_alleles_no_mismatches(self):
         actual = get_new_and_existing_alleles(('0', 173.614142857, 'ST-1'), 30, self.TEST_OUTPUT_PREFIX)
         f = open(self.TEST_OUTPUT_PREFIX + '_existing_mlst_alleles.txt', "r")
         actual = "".join(f.readlines())
         self.assertEqual(actual, """ID\tST\ntest\tST-1\n""")
+        os.remove(self.TEST_OUTPUT_PREFIX + '_existing_mlst_alleles.txt')
 
     def test_alleles_file(self):
         write_alleles_file(['Alleles found', 'adhP_1', 'pheS_1'], self.TEST_OUT1)
