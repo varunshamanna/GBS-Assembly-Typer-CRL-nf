@@ -1,6 +1,6 @@
-# Runs build related tasks.
+# Runs build and test related tasks.
 
-name: build
+name: build_and_test
 
 on:
   push:
@@ -24,6 +24,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest pytest-cov
         pip install biopython pandas
+    - name: Install Nextflow
+      run: |
+        # Install latest version of Nextflow
+        curl -s https://get.nextflow.io | bash
+        sudo mv nextflow /usr/bin
+
+  test:
+
+    needs: build
+    runs-on: ubuntu-18.04
+
+    steps:
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -42,11 +54,6 @@ jobs:
         name: codecov-upload
         fail_ci_if_error: true
         verbose: true
-    - name: Install Nextflow
-      run: |
-        # Install latest version of Nextflow
-        curl -s https://get.nextflow.io | bash
-        sudo mv nextflow /usr/bin
-    - name: Regression tests
+    - name: Nextflow regression tests
       run: ./regression_tests.sh -s
       shell: bash
