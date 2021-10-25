@@ -17,7 +17,8 @@
         "AAC630AAC6": "AAC630AAC6",
         "ANT6": "ANT6",
         "APH3": "APH3",
-        "CAT": "CAT",
+        "CATPC194": "CATPC194",
+        "CATQ": "CATQ",
         "ERMA": "ERMA",
         "ERMB": "ERMB",
         "ERMT": "ERMT",
@@ -87,7 +88,8 @@
         "AAC630AAC6",
         "ANT6",
         "APH3",
-        "CAT",
+        "CATPC194",
+        "CATQ",
         "ERMA",
         "ERMB",
         "ERMT",
@@ -113,6 +115,7 @@
         "TETS"
     ],
     "res_alleles": [
+        "AG",
         "EC",
         "FQ",
         "OTHER",

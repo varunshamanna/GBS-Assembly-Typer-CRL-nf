@@ -324,13 +324,13 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         # ============== Test CAT ==================
         drug_res_col_dict = {"OTHER": "neg"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
-        update_presence_absence_target_for_arg_res("GENE2", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "GENE1[***CAT***]:GENE2[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        res_target_dict = {"CATQ": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE2", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1[***CATQ***]:GENE2[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
         # ============== Test LNUB ==================
         drug_res_col_dict = {"EC": "neg"}
@@ -369,10 +369,10 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"OTHER": "GENE1[***fosA***]"}, drug_res_col_dict)
         self.assertEqual({"FOSA": "pos"}, res_target_dict)
 
-        drug_res_col_dict = {"OTHER": "CAT[***CAT***]"}
+        drug_res_col_dict = {"OTHER": "CATQ[***CATQ***]"}
         res_target_dict = {"FOSA": "neg"}
         update_presence_absence_target_for_arg_res("GENE1", "***fosA***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "CAT[***CAT***]:GENE1[***fosA***]"}, drug_res_col_dict)
+        self.assertEqual({"OTHER": "CATQ[***CATQ***]:GENE1[***fosA***]"}, drug_res_col_dict)
         self.assertEqual({"FOSA": "pos"}, res_target_dict)
 
         drug_res_col_dict = {"OTHER": "FOSA[***allele***]"}
@@ -552,24 +552,24 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"TET": "ERM[***allele***]:GENE1[***tet(M)***]"}, drug_res_col_dict)
         self.assertEqual({"TETM": "pos"}, res_target_dict)
 
-        # ============== Test CAT ==================
+        # ============== Test CATQ ==================
         drug_res_col_dict = {"OTHER": "neg"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        res_target_dict = {"CATQ": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
         drug_res_col_dict = {"OTHER": "ERM[***allele***]"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "ERM[***allele***]:GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        res_target_dict = {"CATQ": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "ERM[***allele***]:GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
-        drug_res_col_dict = {"OTHER": "CAT[***allele***]"}
-        res_target_dict = {"CAT": "pos"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "CAT[***allele***]:GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        drug_res_col_dict = {"OTHER": "CATQ[***allele***]"}
+        res_target_dict = {"CATQ": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "CATQ[***allele***]:GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
         # ============== Test OTHER ==================
         drug_res_col_dict = {"OTHER": "neg"}
@@ -584,7 +584,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # ============== Test depth ==================
         drug_res_col_dict = {}
         res_target_dict = {}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
         self.assertEqual({}, drug_res_col_dict)
         self.assertEqual({}, res_target_dict)
 
@@ -871,4 +871,4 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_incidence.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "23S1\t23S3\tAAC630AAC6\tANT6\tAPH3\tCAT\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETS\npos\tpos\tpos\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\n")
+        self.assertEqual(actual, "23S1\t23S3\tAAC630AAC6\tANT6\tAPH3\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETS\npos\tpos\tpos\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\n")
