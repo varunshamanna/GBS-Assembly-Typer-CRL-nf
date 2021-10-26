@@ -863,7 +863,7 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_alleles_variants.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "AG\tEC\tFQ\tOTHER\tTET\naac(6')-30-aac(6')-Ib'[aac(6')-30-aac(6')-Ib'_1]\t23S1:23S3\tneg\tcat(pC194)[cat(pC194)_1]\ttet(M)[tet(M)_12]:tet(M)[tet(M)_4]:tet(M)[tet(M)_10]\n")
+        self.assertEqual(actual, "AG\tEC\tFQ\tOTHER\tTET\naac(6')-aph(2'')[aac(6')-aph(2'')_1]:aph(3')-IIIa[aph(3')-IIIa_1]:aph(3')-other-Va[aph(3')-other-Va_2]:aadE-Cc[aadE-Cc_1]\t23S1:23S3\tneg\tcat(pC194)[cat(pC194)_1]\ttet(M)[tet(M)_12]:tet(M)[tet(M)_4]:tet(M)[tet(M)_10]\n")
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_gbs_variants.txt', "r")
         actual = "".join(f.readlines())
@@ -871,4 +871,4 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_incidence.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "23S1\t23S3\tAAC630AAC6\tANT6\tAPH3\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETS\npos\tpos\tpos\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\n")
+        self.assertEqual(actual, "23S1\t23S3\tAAC6APH2\tAADECC\tANT6\tAPH3III\tAPH3OTHER\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETS\npos\tpos\tpos\tpos\tneg\tpos\tpos\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\n")

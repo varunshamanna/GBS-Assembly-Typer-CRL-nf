@@ -2,5 +2,8 @@ Sample	DB	gene	allele	coverage	depth	diffs	uncertainty	divergence	length	maxMAF	
 26189_8#5	ResFinder	tet(M)	tet(M)_12	93.854	132.04	54snp118holes		2.997	1920	0.059	19	1116
 26189_8#5	ResFinder	tet(M)	tet(M)_4	100.0	185.331	2snp		0.104	1920	0.032	18	1120
 26189_8#5	ResFinder	tet(M)	tet(M)_10	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756
-26189_8#5	ResFinder	aac(6')-30-aac(6')-Ib'	aac(6')-30-aac(6')-Ib'_1	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756
-26189_8#5	ResFinder	cat(pC194)	cat(pC194)_1	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756	
+26189_8#5	ResFinder	aac(6')-aph(2'')	aac(6')-aph(2'')_1	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756
+26189_8#5	ResFinder	cat(pC194)	cat(pC194)_1	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756
+26189_8#5	ResFinder	aph(3')-IIIa	aph(3')-IIIa_1	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756
+26189_8#5	ResFinder	aph(3')-other-Va	aph(3')-other-Va_2	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756
+26189_8#5	ResFinder	aadE-Cc	aadE-Cc_1	84.74	120.412	60snp293holes		3.688	1920	0.045	20	756	
