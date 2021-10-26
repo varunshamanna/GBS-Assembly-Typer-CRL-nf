@@ -29,9 +29,11 @@ drugRes_Col = {
 
 # Gene to Drug Class Resistance lookup dictionary
 geneToClass = {
-    'AAC630AAC6': 'AG',
+    'AAC6APH2': 'AG',
+    'AADECC': 'AG',
     'ANT6': 'AG',
-    'APH3': 'AG',
+    'APH3III': 'AG',
+    'APH3OTHER': 'AG',
     'CATPC194': 'OTHER',
     'CATQ': 'OTHER',
     'ERMA': 'EC',
@@ -63,9 +65,11 @@ geneToClass = {
 
 # Other Resistance Targets dictionary
 Res_Targets = {
-    'AAC630AAC6': 'neg',
+    'AAC6APH2': 'neg',
+    'AADECC': 'neg',
     'ANT6': 'neg',
-    'APH3': 'neg',
+    'APH3III': 'neg',
+    'APH3OTHER': 'neg',
     'CATPC194': 'neg',
     'CATQ': 'neg',
     'ERMA': 'neg',
