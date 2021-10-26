@@ -19,6 +19,7 @@ class TestProcessResTyperResults(unittest.TestCase):
     TEST_FASTA_FILE = "test_data/input/test-db.fasta"
     TEST_CONSENSUS_SEQ_FILE = "test_data/input/" + TEST_LANE + "_consensus_seq.fna"
     TEST_OUTPUT = "test_data/output/" + TEST_LANE + "_output.txt"
+    TEST_OUTPUT_PREFIX = "test_data/output/" + TEST_LANE
 
     def test_codon2aa(self):
         self.assertEqual('S', codon2aa('tca'))
@@ -323,13 +324,13 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         # ============== Test CAT ==================
         drug_res_col_dict = {"OTHER": "neg"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
-        update_presence_absence_target_for_arg_res("GENE2", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "GENE1[***CAT***]:GENE2[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        res_target_dict = {"CATQ": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE2", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1[***CATQ***]:GENE2[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
         # ============== Test LNUB ==================
         drug_res_col_dict = {"EC": "neg"}
@@ -368,10 +369,10 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"OTHER": "GENE1[***fosA***]"}, drug_res_col_dict)
         self.assertEqual({"FOSA": "pos"}, res_target_dict)
 
-        drug_res_col_dict = {"OTHER": "CAT[***CAT***]"}
+        drug_res_col_dict = {"OTHER": "CATQ[***CATQ***]"}
         res_target_dict = {"FOSA": "neg"}
         update_presence_absence_target_for_arg_res("GENE1", "***fosA***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "CAT[***CAT***]:GENE1[***fosA***]"}, drug_res_col_dict)
+        self.assertEqual({"OTHER": "CATQ[***CATQ***]:GENE1[***fosA***]"}, drug_res_col_dict)
         self.assertEqual({"FOSA": "pos"}, res_target_dict)
 
         drug_res_col_dict = {"OTHER": "FOSA[***allele***]"}
@@ -551,24 +552,24 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual({"TET": "ERM[***allele***]:GENE1[***tet(M)***]"}, drug_res_col_dict)
         self.assertEqual({"TETM": "pos"}, res_target_dict)
 
-        # ============== Test CAT ==================
+        # ============== Test CATQ ==================
         drug_res_col_dict = {"OTHER": "neg"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        res_target_dict = {"CATQ": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
         drug_res_col_dict = {"OTHER": "ERM[***allele***]"}
-        res_target_dict = {"CAT": "neg"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "ERM[***allele***]:GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        res_target_dict = {"CATQ": "neg"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "ERM[***allele***]:GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
-        drug_res_col_dict = {"OTHER": "CAT[***allele***]"}
-        res_target_dict = {"CAT": "pos"}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", depth, drug_res_col_dict, res_target_dict)
-        self.assertEqual({"OTHER": "CAT[***allele***]:GENE1[***CAT***]"}, drug_res_col_dict)
-        self.assertEqual({"CAT": "pos"}, res_target_dict)
+        drug_res_col_dict = {"OTHER": "CATQ[***allele***]"}
+        res_target_dict = {"CATQ": "pos"}
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", depth, drug_res_col_dict, res_target_dict)
+        self.assertEqual({"OTHER": "CATQ[***allele***]:GENE1[***CATQ***]"}, drug_res_col_dict)
+        self.assertEqual({"CATQ": "pos"}, res_target_dict)
 
         # ============== Test OTHER ==================
         drug_res_col_dict = {"OTHER": "neg"}
@@ -583,7 +584,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         # ============== Test depth ==================
         drug_res_col_dict = {}
         res_target_dict = {}
-        update_presence_absence_target_for_arg_res("GENE1", "***CAT***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
+        update_presence_absence_target_for_arg_res("GENE1", "***CATQ***", MIN_DEPTH - 1, drug_res_col_dict, res_target_dict)
         self.assertEqual({}, drug_res_col_dict)
         self.assertEqual({}, res_target_dict)
 
@@ -649,6 +650,17 @@ class TestProcessResTyperResults(unittest.TestCase):
         self.assertEqual(mock_six_frame_translate.call_args_list, [call('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', 1)])
 
     def test_update_GBS_Res_var(self):
+
+        GBS_Res_var = {
+            'GYRA_variant': '', #10
+            'PARC_variant': '', #14
+            '23S1_variant': '', #0
+            '23S3_variant': '', #1
+            'RPOBGBS-1_variant': '', #6
+            'RPOBGBS-2_variant': '', #7
+            'RPOBGBS-3_variant': '', #8
+            'RPOBGBS-4_variant': '', #9,
+        }
         # ============== Test PARC ==================
         update_GBS_Res_var('PARC', ['Q17S'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
@@ -703,6 +715,12 @@ class TestProcessResTyperResults(unittest.TestCase):
 
     def test_update_drug_res_col_dict(self):
         # ============== Test PARC variant ==================
+        drugRes_Col = {
+            'TET': 'neg',
+            'EC': 'neg',
+            'FQ': 'neg',
+            'OTHER': 'neg',
+        }
         update_drug_res_col_dict('PARC', ['Q17S'], drugRes_Col, geneToClass)
         self.assertEqual(drugRes_Col, {
             'TET': 'neg',
@@ -834,3 +852,23 @@ class TestProcessResTyperResults(unittest.TestCase):
         main()
 
         self.assertEqual(ANY, [call(args)])
+
+    def test_main_with_test_files(self):
+        args = get_arguments().parse_args(
+            ['--srst2_gbs_fullgenes', self.TEST_GBS_FULLGENES_RESULTS_FILE, '--srst2_gbs_consensus', self.TEST_CONSENSUS_SEQ_FILE,
+            '--srst2_other_fullgenes', self.TEST_RESFINDER_FULLGENES_RESULTS_FILE,
+            '--min_read_depth', '30.0', '--output_prefix', self.TEST_OUTPUT_PREFIX])
+
+        run(args)
+
+        f = open(self.TEST_OUTPUT_PREFIX + '_res_alleles_variants.txt', "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, "AG\tEC\tFQ\tOTHER\tTET\naac(6')-30-aac(6')-Ib'[aac(6')-30-aac(6')-Ib'_1]\t23S1:23S3\tneg\tcat(pC194)[cat(pC194)_1]\ttet(M)[tet(M)_12]:tet(M)[tet(M)_4]:tet(M)[tet(M)_10]\n")
+
+        f = open(self.TEST_OUTPUT_PREFIX + '_res_gbs_variants.txt', "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, "23S1_variant\t23S3_variant\tGYRA_variant\tPARC_variant\tRPOBGBS-1_variant\tRPOBGBS-2_variant\tRPOBGBS-3_variant\tRPOBGBS-4_variant\n*\t*\t\t\t\t\t\t\n")
+
+        f = open(self.TEST_OUTPUT_PREFIX + '_res_incidence.txt', "r")
+        actual = "".join(f.readlines())
+        self.assertEqual(actual, "23S1\t23S3\tAAC630AAC6\tANT6\tAPH3\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETS\npos\tpos\tpos\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\n")

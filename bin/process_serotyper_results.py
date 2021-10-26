@@ -22,9 +22,9 @@ def write_outfile(gene_dict, out_file):
     avgdepth = []
     for key, values in gene_dict.items():
         status = 'imperfect' if values[4] != '' else 'identical'
-        matched_alleles = matched_alleles + [values[1]]
-        match_type = match_type + [values[0] + '=' + status]
-        serotype = serotype + [values[0]]
+        matched_alleles = matched_alleles + [values[1].replace('A', 'a').replace('B', 'b')]
+        match_type = match_type + [values[0].replace('A', 'a').replace('B', 'b') + '=' + status]
+        serotype = serotype + [values[0].replace('A', 'a').replace('B', 'b')]
         avgdepth = avgdepth + [values[3]]
     with open(out_file, 'w') as out:
         out.write('Matched_Allele'+'\t'+'Match_Type'+'\t'+'Serotype'+'\t'+'AvgDepth'+'\n'+'/'.join(matched_alleles)+'\t'+'/'.join(match_type)+'\t'+'/'.join(serotype)+'\t'+'/'.join(avgdepth)+'\n')

@@ -41,12 +41,18 @@ class TestCombineResults(unittest.TestCase):
             'tkt': {0: np.nan},
             '23S1': {0: np.nan},
             '23S3': {0: np.nan},
-            'CAT': {0: np.nan},
+            'AAC630AAC6': {0: np.nan},
+            'ANT6': {0: np.nan},
+            'APH3': {0: np.nan},
+            'CATPC194': {0: np.nan},
+            'CATQ': {0: np.nan},
+            'ERMA': {0: np.nan},
             'ERMB':	{0: np.nan},
             'ERMT':	{0: np.nan},
             'FOSA':	{0: np.nan},
             'GYRA':	{0: np.nan},
             'LNUB':	{0: np.nan},
+            'LNUC': {0: np.nan},
             'LSAC':	{0: np.nan},
             'MEFA':	{0: np.nan},
             'MPHC': {0: np.nan},
@@ -89,6 +95,7 @@ class TestCombineResults(unittest.TestCase):
         df_res_alleles = create_df(self.header_dict["res_alleles"], self.id_df, [self.TEST_DATA_RES_ALLELES])
         self.assertEqual(df_res_alleles.to_dict(), {
             "Sample_id": {0: '25292_2#85'},
+            "AG": {0: "aac(6')-30-aac(6')-Ib'[aac(6')-30-aac(6')-Ib'_1]"},
             "EC": {0: 'ERMB(ERMB-1):MEF(MEF-1):23S1:23S3'},
             "FQ": {0: 'PARC:GYRA-V1A,M2Q,G3W,K4W'},
             "OTHER": {0: "MsrD_MLS(MsrD_296):Ant6-Ia_AGly(Ant6-Ia_1633):Sat4A_AGly(Sat4A_586):Aph3-III_AGly(Aph3-III_268):msr(D)(msr(D)_2):ant(6)-Ia(ant(6)-Ia):aph(3')-III(aph(3')-III)"},
@@ -111,17 +118,24 @@ class TestCombineResults(unittest.TestCase):
 
     def test_create_df_with_sero_res(self):
         df_sero_res = create_df(self.header_dict["sero_res"], self.id_df, [self.TEST_DATA_SEROTYPE, self.TEST_DATA_RES_INCIDENCE])
+        self.maxDiff = None
         self.assertEqual(df_sero_res.to_dict(), {
             "Sample_id": {0: '25292_2#85'},
             "Serotype": {0: 'III'},
             "23S1": {0: 'pos'},
             "23S3": {0: 'pos'},
-            "CAT": {0: 'neg'},
+            "AAC630AAC6": {0: 'neg'},
+            "ANT6": {0: 'neg'},
+            "APH3": {0: 'neg'},
+            'CATPC194': {0: 'neg'},
+            "CATQ": {0: 'neg'},
+            "ERMA": {0: 'pos'},
             "ERMB": {0: 'neg'},
             "ERMT": {0: 'neg'},
             "FOSA": {0: 'neg'},
             "GYRA": {0: 'pos'},
             "LNUB": {0: 'neg'},
+            "LNUC": {0: 'neg'},
             "LSAC": {0: 'neg'},
             "MEFA": {0: 'neg'},
             "MPHC": {0: 'neg'},
@@ -144,7 +158,7 @@ class TestCombineResults(unittest.TestCase):
         df_combine_all = create_df(list(self.header_dict["combine_all"].keys()), self.id_df, [self.TEST_DATA_SEROTYPE, self.TEST_DATA_RES_INCIDENCE, self.TEST_DATA_RES_VARIANTS, self.TEST_DATA_MLST_ALLELIC_FREQUENCY, self.TEST_DATA_SURFACE_TYPER])
         df_combine_all = df_combine_all.replace(to_replace=['+', '-'], value=['pos', 'neg'])
         df_combine_all = rename_columns(df_combine_all, self.header_dict["combine_all"], self.id_df)
-        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'CAT', 'ERMB', 'ERMT', 'FOSA', 'GYRA', 'LNUB', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO', 'TETS', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
+        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC630AAC6', 'ANT6', 'APH3', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'FOSA', 'GYRA', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO', 'TETS', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
 
     def test_create_df_for_empty_file(self):
         actual = create_df(self.header_dict["surface_inc"], self.id_df, [self.TEST_DATA_EMPTY_SURFACE_TYPER])
@@ -178,7 +192,7 @@ class TestCombineResults(unittest.TestCase):
         df_combine_all = rename_columns(df_combine_all, self.header_dict["combine_all"], self.id_df)
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'CAT', 'ERMB', 'ERMT', 'FOSA', 'GYRA', 'LNUB', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO', 'TETS', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC630AAC6', 'ANT6', 'APH3', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'FOSA', 'GYRA', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO', 'TETS', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
         os.remove(self.TEST_OUTPUT)
 
     def test_write_pandas_output_for_all_content_and_empty_surface_protein_file(self):
@@ -187,7 +201,7 @@ class TestCombineResults(unittest.TestCase):
         df_combine_all = rename_columns(df_combine_all, self.header_dict["combine_all"], self.id_df)
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'CAT', 'ERMB', 'ERMT', 'FOSA', 'GYRA', 'LNUB', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO', 'TETS', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC630AAC6', 'ANT6', 'APH3', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'FOSA', 'GYRA', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO', 'TETS', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
         os.remove(self.TEST_OUTPUT)
 
     @patch('bin.combine_results.get_arguments')
@@ -272,7 +286,7 @@ class TestCombineResults(unittest.TestCase):
         mock_create_df.return_value = 'foobar1'
 
         main()
-        
+
         mock_create_df.assert_has_calls([
             call(header_dict['pbp_allele'], ANY, [args.pbp_allele])], any_order=False)
         mock_write_pandas_output.assert_has_calls([

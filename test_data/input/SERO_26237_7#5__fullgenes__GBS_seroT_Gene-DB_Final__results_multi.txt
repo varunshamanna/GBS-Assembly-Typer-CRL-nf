@@ -1,4 +1,4 @@
 Sample	DB	gene	allele	coverage	depth	diffs	uncertainty	divergence	length	maxMAF	clusterid	seqid	annotation
-test	GBS_seroT_Gene-DB_Final	IA	IA-1	100.0	2.306	8snp	edge1.0	5.594	143	0.0	1	1
-test	GBS_seroT_Gene-DB_Final	II	II-1	100.0	137.929			0.0	139	0.027	3	3
+test	GBS_seroT_Gene-DB_Final	II	II-1	100.0	2.306	8snp	edge1.0	5.594	143	0.0	1	1
+test	GBS_seroT_Gene-DB_Final	IA	IA-1	100.0	137.929			0.0	139	0.027	3	3
 test	GBS_seroT_Gene-DB_Final	III	III-1	100.0	11.098	1snp	edge1.0	0.581	172	0.0	4	4

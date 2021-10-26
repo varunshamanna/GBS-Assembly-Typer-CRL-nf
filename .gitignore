@@ -1,3 +1,4 @@
+.coverage
 .idea
 .nextflow.log*
 nextflow*.log*
@@ -7,6 +8,8 @@ work
 .DS_Store
 tmp
 data
-test_data/output_data/test_*.txt
+test_data/output/*.txt
+regression_test_data/output_data/test_*
+conftest.py
 
 **/__pycache__

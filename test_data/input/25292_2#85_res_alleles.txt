@@ -1,2 +1,2 @@
-EC	FQ	OTHER	TET
-ERMB(ERMB-1):MEF(MEF-1):23S1:23S3	PARC:GYRA-V1A,M2Q,G3W,K4W	MsrD_MLS(MsrD_296):Ant6-Ia_AGly(Ant6-Ia_1633):Sat4A_AGly(Sat4A_586):Aph3-III_AGly(Aph3-III_268):msr(D)(msr(D)_2):ant(6)-Ia(ant(6)-Ia):aph(3')-III(aph(3')-III)	TETO(TETO-1)
+AG	EC	FQ	OTHER	TET
+aac(6')-30-aac(6')-Ib'[aac(6')-30-aac(6')-Ib'_1]	ERMB(ERMB-1):MEF(MEF-1):23S1:23S3	PARC:GYRA-V1A,M2Q,G3W,K4W	MsrD_MLS(MsrD_296):Ant6-Ia_AGly(Ant6-Ia_1633):Sat4A_AGly(Sat4A_586):Aph3-III_AGly(Aph3-III_268):msr(D)(msr(D)_2):ant(6)-Ia(ant(6)-Ia):aph(3')-III(aph(3')-III)	TETO(TETO-1)
