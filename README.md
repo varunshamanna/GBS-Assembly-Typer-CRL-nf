@@ -102,6 +102,8 @@ Specifying `-profile sanger,lsf` will instruct Nextflow to run tasks as separate
 
 Add a **-N 'my-email-address'** to the end of the command line if you wish to be sent a report by email upon completion of the pipeline.
 
+If you are processing many samples and would like to speed up the pipeline, you can increase the `queue_size` (default 100 i.e. a maximum 100 jobs running concurrently). For example, to increase the number of jobs running concurrently to 500, set `--queue_size 500`. (Note, the number of jobs may already be limited by your HPC's available resources.)
+
 <a name="outputs"></a>
 ## Outputs
 
