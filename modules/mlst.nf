@@ -30,10 +30,16 @@ process get_mlst_allele_and_pileup {
     file(mlst_alleles)
 
     output:
-    path("${pair_id}_new_mlst_alleles.fasta"), emit: new_alleles, optional: true
-    path("${pair_id}_new_mlst_pileup.txt"), emit: pileup, optional: true
-    path("${pair_id}_existing_mlst_alleles.txt"), emit: existing_alleles, optional: true
-    path("${pair_id}_new_mlst_alleles.log"), emit: new_alleles_status
+    path(output_new_mlst_alleles_fasta), emit: new_alleles, optional: true
+    path(output_new_mlst_pileup), emit: pileup, optional: true
+    path(output_existing_mlst_alleles), emit: existing_alleles, optional: true
+    path(output_new_mlst_alleles_log), emit: new_alleles_status
+
+    script:
+    output_new_mlst_alleles_fasta="${pair_id}_new_mlst_alleles.fasta"
+    output_new_mlst_pileup="${pair_id}_new_mlst_pileup.txt"
+    output_existing_mlst_alleles="${pair_id}_existing_mlst_alleles.txt"
+    output_new_mlst_alleles_log="${pair_id}_new_mlst_alleles.log"
 
     """
     set +e
@@ -50,10 +56,10 @@ process get_mlst_allele_and_pileup {
     # Get consensus allele and variant pileup for each allele
     if [[ \${num_alleles} -gt 1 ]]
     then
-        echo "${pair_id}: New MLST alleles found." > ${pair_id}_new_mlst_alleles.log
-        for ((i=0;i<\${num_alleles};i++)); # Skip first line of alleles file
+        echo "${pair_id}: New MLST alleles found." > tmp.log
+        for ((i=2;i<=\${num_alleles};i++)); # Skip first line of alleles file
         do
-            target_allele=\$(sed -n \"\${i+1}p\" ${pair_id}_mlst_alleles.txt)
+            target_allele=\$(sed -n \"\${i}p\" ${pair_id}_new_mlst_alleles.txt)
 
             mlst_bam=\"\${target_allele}_${bam_file}\"
             mlst_vcf=\"\$(basename \${mlst_bam} .bam).vcf\"
@@ -65,18 +71,22 @@ process get_mlst_allele_and_pileup {
             bgzip \${mlst_vcf}
             tabix -p vcf \${mlst_vcf}.gz
 
-            cat CHECK_MLST_\${target_allele}_ref.fna | vcf-consensus \${mlst_vcf}.gz >> ${pair_id}_new_mlst_alleles.fasta
-            echo '\nNew MLST Allele Pileup:' >> ${pair_id}_new_mlst_pileup.txt
-            samtools mpileup -f ${mlst_alleles} ${bam_file} -r \${target_allele} >> ${pair_id}_new_mlst_pileup.txt
+            cat CHECK_MLST_\${target_allele}_ref.fna | vcf-consensus \${mlst_vcf}.gz >> tmp.fasta
+            echo '\nNew MLST Allele Pileup:' >> tmp_pileup.txt
+            samtools mpileup -f ${mlst_alleles} ${bam_file} -r \${target_allele} >> tmp_pileup.txt
         done
     elif [[ \${num_alleles} -eq 1 ]]
     then
-        cat ${pair_id}_new_mlst_alleles.txt > ${pair_id}_new_mlst_alleles.log
+        cat ${pair_id}_new_mlst_alleles.txt > tmp.log
     else
-        echo "${pair_id}: No new MLST alleles found." > ${pair_id}_new_mlst_alleles.log
+        echo "${pair_id}: No new MLST alleles found." > tmp.log
     fi
-    
+
+
     touch ${pair_id}_new_mlst_alleles.log
+    mv tmp.fasta ${output_new_mlst_alleles_fasta}
+    mv tmp_pileup.txt ${output_new_mlst_pileup}
+    mv tmp.log ${output_new_mlst_alleles_log}
     """
 
 }
