@@ -1,2 +1,2 @@
 Sample	DB	gene	allele	coverage	depth	diffs	uncertainty	divergence	length	maxMAF	clusterid	seqid	annotation
-26237_7#5	GBS_seroT_Gene-DB_Final	III	III-1	100.0	267.595	1snp		0.581	172	0.011	4	4	
+26237_7#5	GBS-SBG	GBS-SBG	GBS-SBG:III	100.0	267.595	1snp		0.581	172	0.011	4	4	

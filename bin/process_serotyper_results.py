@@ -2,29 +2,30 @@
 import argparse
 import sys
 
-def make_gene_dict(input_file, depth_threshold):
+def make_gene_list(input_file, depth_threshold):
     """Get features from SRST2 input file into dictionary depending on read depth threshold"""
-    gene_dict = dict()
+    gene_list = []
     with open(input_file, 'r') as fg_file:
         next(fg_file) # Skip header row
         for line in fg_file:
             feature = line.split('\t')
             if float(feature[5]) > depth_threshold:
-                gene_dict[feature[2]] = feature[2:-1]
-    return gene_dict
+                gene_list.append(feature[2:-1])
+    return gene_list
 
 
-def write_outfile(gene_dict, out_file):
+def write_outfile(gene_list, out_file):
     """Write serotype, match type status and average read depth to output file"""
     matched_alleles = []
     match_type = []
     serotype = []
     avgdepth = []
-    for key, values in gene_dict.items():
+    for values in gene_list:
         status = 'imperfect' if values[4] != '' else 'identical'
-        matched_alleles = matched_alleles + [values[1].replace('A', 'a').replace('B', 'b')]
-        match_type = match_type + [values[0].replace('A', 'a').replace('B', 'b') + '=' + status]
-        serotype = serotype + [values[0].replace('A', 'a').replace('B', 'b')]
+        value = values[1].replace('GBS-SBG:', '').replace('A', 'a').replace('B', 'b').replace('IIIa', 'III').replace('IIIb', 'III').replace('IIIc', 'III').replace('IIId', 'III')
+        matched_alleles = matched_alleles + [value]
+        match_type = match_type + [value + '=' + status]
+        serotype = serotype + [value]
         avgdepth = avgdepth + [values[3]]
     with open(out_file, 'w') as out:
         out.write('Matched_Allele'+'\t'+'Match_Type'+'\t'+'Serotype'+'\t'+'AvgDepth'+'\n'+'/'.join(matched_alleles)+'\t'+'/'.join(match_type)+'\t'+'/'.join(serotype)+'\t'+'/'.join(avgdepth)+'\n')
@@ -52,10 +53,10 @@ def main():
     fullgenes_file = args.id + '__fullgenes__' + db_name + '__results.txt'
 
     # Get feature dictionary
-    gene_dict = make_gene_dict(fullgenes_file, args.depth)
+    gene_list = make_gene_list(fullgenes_file, args.depth)
 
     # Write tab-delimited output file with serotype features
-    write_outfile(gene_dict, args.output)
+    write_outfile(gene_list, args.output)
 
 
 if __name__ == "__main__":

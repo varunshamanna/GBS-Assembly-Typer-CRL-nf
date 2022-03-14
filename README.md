@@ -292,7 +292,7 @@ srst2 | 0.2.0
 ## For developers
 ### Run unit tests
 ```
-python3 -m pytest
+pytest tests
 ```
 
 ### Updating the Dockerfile and creating a new image

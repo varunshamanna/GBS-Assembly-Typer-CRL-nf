@@ -179,10 +179,10 @@ workflow MLST {
 
     main:
         // Run SRST2 MLST
-        srst2_for_mlst(reads, file(params.mlst_allele_db, checkIfExists: true), file(params.mlst_definitions_db, checkIfExists: true), params.mlst_min_coverage)
+        srst2_for_mlst(reads, params.mlst_min_coverage)
 
         // Get new consensus allele and pileup data
-        get_mlst_allele_and_pileup(srst2_for_mlst.out.bam_and_srst2_results, params.mlst_min_read_depth, file(params.mlst_allele_db, checkIfExists: true))
+        get_mlst_allele_and_pileup(srst2_for_mlst.out.bam_and_srst2_results, params.mlst_min_read_depth)
 
         // Collect outputs
         new_alleles = get_mlst_allele_and_pileup.out.new_alleles
@@ -280,7 +280,7 @@ workflow {
         if (params.run_sero_res){
 
             // Serotyping Process
-            serotyping(read_pairs_ch, file(params.serotyping_db, checkIfExists: true), params.serotyper_min_read_depth)
+            serotyping(read_pairs_ch, params.serotyper_min_read_depth)
 
             // Resistance Mapping Workflows
             GBS_RES(read_pairs_ch)

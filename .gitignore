@@ -10,6 +10,4 @@ tmp
 data
 test_data/output/*.txt
 regression_test_data/output_data/test_*
-conftest.py
-
 **/__pycache__
