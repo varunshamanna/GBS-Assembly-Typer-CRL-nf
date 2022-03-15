@@ -2,22 +2,22 @@ process srst2_for_mlst {
 
     input:
     tuple val(pair_id), file(reads) // ID and paired read files
-    file(mlst_alleles) // Path to MLST alleles file
-    file(mlst_definitions) // Path to MLST definition file
     val(min_coverage) // String of minimum coverage parameter(s) for SRST2
 
     //publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
 
     output:
-    tuple val(pair_id), file("${pair_id}*.bam"), file("${pair_id}__mlst__${mlst_name}__results.txt"), emit: bam_and_srst2_results
+    tuple val(pair_id), file("${pair_id}*.bam"), file("${pair_id}__mlst__${mlst_name}__results.txt"), file(mlst_db), emit: bam_and_srst2_results
     tuple val(pair_id), file("${pair_id}__mlst__${mlst_name}__results.txt"), emit: srst2_results
 
     script:
-    mlst_name=mlst_alleles.getSimpleName()
+    mlst_db="Streptococcus_agalactiae.fasta"
+    mlst_name="Streptococcus_agalactiae"
 
     """
     set +e
-    srst2 --samtools_args '\\-A' --mlst_delimiter '_' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_alleles} --mlst_definitions ${mlst_definitions} --min_coverage ${min_coverage}
+    getmlst.py --species 'Streptococcus agalactiae'
+    srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_db} --mlst_definitions profiles_csv --mlst_delimiter '_' --min_coverage ${min_coverage}
     touch ${pair_id}__mlst__${mlst_name}__results.txt
     """
 }
@@ -25,9 +25,8 @@ process srst2_for_mlst {
 process get_mlst_allele_and_pileup {
 
     input:
-    tuple val(pair_id), file(bam_file), file(results_file)
+    tuple val(pair_id), file(bam_file), file(results_file), file(mlst_alleles)
     val(min_read_depth)
-    file(mlst_alleles)
 
     output:
     path(output_new_mlst_alleles_fasta), emit: new_alleles, optional: true

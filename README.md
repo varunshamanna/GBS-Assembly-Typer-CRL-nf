@@ -292,14 +292,8 @@ srst2 | 0.2.0
 ## For developers
 ### Run unit tests
 ```
-python3 -m pytest
+pytest tests
 ```
-
-### Updating the Dockerfile and creating a new image
-1. You must create a new branch named `[0-9].[0-9].[0.9]` e.g. `0.0.6` following versioning of the image tag specified in `nextflow.config`. (This is different from the tagging system for this repo.)
-2. Update the tag in `nextflow.config` and push this to your branch.
-3. WIP: This should trigger an image build on Quay tagged by the branch name. Check on [quay.io](https://quay.io/repository/sangerpathogens/gbs-typer-sanger-nf?tab=builds) and if there is no build, you may have to trigger the build of the Docker image manually. Click the wheel at the bottom and Run Trigger Now and click the version you want to build. If you cannot access it, you will need to create a new quay account and ask a member of Pathogen Informatics to add you to the sangerpathogens organisation.
-4. Once the build is successful, you are ready to make a pull request
 
 <a name="acknowledge"></a>
 ## Acknowledge us

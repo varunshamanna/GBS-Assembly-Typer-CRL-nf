@@ -2,7 +2,7 @@
 # Dependencies docker image for the GBS Typer pipeline.
 #######################################################
 
-FROM ubuntu:20.10
+FROM ubuntu:20.04
 WORKDIR /opt
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -20,8 +20,8 @@ ARG SAMTOOLS_VERSION=0.1.18
 ARG BOWTIE2_VERSION=2.2.9
 # Latest prodigal version (as specified in pipeline)
 ARG PRODIGAL_VERSION=1:2.6.3-4
-# Latest bedtools2 version (pipeline code specified bedtools(1) 2.17.0)
-ARG BEDTOOLS_VERSION=2.29.2+dfsg-3build2
+# Bedtools2 version
+ARG BEDTOOLS_VERSION=2.29.2
 # Biopython used by pipleline python scripts
 ARG BIOPYTHON_VERSION=1.78
 # Python2 for srst2
@@ -46,7 +46,6 @@ RUN apt-get update -y -qq && apt-get install -y -qq \
         git \
         perl \
         ncbi-blast+ \
-        bedtools=${BEDTOOLS_VERSION} \
         prodigal=${PRODIGAL_VERSION} \
         tabix \
         python3-pip \
@@ -68,6 +67,13 @@ RUN apt-get update -y -qq && apt-get install -y -qq \
       && sed -i -e 's/# \(en_GB\.UTF-8 .*\)/\1/' /etc/locale.gen \
       && touch /usr/share/locale/locale.alias \
       && locale-gen
+
+# Bedtools
+RUN wget https://github.com/arq5x/bedtools2/releases/download/v${BEDTOOLS_VERSION}/bedtools-${BEDTOOLS_VERSION}.tar.gz \
+    && tar -zxvf bedtools-${BEDTOOLS_VERSION}.tar.gz \
+    && cd bedtools2 \
+    && make
+ENV PATH="/opt/bedtools2/bin:${PATH}"
 
 # Perl locales
 ENV LANG en_GB.UTF-8
@@ -118,4 +124,4 @@ RUN cd /tmp \
     && rm -rf freebayes
 
 # Clean up
-RUN apt-get purge -y -qq build-essential wget curl git meson ninja-build cmake pkg-config python3-pip
+RUN apt-get purge -y -qq build-essential wget curl meson ninja-build cmake pkg-config python3-pip
