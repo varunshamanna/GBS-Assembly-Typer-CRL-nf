@@ -691,7 +691,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         update_GBS_Res_var('GYRA', [], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
             'PARC_variant':'Q18S',
-            'GYRA_variant': '*',
+            'GYRA_variant': '',
             '23S1_variant': '',
             '23S3_variant': '',
             'RPOBGBS-1_variant': '',
@@ -704,7 +704,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         update_GBS_Res_var('23S1', ['G1A', 'G34T'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
             'PARC_variant':'Q18S',
-            'GYRA_variant': '*',
+            'GYRA_variant': '',
             '23S1_variant': 'G1A,G34T',
             '23S3_variant': '',
             'RPOBGBS-1_variant': '',
@@ -867,7 +867,7 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_gbs_variants.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "23S1_variant\t23S3_variant\tGYRA_variant\tPARC_variant\tRPOBGBS-1_variant\tRPOBGBS-2_variant\tRPOBGBS-3_variant\tRPOBGBS-4_variant\n*\t*\t\t\t\t\t\t\n")
+        self.assertEqual(actual, "23S1_variant\t23S3_variant\tGYRA_variant\tPARC_variant\tRPOBGBS-1_variant\tRPOBGBS-2_variant\tRPOBGBS-3_variant\tRPOBGBS-4_variant\n\t\t\t\t\t\t\t\n")
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_incidence.txt', "r")
         actual = "".join(f.readlines())
