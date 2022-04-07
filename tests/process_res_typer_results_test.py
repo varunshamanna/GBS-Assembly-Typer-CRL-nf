@@ -652,65 +652,65 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_update_GBS_Res_var(self):
 
         GBS_Res_var = {
-            'GYRA_variant': '', #10
-            'PARC_variant': '', #14
-            '23S1_variant': '', #0
-            '23S3_variant': '', #1
-            'RPOBGBS-1_variant': '', #6
-            'RPOBGBS-2_variant': '', #7
-            'RPOBGBS-3_variant': '', #8
-            'RPOBGBS-4_variant': '', #9,
+            'GYRA_SNP': '', #10
+            'PARC_SNP': '', #14
+            '23S1_SNP': '', #0
+            '23S3_SNP': '', #1
+            'RPOBGBS-1_SNP': '', #6
+            'RPOBGBS-2_SNP': '', #7
+            'RPOBGBS-3_SNP': '', #8
+            'RPOBGBS-4_SNP': '', #9,
         }
         # ============== Test PARC ==================
         update_GBS_Res_var('PARC', ['Q17S'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC_variant':'Q17S',
-            'GYRA_variant': '',
-            '23S1_variant': '',
-            '23S3_variant': '',
-            'RPOBGBS-1_variant': '',
-            'RPOBGBS-2_variant': '',
-            'RPOBGBS-3_variant': '',
-            'RPOBGBS-4_variant': ''
+            'PARC_SNP':'Q17S',
+            'GYRA_SNP': '',
+            '23S1_SNP': '',
+            '23S3_SNP': '',
+            'RPOBGBS-1_SNP': '',
+            'RPOBGBS-2_SNP': '',
+            'RPOBGBS-3_SNP': '',
+            'RPOBGBS-4_SNP': ''
         })
 
         # ============== Test PARC with new variant ==================
         update_GBS_Res_var('PARC', ['Q18S'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC_variant':'Q18S',
-            'GYRA_variant': '',
-            '23S1_variant': '',
-            '23S3_variant': '',
-            'RPOBGBS-1_variant': '',
-            'RPOBGBS-2_variant': '',
-            'RPOBGBS-3_variant': '',
-            'RPOBGBS-4_variant': ''
+            'PARC_SNP':'Q18S',
+            'GYRA_SNP': '',
+            '23S1_SNP': '',
+            '23S3_SNP': '',
+            'RPOBGBS-1_SNP': '',
+            'RPOBGBS-2_SNP': '',
+            'RPOBGBS-3_SNP': '',
+            'RPOBGBS-4_SNP': ''
         })
 
         # ============== Test GYRA with no variant ==================
         update_GBS_Res_var('GYRA', [], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC_variant':'Q18S',
-            'GYRA_variant': '',
-            '23S1_variant': '',
-            '23S3_variant': '',
-            'RPOBGBS-1_variant': '',
-            'RPOBGBS-2_variant': '',
-            'RPOBGBS-3_variant': '',
-            'RPOBGBS-4_variant': ''
+            'PARC_SNP':'Q18S',
+            'GYRA_SNP': '',
+            '23S1_SNP': '',
+            '23S3_SNP': '',
+            'RPOBGBS-1_SNP': '',
+            'RPOBGBS-2_SNP': '',
+            'RPOBGBS-3_SNP': '',
+            'RPOBGBS-4_SNP': ''
         })
 
         # ============== Test 23S1 with two SNPs ==================
         update_GBS_Res_var('23S1', ['G1A', 'G34T'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            'PARC_variant':'Q18S',
-            'GYRA_variant': '',
-            '23S1_variant': 'G1A,G34T',
-            '23S3_variant': '',
-            'RPOBGBS-1_variant': '',
-            'RPOBGBS-2_variant': '',
-            'RPOBGBS-3_variant': '',
-            'RPOBGBS-4_variant': ''
+            'PARC_SNP':'Q18S',
+            'GYRA_SNP': '',
+            '23S1_SNP': 'G1A,G34T',
+            '23S3_SNP': '',
+            'RPOBGBS-1_SNP': '',
+            'RPOBGBS-2_SNP': '',
+            'RPOBGBS-3_SNP': '',
+            'RPOBGBS-4_SNP': ''
         })
 
     def test_update_drug_res_col_dict(self):
@@ -768,14 +768,14 @@ class TestProcessResTyperResults(unittest.TestCase):
     def test_clear_arg_res(self):
         actual = clear_arg_res(GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
-            '23S1_variant': '',
-            '23S3_variant': '',
-            'GYRA_variant': '',
-            'PARC_variant': '',
-            'RPOBGBS-1_variant': '',
-            'RPOBGBS-2_variant': '',
-            'RPOBGBS-3_variant': '',
-            'RPOBGBS-4_variant': ''})
+            '23S1_SNP': '',
+            '23S3_SNP': '',
+            'GYRA_SNP': '',
+            'PARC_SNP': '',
+            'RPOBGBS-1_SNP': '',
+            'RPOBGBS-2_SNP': '',
+            'RPOBGBS-3_SNP': '',
+            'RPOBGBS-4_SNP': ''})
 
     @patch('bin.process_res_typer_results.get_seq_content')
     @patch('bin.process_res_typer_results.get_gene_names_from_consensus')
@@ -867,7 +867,7 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_gbs_variants.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "23S1_variant\t23S3_variant\tGYRA_variant\tPARC_variant\tRPOBGBS-1_variant\tRPOBGBS-2_variant\tRPOBGBS-3_variant\tRPOBGBS-4_variant\n\t\t\t\t\t\t\t\n")
+        self.assertEqual(actual, "23S1_SNP\t23S3_SNP\tGYRA_SNP\tPARC_SNP\tRPOBGBS-1_SNP\tRPOBGBS-2_SNP\tRPOBGBS-3_SNP\tRPOBGBS-4_SNP\n\t\t\t\t\t\t\t\n")
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_incidence.txt', "r")
         actual = "".join(f.readlines())

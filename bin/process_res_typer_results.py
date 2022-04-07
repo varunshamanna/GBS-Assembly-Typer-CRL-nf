@@ -119,14 +119,14 @@ GBS_Res_Targets = {
 
 # GBS Gene Resistance Variants dictionary
 GBS_Res_var = {
-    'GYRA_variant': '', #10
-    'PARC_variant': '', #14
-    '23S1_variant': '', #0
-    '23S3_variant': '', #1
-    'RPOBGBS-1_variant': '', #6
-    'RPOBGBS-2_variant': '', #7
-    'RPOBGBS-3_variant': '', #8
-    'RPOBGBS-4_variant': '', #9,
+    'GYRA_SNP': '', #10
+    'PARC_SNP': '', #14
+    '23S1_SNP': '', #0
+    '23S3_SNP': '', #1
+    'RPOBGBS-1_SNP': '', #6
+    'RPOBGBS-2_SNP': '', #7
+    'RPOBGBS-3_SNP': '', #8
+    'RPOBGBS-4_SNP': '', #9,
 }
 
 # Reference sequence dictionary
@@ -260,9 +260,9 @@ def get_seq_diffs(query_Seq, ref_Seq):
 def update_GBS_Res_var(gene_name, seq_diffs, bin_res_arr):
     """Update GBS Gene Resistance Variants dictionary with gene variants"""
     if seq_diffs:
-        bin_res_arr[gene_name + '_variant'] = ','.join(seq_diffs)
+        bin_res_arr[gene_name + '_SNP'] = ','.join(seq_diffs)
     else:
-        bin_res_arr[gene_name + '_variant'] = ''
+        bin_res_arr[gene_name + '_SNP'] = ''
 
 
 def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, geneToClass):
