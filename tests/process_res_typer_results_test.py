@@ -871,4 +871,4 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_incidence.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "23S1\t23S3\tAAC6APH2\tAADECC\tANT6\tAPH3III\tAPH3OTHER\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETS\npos\tpos\tpos\tpos\tneg\tpos\tpos\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\n")
+        self.assertEqual(actual, "23S1\t23S3\tAAC6APH2\tAADECC\tANT6\tAPH3III\tAPH3OTHER\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETO32O\tTETOW\tTETOW32O\tTETOW32OWO\tTETOWO\tTETS\tTETSM\tTETW32O\npos\tpos\tpos\tpos\tneg\tpos\tpos\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\n")
