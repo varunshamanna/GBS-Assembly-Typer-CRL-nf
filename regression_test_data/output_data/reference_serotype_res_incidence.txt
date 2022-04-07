@@ -1,2 +1,2 @@
-Sample_id	Serotype	23S1	23S3	AAC6APH2	AADECC	ANT6	APH3III	APH3OTHER	CATPC194	CATQ	ERMA	ERMB	ERMT	FOSA	GYRA	LNUB	LNUC	LSAC	MEFA	MPHC	MSRA	MSRD	PARC	RPOBGBS-1	RPOBGBS-2	RPOBGBS-3	RPOBGBS-4	SUL2	TETB	TETL	TETM	TETO	TETS
-test	II	pos	pos	neg	neg	neg	neg	neg	neg	neg	pos	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg
+Sample_id	Serotype	23S1	23S3	AAC6APH2	AADECC	ANT6	APH3III	APH3OTHER	CATPC194	CATQ	ERMA	ERMB	ERMT	FOSA	GYRA	LNUB	LNUC	LSAC	MEFA	MPHC	MSRA	MSRD	PARC	RPOBGBS-1	RPOBGBS-2	RPOBGBS-3	RPOBGBS-4	SUL2	TETB	TETL	TETM	TETO32O	TETOW32OWO	TETOW32O	TETOWO	TETOW	TETO	TETSM	TETS	TETW32O
+test	II	pos	pos	neg	neg	neg	neg	neg	neg	neg	pos	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	neg	pos	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg	neg

@@ -50,8 +50,15 @@ geneToClass = {
     'TETB': 'TET',
     'TETL': 'TET',
     'TETM': 'TET',
+    'TETO32O': 'TET',
+    'TETOW32OWO': 'TET',
+    'TETOW32O': 'TET',
+    'TETOWO': 'TET',
+    'TETOW': 'TET',
     'TETO': 'TET',
+    'TETSM': 'TET',
     'TETS': 'TET',
+    'TETW32O': 'TET',
     'SUL2': 'OTHER',
     'PARC': 'FQ',
     'GYRA': 'FQ',
@@ -87,8 +94,15 @@ Res_Targets = {
     'TETB': 'neg',
     'TETL': 'neg',
     'TETM': 'neg',
+    'TETO32O': 'neg',
+    'TETOW32OWO': 'neg',
+    'TETOW32O': 'neg',
+    'TETOWO': 'neg',
+    'TETOW': 'neg',
     'TETO': 'neg',
+    'TETSM': 'neg',
     'TETS': 'neg',
+    'TETW32O': 'neg'
 }
 
 # GBS Resistance Targets dictionary
@@ -189,6 +203,8 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
                     drug_res_col_dict[drugCat] = gene + '[' + allele + ']'
                 else:
                     drug_res_col_dict[drugCat] = drug_res_col_dict[drugCat] + ':' + gene + '[' + allele + ']'
+
+                break
 
         if other:
             if drug_res_col_dict["OTHER"] == "neg":
