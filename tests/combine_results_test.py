@@ -89,14 +89,14 @@ class TestCombineResults(unittest.TestCase):
             'RIB': {0: np.nan},
             'SRR1': {0: np.nan},
             'SRR2': {0: np.nan},
-            "23S1_variant": {0: np.nan},
-            "23S3_variant": {0: np.nan},
-            'GYRA_variant': {0: np.nan},
-            'PARC_variant': {0: np.nan},
-            "RPOBGBS-1_variant": {0: np.nan},
-            "RPOBGBS-2_variant": {0: np.nan},
-            "RPOBGBS-3_variant": {0: np.nan},
-            "RPOBGBS-4_variant": {0: np.nan}
+            "23S1_SNP": {0: np.nan},
+            "23S3_SNP": {0: np.nan},
+            'GYRA_SNP': {0: np.nan},
+            'PARC_SNP': {0: np.nan},
+            "RPOBGBS-1_SNP": {0: np.nan},
+            "RPOBGBS-2_SNP": {0: np.nan},
+            "RPOBGBS-3_SNP": {0: np.nan},
+            "RPOBGBS-4_SNP": {0: np.nan}
         }
         self.assertEqual(actual.to_dict(), expected)
 
@@ -115,14 +115,14 @@ class TestCombineResults(unittest.TestCase):
         df_gbs_res_variants = create_df(self.header_dict["gbs_res_variants"], self.id_df, [self.TEST_DATA_RES_VARIANTS])
         self.assertEqual(df_gbs_res_variants.to_dict(), {
             "Sample_id": {0: '25292_2#85'},
-            "23S1_variant": {0: '*'},
-            "23S3_variant": {0: '*'},
-            "GYRA_variant": {0: 'V1A,M2Q,G3W,K4W'},
-            "PARC_variant": {0: '*'},
-            "RPOBGBS-1_variant": {0: np.nan},
-            "RPOBGBS-2_variant": {0: np.nan},
-            "RPOBGBS-3_variant": {0: np.nan},
-            "RPOBGBS-4_variant": {0: np.nan}
+            "23S1_SNP": {0: '*'},
+            "23S3_SNP": {0: '*'},
+            "GYRA_SNP": {0: 'V1A,M2Q,G3W,K4W'},
+            "PARC_SNP": {0: '*'},
+            "RPOBGBS-1_SNP": {0: np.nan},
+            "RPOBGBS-2_SNP": {0: np.nan},
+            "RPOBGBS-3_SNP": {0: np.nan},
+            "RPOBGBS-4_SNP": {0: np.nan}
         })
 
     def test_create_df_with_sero_res(self):
@@ -177,7 +177,7 @@ class TestCombineResults(unittest.TestCase):
         df_combine_all = df_combine_all.replace(to_replace=['+', '-'], value=['pos', 'neg'])
         df_combine_all = rename_columns(df_combine_all, self.header_dict["combine_all"], self.id_df)
         self.maxDiff = None
-        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
+        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
 
     def test_create_df_for_empty_file(self):
         actual = create_df(self.header_dict["surface_inc"], self.id_df, [self.TEST_DATA_EMPTY_SURFACE_TYPER])
@@ -212,7 +212,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
         os.remove(self.TEST_OUTPUT)
 
     def test_write_pandas_output_for_all_content_and_empty_surface_protein_file(self):
@@ -222,7 +222,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O','TETOW32OWO','TETOW32O','TETOWO','TETOW','TETO','TETSM','TETS','TETW32O','ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_variant', '23S3_variant', 'GYRA_variant', 'PARC_variant', 'RPOBGBS-1_variant', 'RPOBGBS-2_variant', 'RPOBGBS-3_variant', 'RPOBGBS-4_variant'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O','TETOW32OWO','TETOW32O','TETOWO','TETOW','TETO','TETSM','TETS','TETW32O','ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
         os.remove(self.TEST_OUTPUT)
 
     @patch('bin.combine_results.get_arguments')
