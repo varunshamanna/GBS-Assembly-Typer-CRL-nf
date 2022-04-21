@@ -56,6 +56,7 @@ class TestCombineResults(unittest.TestCase):
             'LNUB':	{0: np.nan},
             'LNUC': {0: np.nan},
             'LSAC':	{0: np.nan},
+            'LSAE':	{0: np.nan},
             'MEFA':	{0: np.nan},
             'MPHC': {0: np.nan},
             'MSRA':	{0: np.nan},
@@ -148,6 +149,7 @@ class TestCombineResults(unittest.TestCase):
             "LNUB": {0: 'neg'},
             "LNUC": {0: 'neg'},
             "LSAC": {0: 'neg'},
+            "LSAE": {0: 'neg'},
             "MEFA": {0: 'neg'},
             "MPHC": {0: 'neg'},
             "MSRA": {0: 'neg'},
@@ -177,7 +179,7 @@ class TestCombineResults(unittest.TestCase):
         df_combine_all = df_combine_all.replace(to_replace=['+', '-'], value=['pos', 'neg'])
         df_combine_all = rename_columns(df_combine_all, self.header_dict["combine_all"], self.id_df)
         self.maxDiff = None
-        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
+        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'LSAE', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
 
     def test_create_df_for_empty_file(self):
         actual = create_df(self.header_dict["surface_inc"], self.id_df, [self.TEST_DATA_EMPTY_SURFACE_TYPER])
@@ -212,7 +214,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'LSAE', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O', 'TETOW32OWO', 'TETOW32O', 'TETOWO', 'TETOW', 'TETO', 'TETSM', 'TETS', 'TETW32O', 'ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
         os.remove(self.TEST_OUTPUT)
 
     def test_write_pandas_output_for_all_content_and_empty_surface_protein_file(self):
@@ -222,7 +224,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O','TETOW32OWO','TETOW32O','TETOWO','TETOW','TETO','TETSM','TETS','TETW32O','ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', '23S1', '23S3', 'AAC6APH2', 'AADECC', 'ANT6', 'APH3III', 'APH3OTHER', 'CATPC194', 'CATQ', 'ERMA', 'ERMB', 'ERMT', 'LNUB', 'LNUC', 'LSAC', 'LSAE', 'MEFA', 'MPHC', 'MSRA', 'MSRD', 'FOSA', 'GYRA', 'PARC', 'RPOBGBS-1', 'RPOBGBS-2', 'RPOBGBS-3', 'RPOBGBS-4', 'SUL2', 'TETB', 'TETL', 'TETM', 'TETO32O','TETOW32OWO','TETOW32O','TETOWO','TETOW','TETO','TETSM','TETS','TETW32O','ALP1', 'ALP23', 'ALPHA', 'HVGA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'RIB', 'SRR1', 'SRR2', '23S1_SNP', '23S3_SNP', 'GYRA_SNP', 'PARC_SNP', 'RPOBGBS-1_SNP', 'RPOBGBS-2_SNP', 'RPOBGBS-3_SNP', 'RPOBGBS-4_SNP'])
         os.remove(self.TEST_OUTPUT)
 
     @patch('bin.combine_results.get_arguments')
