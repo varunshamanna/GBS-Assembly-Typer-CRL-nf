@@ -2,6 +2,19 @@
 import argparse
 import sys
 
+replace_values = {
+    'GBS-SBG:': '',
+    'A': 'a',
+    'B': 'b',
+    'IIIa': 'III',
+    'IIIb': 'III',
+    'IIIc': 'III',
+    'IIId': 'III',
+    'III-1': 'III',
+    'III-2': 'III',
+    'III-3': 'III'
+}
+
 def make_gene_list(input_file, depth_threshold):
     """Get features from SRST2 input file into dictionary depending on read depth threshold"""
     gene_list = []
@@ -22,7 +35,9 @@ def write_outfile(gene_list, out_file):
     avgdepth = []
     for values in gene_list:
         status = 'imperfect' if values[4] != '' else 'identical'
-        value = values[1].replace('GBS-SBG:', '').replace('A', 'a').replace('B', 'b').replace('IIIa', 'III').replace('IIIb', 'III').replace('IIIc', 'III').replace('IIId', 'III')
+        value = values[1]
+        for key, item in replace_values.items():
+            value = value.replace(key, item)
         matched_alleles = matched_alleles + [value]
         match_type = match_type + [value + '=' + status]
         serotype = serotype + [value]
