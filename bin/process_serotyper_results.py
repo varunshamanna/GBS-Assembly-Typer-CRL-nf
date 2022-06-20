@@ -12,7 +12,8 @@ replace_values = {
     'IIId': 'III',
     'III-1': 'III',
     'III-2': 'III',
-    'III-3': 'III'
+    'III-3': 'III',
+    'III-4': 'III'
 }
 
 def make_gene_list(input_file, depth_threshold):
