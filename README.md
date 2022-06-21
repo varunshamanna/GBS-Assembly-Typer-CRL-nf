@@ -117,9 +117,9 @@ Running the command with `--run_sero_res`, `--run_surfacetyper` and `--run_mlst`
 
 This will create three tab-delimited files in a 'results' directory within the current directory. Specifying multiple samples will produce a row per sample:
 1. **\<output_file_prefix\>_serotype_res_incidence.txt** - Gives the serotype and presence/absence (i.e. +/-) of antibiotic resistance genes (GBS-specific alleles and ResFinder/ARG-ANNOT genes)
-e.g. Isolate Strep B sample 25292_2#105 has serotype II and have genes: 23S1, 23S3, GYRA, LSAC and TETM
+e.g. Isolate Strep B sample 25292_2#105 has serotype II and have genes: 23S1, 23S3, GYRA, lsaC and tetM
 
-Sample_id | Serotype | 23S1 | 23S3 | CAT | ERMB | ERMT | FOSA | GYRA | LNUB | LSAC | MEFA | MPHC | MSRA | MSRD | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4 | SUL2 | TETB | TETL | TETM | TETO | TETS
+Sample_id | Serotype | 23S1 | 23S3 | CAT | ermB | ermT | FOSA | GYRA | lnuB | lsaC | mefA | MPHC | MSRA | msrD | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4 | SUL2 | tetB | tetL | tetM | tetO | tetS
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
 25292_2#105 | II | pos | pos | neg | neg | neg | neg | pos | neg | pos | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | pos | neg | neg
 
@@ -153,16 +153,16 @@ This will create two tab-delimited files in the 'results' directory
 1. **\<output_file_prefix\>_surface_protein_incidence.txt**
 This shows the incidence of different surface protein alleles in the Strep B sample(s), e.g.
 
-Sample_id | ALP1 | ALP23 | ALPHA | HVGA | PI1 | PI2A1 | PI2A2 | PI2B | RIB | SRR1 | SRR2
+Sample_id | alp1 | alp2/3 | alpha | hvgA | PI1 | PI2A1 | PI2A2 | PI2B | rib | srr1 | srr2
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
 26189_8#338 | neg | pos | neg | neg | pos | pos | neg | neg | neg | pos | neg
 
 2. **\<output_file_prefix\>_surface_protein_variants.txt**
 This shows all the surface proteins in the Strep B sample(s), e.g.
 
-Sample_id | ALPH | HVGA | PILI | SRR
+Sample_id | ALPH | hvgA | PILI | SRR
 :---: | :---: | :---: | :---: | :---:
-26189_8#338 | ALP23 | neg | PI1:PI2A1 | SRR1
+26189_8#338 | alp2/3 | neg | PI1:PI2A1 | srr1
 
 <a name="pbp"></a>
 ### PBP (Penicillin-binding protein) Typing Output

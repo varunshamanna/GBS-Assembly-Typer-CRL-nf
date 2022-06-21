@@ -691,7 +691,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         update_GBS_Res_var('GYRA', [], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
             'PARC_SNP':'Q18S',
-            'GYRA_SNP': '',
+            'GYRA_SNP': '*',
             '23S1_SNP': '',
             '23S3_SNP': '',
             'RPOBGBS-1_SNP': '',
@@ -704,7 +704,7 @@ class TestProcessResTyperResults(unittest.TestCase):
         update_GBS_Res_var('23S1', ['G1A', 'G34T'], GBS_Res_var)
         self.assertEqual(GBS_Res_var, {
             'PARC_SNP':'Q18S',
-            'GYRA_SNP': '',
+            'GYRA_SNP': '*',
             '23S1_SNP': 'G1A,G34T',
             '23S3_SNP': '',
             'RPOBGBS-1_SNP': '',
@@ -867,8 +867,8 @@ class TestProcessResTyperResults(unittest.TestCase):
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_gbs_variants.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "23S1_SNP\t23S3_SNP\tGYRA_SNP\tPARC_SNP\tRPOBGBS-1_SNP\tRPOBGBS-2_SNP\tRPOBGBS-3_SNP\tRPOBGBS-4_SNP\n\t\t\t\t\t\t\t\n")
+        self.assertEqual(actual, "23S1_SNP\t23S3_SNP\tGYRA_SNP\tPARC_SNP\tRPOBGBS-1_SNP\tRPOBGBS-2_SNP\tRPOBGBS-3_SNP\tRPOBGBS-4_SNP\n*\t*\t\t\t\t\t\t\n")
 
         f = open(self.TEST_OUTPUT_PREFIX + '_res_incidence.txt', "r")
         actual = "".join(f.readlines())
-        self.assertEqual(actual, "23S1\t23S3\tAAC6APH2\tAADECC\tANT6\tAPH3III\tAPH3OTHER\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tLSAE\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETO32O\tTETOW\tTETOW32O\tTETOW32OWO\tTETOWO\tTETS\tTETSM\tTETW32O\npos\tpos\tpos\tpos\tneg\tpos\tpos\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\n")
+        self.assertEqual(actual, "23S1\t23S3\tAAC6APH2\tAADECC\tANT6IA\tAPH3III\tAPH3OTHER\tCATPC194\tCATQ\tERMA\tERMB\tERMT\tFOSA\tGYRA\tLNUB\tLNUC\tLSAC\tLSAE\tMEFA\tMPHC\tMSRA\tMSRD\tPARC\tRPOBGBS-1\tRPOBGBS-2\tRPOBGBS-3\tRPOBGBS-4\tSUL2\tTETB\tTETL\tTETM\tTETO\tTETO32O\tTETOW\tTETOW32O\tTETOW32OWO\tTETOWO\tTETS\tTETSM\tTETW32O\npos\tpos\tpos\tpos\tneg\tpos\tpos\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tpos\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\tneg\n")
