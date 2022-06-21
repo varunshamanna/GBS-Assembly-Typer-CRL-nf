@@ -18,7 +18,9 @@ echo "Starting regression tests..."
 echo ""
 
 # Run pipeline on test input data
-${SUDO_OPT}nextflow -log nextflow_test.log run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$out_dir" --run_surfacetyper --run_pbptyper --run_mlst --contigs "$in_dir/test.fa" --output 'test'
+output=test
+rm $out_dir/${output}*
+${SUDO_OPT}nextflow -log nextflow_test.log run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$out_dir" --run_surfacetyper --run_pbptyper --run_mlst --contigs "$in_dir/test.fa" --output "$output" -resume
 cat nextflow_test.log
 echo ""
 

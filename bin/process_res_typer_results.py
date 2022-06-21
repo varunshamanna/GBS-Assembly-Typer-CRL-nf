@@ -31,7 +31,7 @@ drugRes_Col = {
 geneToClass = {
     'AAC6APH2': 'AG',
     'AADECC': 'AG',
-    'ANT6': 'AG',
+    'ANT6IA': 'AG',
     'APH3III': 'AG',
     'APH3OTHER': 'AG',
     'CATPC194': 'OTHER',
@@ -75,7 +75,7 @@ geneToClass = {
 Res_Targets = {
     'AAC6APH2': 'neg',
     'AADECC': 'neg',
-    'ANT6': 'neg',
+    'ANT6IA': 'neg',
     'APH3III': 'neg',
     'APH3OTHER': 'neg',
     'CATPC194': 'neg',
@@ -264,7 +264,7 @@ def update_GBS_Res_var(gene_name, seq_diffs, bin_res_arr):
     if seq_diffs:
         bin_res_arr[gene_name + '_SNP'] = ','.join(seq_diffs)
     else:
-        bin_res_arr[gene_name + '_SNP'] = ''
+        bin_res_arr[gene_name + '_SNP'] = '*'
 
 
 def update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, geneToClass):
