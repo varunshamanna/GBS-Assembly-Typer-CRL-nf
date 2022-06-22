@@ -6,7 +6,7 @@ from bin.process_res_typer_results import get_arguments, codon2aa, derive_presen
     derive_presence_absence_targets_for_arg_res, six_frame_translate, find_mismatches, update_presence_absence_target, \
     update_presence_absence_target_for_arg_res, drugRes_Col, get_seq_diffs, update_GBS_Res_var, update_drug_res_col_dict, \
     get_gene_names_from_consensus, get_variants, run, main, get_seq_content, \
-    geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, GBS_Res_Targets, clear_arg_res
+    geneToRef, GBS_Res_var, Res_Targets, geneToClass, extract_frame_aa, EOL_SEP, GBS_Res_Targets, clear_arg_res, snpOffset
 
 MIN_DEPTH = 30
 
@@ -610,42 +610,42 @@ class TestProcessResTyperResults(unittest.TestCase):
         mock.assert_has_calls(calls, any_order=False)
 
     def test_find_amino_acid_mismatches(self):
-        actual = find_mismatches([], 'HPHGDSSIYDAMVRMSS', geneToRef['PARC'])
-        self.assertEqual(actual, ['Q17S'])
+        actual = find_mismatches([], 'HPHGDSSIYDAMVRMSS', geneToRef['PARC'], snpOffset['PARC'])
+        self.assertEqual(actual, ['Q90S'])
 
-        actual = find_mismatches([], 'HHHGDSSIYDAMVRMSS', geneToRef['PARC'])
-        self.assertEqual(actual, ['P2H', 'Q17S'])
+        actual = find_mismatches([], 'HHHGDSSIYDAMVRMSS', geneToRef['PARC'], snpOffset['PARC'])
+        self.assertEqual(actual, ['P75H', 'Q90S'])
 
-        actual = find_mismatches([], 'MMGKYHPHGDSSIYEAMVRMAQWW', geneToRef['GYRA'])
-        self.assertEqual(actual, ['V1M'])
+        actual = find_mismatches([], 'MMGKYHPHGDSSIYEAMVRMAQWW', geneToRef['GYRA'], snpOffset['GYRA'])
+        self.assertEqual(actual, ['V71M'])
 
-        actual = find_mismatches([], 'GGSSQLSQFMDQHNPLSELSHKRRLSALGPGGL', geneToRef['RPOBGBS-1'])
+        actual = find_mismatches([], 'GGSSQLSQFMDQHNPLSELSHKRRLSALGPGGL', geneToRef['RPOBGBS-1'], snpOffset['RPOBGBS-1'])
         self.assertEqual(actual, ['F1G'])
 
-        actual = find_mismatches([], 'SSQLVRSPGV', geneToRef['RPOBGBS-2'])
+        actual = find_mismatches([], 'SSQLVRSPGV', geneToRef['RPOBGBS-2'], snpOffset['RPOBGBS-2'])
         self.assertEqual(actual, ['V1S'])
 
-        actual = find_mismatches([], 'TTVAQANSKLNEDGTFAEEIVMGRHQGNNQEFPSSI', geneToRef['RPOBGBS-3'])
+        actual = find_mismatches([], 'TTVAQANSKLNEDGTFAEEIVMGRHQGNNQEFPSSI', geneToRef['RPOBGBS-3'], snpOffset['RPOBGBS-3'])
         self.assertEqual(actual, ['F1T'])
 
-        actual = find_mismatches([], 'IIDPKAPYVGT', geneToRef['RPOBGBS-4'])
+        actual = find_mismatches([], 'IIDPKAPYVGT', geneToRef['RPOBGBS-4'], snpOffset['RPOBGBS-4'])
         self.assertEqual(actual, ['L1I'])
 
     def test_find_nucleotide_mismatches(self):
-        actual = find_mismatches([], 'ATTACCCGCGACAGGACGGAAAGACCCCATGGAG', geneToRef['23S1'])
+        actual = find_mismatches([], 'ATTACCCGCGACAGGACGGAAAGACCCCATGGAG', geneToRef['23S1'], snpOffset['23S1'])
         self.assertEqual(actual, ['G1A'])
 
-        actual = find_mismatches([], 'ATTACCCGCGACAGGACGGAAAGACCCCATGGAT', geneToRef['23S1'])
+        actual = find_mismatches([], 'ATTACCCGCGACAGGACGGAAAGACCCCATGGAT', geneToRef['23S1'], snpOffset['23S1'])
         self.assertEqual(actual, ['G1A', 'G34T'])
 
-        actual = find_mismatches([], 'GGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG', geneToRef['23S3'])
+        actual = find_mismatches([], 'GGGCACGCGAGCTGGGTTCAGAACGTCGTGAGACAGTTCGGTCCCTATCCGTCGCGGGCG', geneToRef['23S3'], snpOffset['23S3'])
         self.assertEqual(actual, ['C1G'])
 
     @patch('bin.process_res_typer_results.six_frame_translate')
     def test_get_seq_diffs(self, mock_six_frame_translate):
         mock_six_frame_translate.return_value = 'HPHGDSSIYDAMVRMSQ'
 
-        get_seq_diffs('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', geneToRef['PARC'])
+        get_seq_diffs('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', geneToRef['PARC'], snpOffset['PARC'])
 
         self.assertEqual(mock_six_frame_translate.call_args_list, [call('CATCCTCATGGGGATTCCTCTATCTATGACGCGATGGTTCGTATGTCTCAA', 1)])
 

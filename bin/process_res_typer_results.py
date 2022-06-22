@@ -157,6 +157,12 @@ geneToTargetSeq.update({
     'RPOBGBS-4': '19__RPOBgbs__RPOBgbs-4__19'
 })
 
+snpOffset = defaultdict(lambda: 0)
+snpOffset.update({
+    "GYRA": 70,
+    "PARC": 73
+})
+
 EOL_SEP = "\n"
 
 
@@ -241,21 +247,21 @@ def derive_presence_absence_targets_for_arg_res(input_files, drugRes_Col, Res_Ta
             clear_arg_res(Res_Targets)
 
 
-def find_mismatches(seq_diffs, query_Seq, ref_Seq):
+def find_mismatches(seq_diffs, query_Seq, ref_Seq, snp_Offset):
     """Find mismatches between query and reference sequences"""
     for resi in range(len(query_Seq)):
         if query_Seq[resi] != ref_Seq[resi]:
-            seq_diffs.append(ref_Seq[resi] + str(resi+1) + query_Seq[resi])
+            seq_diffs.append(ref_Seq[resi] + str(resi+1+snp_Offset) + query_Seq[resi])
     return seq_diffs
 
 
-def get_seq_diffs(query_Seq, ref_Seq):
+def get_seq_diffs(query_Seq, ref_Seq, snp_Offset):
     """Get SNP variants"""
     if type(ref_Seq) == aSeq:
         query_Seq = six_frame_translate(query_Seq, 1)
     seq_diffs = []
     if query_Seq != ref_Seq:
-        seq_diffs = find_mismatches(seq_diffs, query_Seq, ref_Seq)
+        seq_diffs = find_mismatches(seq_diffs, query_Seq, ref_Seq, snp_Offset)
     return seq_diffs
 
 
@@ -296,7 +302,7 @@ def get_variants(consensus_seqs):
     gene_names = get_gene_names_from_consensus(consensus_seq_dict)
     for gene_name in gene_names:
         if GBS_Res_Targets[gene_name] == "pos" and geneToTargetSeq[gene_name] and geneToRef[gene_name]:
-            seq_diffs = get_seq_diffs(consensus_seq_dict[geneToTargetSeq[gene_name]], geneToRef[gene_name])
+            seq_diffs = get_seq_diffs(consensus_seq_dict[geneToTargetSeq[gene_name]], geneToRef[gene_name], snpOffset[gene_name])
             update_GBS_Res_var(gene_name, seq_diffs, GBS_Res_var)
             update_drug_res_col_dict(gene_name, seq_diffs, drugRes_Col, geneToClass)
 
