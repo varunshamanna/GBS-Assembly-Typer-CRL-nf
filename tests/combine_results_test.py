@@ -41,6 +41,7 @@ class TestCombineResults(unittest.TestCase):
             'tkt': {0: np.nan},
             "AAC6APH2": {0: np.nan},
             'ANT6IA': {0: np.nan},
+            "ANT6IA3KF864551": {0: np.nan},
             "APH3III": {0: np.nan},
             'CATPC194': {0: np.nan},
             'CATQ': {0: np.nan},
@@ -65,6 +66,7 @@ class TestCombineResults(unittest.TestCase):
             "TETS": {0: np.nan},
             "TETSM": {0: np.nan},
             "TETW32O": {0: np.nan},
+            "TETW4FN396364": {0: np.nan},
             'ALP1': {0: np.nan},
             'ALP23': {0: np.nan},
             'ALPHA': {0: np.nan},
@@ -112,6 +114,7 @@ class TestCombineResults(unittest.TestCase):
             "Serotype": {0: 'III'},
             "AAC6APH2": {0: 'pos'},
             "ANT6IA": {0: 'neg'},
+            'ANT6IA3KF864551': {0: 'neg'},
             "APH3III": {0: 'pos'},
             'CATPC194': {0: 'pos'},
             "CATQ": {0: 'neg'},
@@ -135,7 +138,8 @@ class TestCombineResults(unittest.TestCase):
             "TETOWO": {0: 'neg'},
             "TETS": {0: 'neg'},
             "TETSM": {0: 'neg'},
-            "TETW32O": {0: 'neg'}
+            "TETW32O": {0: 'neg'},
+            "TETW4FN396364": {0: 'neg'}
             })
 
     def test_create_df_for_all_content(self):
@@ -143,7 +147,7 @@ class TestCombineResults(unittest.TestCase):
         df_combine_all = df_combine_all.replace(to_replace=['+', '-'], value=['pos', 'neg'])
         df_combine_all = rename_columns(df_combine_all, self.header_dict["combine_all"], self.id_df)
         self.maxDiff = None
-        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetO32O', 'tetOW32OWO', 'tetOW32O', 'tetOWO', 'tetOW', 'tetO', 'tetSM', 'tetS', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
+        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS', 'tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO', 'tetOWO', 'tetSM', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
 
     def test_create_df_for_empty_file(self):
         actual = create_df(self.header_dict["surface_inc"], self.id_df, [self.TEST_DATA_EMPTY_SURFACE_TYPER])
@@ -178,7 +182,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetO32O', 'tetOW32OWO', 'tetOW32O', 'tetOWO', 'tetOW', 'tetO', 'tetSM', 'tetS', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS', 'tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO', 'tetOWO', 'tetSM', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
         os.remove(self.TEST_OUTPUT)
 
     def test_write_pandas_output_for_all_content_and_empty_surface_protein_file(self):
@@ -188,7 +192,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetO32O','tetOW32OWO','tetOW32O','tetOWO','tetOW','tetO','tetSM','tetS','tetW32O','alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS','tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO','tetOWO','tetSM','tetW32O','alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
         os.remove(self.TEST_OUTPUT)
 
     @patch('bin.combine_results.get_arguments')
