@@ -31,6 +31,7 @@ drugRes_Col = {
 geneToClass = {
     'AAC6APH2': 'AG',
     'AADECC': 'AG',
+    'ANT6IA3KF864551': 'AG',
     'ANT6IA': 'AG',
     'APH3III': 'AG',
     'APH3OTHER': 'AG',
@@ -60,6 +61,7 @@ geneToClass = {
     'TETSM': 'TET',
     'TETS': 'TET',
     'TETW32O': 'TET',
+    'TETW4FN396364': 'TET',
     'SUL2': 'OTHER',
     'PARC': 'FQ',
     'GYRA': 'FQ',
@@ -75,6 +77,7 @@ geneToClass = {
 Res_Targets = {
     'AAC6APH2': 'neg',
     'AADECC': 'neg',
+    'ANT6IA3KF864551': 'neg',
     'ANT6IA': 'neg',
     'APH3III': 'neg',
     'APH3OTHER': 'neg',
@@ -104,7 +107,8 @@ Res_Targets = {
     'TETO': 'neg',
     'TETSM': 'neg',
     'TETS': 'neg',
-    'TETW32O': 'neg'
+    'TETW32O': 'neg',
+    'TETW4FN396364': 'neg'
 }
 
 # GBS Resistance Targets dictionary
