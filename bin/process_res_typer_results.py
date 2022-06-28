@@ -360,7 +360,8 @@ def run(args):
             content = f'{content}{id}\t{row_name}\t{key}\n'
 
     try:
-        with open(args.output + "_res_alleles_accessions.txt", 'w') as out:
+        output_filename = args.output + "_res_alleles_accessions.txt"
+        with open(output_filename, 'w') as out:
             out.write(content)
     except IOError:
         print('Cannot open filename starting "{}"'.format(output_filename))
