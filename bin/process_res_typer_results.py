@@ -5,6 +5,8 @@ import os
 import re
 import glob
 import subprocess
+import json
+import pandas as pd
 from collections import defaultdict
 from lib.six_frame_translation import six_frame_translate, extract_frame_aa, codon2aa
 from lib.file_io import get_seq_content
@@ -167,7 +169,18 @@ snpOffset.update({
     "PARC": 73
 })
 
+geneAlleleDict = defaultdict(lambda: [])
+
 EOL_SEP = "\n"
+
+
+def read_header_json(header_file):
+    with open(header_file, 'r') as file:
+        header_json = file.read()
+
+    header_dict = json.loads(header_json)
+
+    return header_dict
 
 
 def update_presence_absence_target(gene, allele, depth, gbs_res_target_dict):
@@ -198,7 +211,7 @@ def derive_presence_absence_targets(input_file, GBS_Res_Targets):
         print('Cannot open {}.'.format(input_file))
 
 
-def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict):
+def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col_dict, res_target_dict, gene_allele_dict):
     """Update presence/absence for Other Resistance Targets dictionary"""
     if depth >= MIN_DEPTH:
 
@@ -206,6 +219,9 @@ def update_presence_absence_target_for_arg_res(gene, allele, depth, drug_res_col
         for gene_name in res_target_dict.keys():
             if re.search(gene_name, "".join(re.split("[^a-zA-Z0-9]*", allele)).upper()):
                 other = 0
+
+                if allele not in gene_allele_dict.keys():
+                    gene_allele_dict[allele] = gene_name
 
                 if res_target_dict[gene_name] == "neg":
                     res_target_dict[gene_name] = "pos"
@@ -244,7 +260,7 @@ def derive_presence_absence_targets_for_arg_res(input_files, drugRes_Col, Res_Ta
                         gene = fields[2]
                         allele = fields[3]
                         depth = float(fields[5])
-                        update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets)
+                        update_presence_absence_target_for_arg_res(gene, allele, depth, drugRes_Col, Res_Targets, geneAlleleDict)
             except IOError:
                 print('Cannot open {}.'.format(input_file))
         else:
@@ -333,6 +349,23 @@ def run(args):
     # Get alleles for all drug classes
     allele_out = FileUtils.create_output_contents(drugRes_Col)
 
+    # Write allele accessions/gene contents
+    header_dict = read_header_json(args.headers)
+    content = ""
+    id = args.output.split('/')[len(args.output.split('/'))-1]
+    for key, value in geneAlleleDict.items():
+        if value in header_dict["combine_all"]:
+            print(value)
+            row_name = header_dict["combine_all"][value]
+            content = f'{content}{id}\t{row_name}\t{key}\n'
+
+    try:
+        with open(args.output + "_res_alleles_accessions.txt", 'w') as out:
+            out.write(content)
+    except IOError:
+        print('Cannot open filename starting "{}"'.format(output_filename))
+        raise
+
     # Write incidence output
     FileUtils.write_output(inc_out, args.output + '_res_incidence.txt')
     # Write gbs variant output
@@ -352,6 +385,8 @@ def get_arguments():
                         nargs = '*')
     parser.add_argument('--min_read_depth', dest='min_depth', required=True, type=float, default=30,
                         help = 'Minimum read depth where mappings with fewer reads are excluded. Default: 30.')
+    parser.add_argument('--headers', dest='headers', required=True,
+                        help='JSON file of expected headers.')
     parser.add_argument('--output_prefix', dest='output', required=True,
                         help='Output prefix of filename.')
 

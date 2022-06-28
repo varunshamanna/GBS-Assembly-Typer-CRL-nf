@@ -1,0 +1,6 @@
+output	tetM	tet(M)_12
+output	tetM	tet(M)_4
+output	tetM	tet(M)_10
+output	aac(6')-aph(2'')	aac(6')-aph(2'')_1
+output	cat(pc194)	cat(pC194)_1
+output	aph(3'-III)	aph(3')-IIIa_1
