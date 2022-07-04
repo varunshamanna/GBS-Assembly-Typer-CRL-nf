@@ -8,6 +8,6 @@ work
 .DS_Store
 tmp
 data
-test_data/output/*.txt
+tests/test_data/output/*.txt
 regression_test_data/output_data/test_*
 **/__pycache__

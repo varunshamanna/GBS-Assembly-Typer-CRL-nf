@@ -5,9 +5,9 @@ from unittest.mock import patch, call, ANY
 from bin.get_pbp_genes_from_contigs import BlastData, SeqData, FragmentData, get_arguments, check_arguments, main
 
 class TestGetPBPGenesFromContigs(unittest.TestCase):
-    TEST_BLAST_DATA = 'test_data/input/test_blast_blactam.out'
-    TEST_SEQ_DATA = 'test_data/input/test_GBS_bLactam_Ref.fasta'
-    TEST_OUTPUT_PREFIX = 'test_data/output/TEST_'
+    TEST_BLAST_DATA = 'tests/test_data/input/test_blast_blactam.out'
+    TEST_SEQ_DATA = 'tests/test_data/input/test_GBS_bLactam_Ref.fasta'
+    TEST_OUTPUT_PREFIX = 'tests/test_data/output/TEST_'
 
 
     def test_read_blast_out(self):
@@ -72,8 +72,8 @@ class TestGetPBPGenesFromContigs(unittest.TestCase):
             ('GBS2X-1', ['.26077_6_118.11\t51259\t52297\treverse\t1\t-\n'])
         ]
         for param in params_list:
-            fragment_data_location = 'test_data/output/' + param[0] + '.bed'
-            fragment_data.write_start_end_positions('test_data/output/')
+            fragment_data_location = 'tests/test_data/output/' + param[0] + '.bed'
+            fragment_data.write_start_end_positions('tests/test_data/output/')
             fo = open(fragment_data_location, 'r')
 
             self.assertEqual(fo.readlines(), param[1])
@@ -161,6 +161,6 @@ class TestGetPBPGenesFromContigs(unittest.TestCase):
 
         main()
 
-        fo = open('test_data/output/TEST_GBS1A-1.bed', 'r')
+        fo = open('tests/test_data/output/TEST_GBS1A-1.bed', 'r')
         
         self.assertEqual(fo.readlines(), ['.26077_6_118.11\t39458\t40418\tforward\t1\t+\n'])

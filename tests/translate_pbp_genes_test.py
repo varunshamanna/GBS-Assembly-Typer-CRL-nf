@@ -5,9 +5,9 @@ from unittest.mock import patch, call, ANY
 from bin.translate_pbp_genes import SeqData, get_arguments, write_seq_dict, main
 
 class TestTranslatePBPGenes(unittest.TestCase):
-    TEST_SEQ_DATA = 'test_data/input/test_blactam_contig_fragments.fasta'
-    TEST_OUTPUT = 'test_data/output/GBS1A-1.faa'
-    TEST_OUTPUT_MAIN = 'test_data/output/GBS1A-1_main.faa'
+    TEST_SEQ_DATA = 'tests/test_data/input/test_blactam_contig_fragments.fasta'
+    TEST_OUTPUT = 'tests/test_data/output/GBS1A-1.faa'
+    TEST_OUTPUT_MAIN = 'tests/test_data/output/GBS1A-1_main.faa'
 
 
     def test_read_seq_data(self):

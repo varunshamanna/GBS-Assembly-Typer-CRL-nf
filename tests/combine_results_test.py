@@ -12,15 +12,15 @@ class TestCombineResults(unittest.TestCase):
 
     TEST_LANE = '25292_2#85'
     TEST_HEADERS_FILE = 'headers.json'
-    TEST_DATA_SEROTYPE = 'test_data/input/' + TEST_LANE + '_SeroType_Results.txt'
-    TEST_DATA_RES_INCIDENCE = 'test_data/input/' + TEST_LANE + '_res_incidence.txt'
-    TEST_DATA_RES_ALLELES = 'test_data/input/' + TEST_LANE + '_res_alleles.txt'
-    TEST_DATA_RES_VARIANTS = 'test_data/input/' + TEST_LANE + '_res_gbs_variants.txt'
-    TEST_DATA_PBP_ALLELE = 'test_data/input/' + TEST_LANE + '_GBS1A-1_PBP_existing_allele.txt'
-    TEST_DATA_SURFACE_TYPER = 'test_data/input/' + TEST_LANE + '_surface_protein_incidence_sample.txt'
-    TEST_DATA_EMPTY_SURFACE_TYPER = 'test_data/input/empty_surface_protein_incidence_sample.txt'
-    TEST_DATA_MLST_ALLELIC_FREQUENCY = 'test_data/input/' + TEST_LANE + '__mlst__Streptococcus_agalactiae_MLST_alleles__results.txt'
-    TEST_OUTPUT = "test_data/output/" + TEST_LANE + "_output.txt"
+    TEST_DATA_SEROTYPE = 'tests/test_data/input/' + TEST_LANE + '_SeroType_Results.txt'
+    TEST_DATA_RES_INCIDENCE = 'tests/test_data/input/' + TEST_LANE + '_res_incidence.txt'
+    TEST_DATA_RES_ALLELES = 'tests/test_data/input/' + TEST_LANE + '_res_alleles.txt'
+    TEST_DATA_RES_VARIANTS = 'tests/test_data/input/' + TEST_LANE + '_res_gbs_variants.txt'
+    TEST_DATA_PBP_ALLELE = 'tests/test_data/input/' + TEST_LANE + '_GBS1A-1_PBP_existing_allele.txt'
+    TEST_DATA_SURFACE_TYPER = 'tests/test_data/input/' + TEST_LANE + '_surface_protein_incidence_sample.txt'
+    TEST_DATA_EMPTY_SURFACE_TYPER = 'tests/test_data/input/empty_surface_protein_incidence_sample.txt'
+    TEST_DATA_MLST_ALLELIC_FREQUENCY = 'tests/test_data/input/' + TEST_LANE + '__mlst__Streptococcus_agalactiae_MLST_alleles__results.txt'
+    TEST_OUTPUT = "tests/test_data/output/" + TEST_LANE + "_output.txt"
 
     header_dict = read_header_json(TEST_HEADERS_FILE)
     id_df = pd.DataFrame(TEST_LANE, columns=header_dict["id"], index = [0])

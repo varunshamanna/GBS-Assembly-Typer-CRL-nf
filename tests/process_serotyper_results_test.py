@@ -9,9 +9,9 @@ from bin.process_serotyper_results import write_outfile, make_gene_list, get_arg
 
 class TestProcessResults(unittest.TestCase):
 
-    TEST_SEROTYPE_FULLGENES = 'test_data/input/SERO_26237_7#5__fullgenes__GBS_seroT_Gene-DB_Final__results.txt'
-    TEST_SEROTYPE_FULLGENES_MULTI = 'test_data/input/SERO_26237_7#5__fullgenes__GBS_seroT_Gene-DB_Final__results_multi.txt'
-    TEST_OUTPUT = 'test_data/output/test_sero_process_results.txt'
+    TEST_SEROTYPE_FULLGENES = 'tests/test_data/input/SERO_26237_7#5__fullgenes__GBS_seroT_Gene-DB_Final__results.txt'
+    TEST_SEROTYPE_FULLGENES_MULTI = 'tests/test_data/input/SERO_26237_7#5__fullgenes__GBS_seroT_Gene-DB_Final__results_multi.txt'
+    TEST_OUTPUT = 'tests/test_data/output/test_sero_process_results.txt'
 
     def test_should_make_gene_list(self):
         actual = make_gene_list(self.TEST_SEROTYPE_FULLGENES, 10)

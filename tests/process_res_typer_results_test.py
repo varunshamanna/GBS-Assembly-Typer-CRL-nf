@@ -15,13 +15,13 @@ MIN_DEPTH = 30
 class TestProcessResTyperResults(unittest.TestCase):
 
     TEST_LANE = "26189_8#5"
-    TEST_GBS_FULLGENES_RESULTS_FILE = "test_data/input/RES_" + TEST_LANE + "__fullgenes__GBS_Res_Gene-DB_Final__results.txt"
-    TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "test_data/input/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
-    TEST_RESFINDER_FULLGENES_RESULTS_FILE = "test_data/input/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
-    TEST_FASTA_FILE = "test_data/input/test-db.fasta"
-    TEST_CONSENSUS_SEQ_FILE = "test_data/input/" + TEST_LANE + "_consensus_seq.fna"
-    TEST_OUTPUT = "test_data/output/" + TEST_LANE + "_output.txt"
-    TEST_OUTPUT_PREFIX = "test_data/output/" + TEST_LANE
+    TEST_GBS_FULLGENES_RESULTS_FILE = "tests/test_data/input/RES_" + TEST_LANE + "__fullgenes__GBS_Res_Gene-DB_Final__results.txt"
+    TEST_ARGANNOT_FULLGENES_RESULTS_FILE = "tests/test_data/input/ARG_" + TEST_LANE + "__fullgenes__ARG-ANNOT__results.txt"
+    TEST_RESFINDER_FULLGENES_RESULTS_FILE = "tests/test_data/input/RESFI_" + TEST_LANE + "__fullgenes__ResFinder__results.txt"
+    TEST_FASTA_FILE = "tests/test_data/input/test-db.fasta"
+    TEST_CONSENSUS_SEQ_FILE = "tests/test_data/input/" + TEST_LANE + "_consensus_seq.fna"
+    TEST_OUTPUT = "tests/test_data/output/" + TEST_LANE + "_output.txt"
+    TEST_OUTPUT_PREFIX = "tests/test_data/output/" + TEST_LANE
     TEST_HEADERS = "headers.json"
 
     def test_codon2aa(self):
