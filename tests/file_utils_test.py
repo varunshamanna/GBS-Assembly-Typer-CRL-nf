@@ -8,7 +8,7 @@ class TestFileUtils(unittest.TestCase):
     """Unit test class for the file_utils module"""
 
     TEST_LANE = "26189_8#5"
-    TEST_OUTPUT = "test_data/" + TEST_LANE + "_output.txt"
+    TEST_OUTPUT = "tests/test_data/output" + TEST_LANE + "_output.txt"
 
     def test_write_output(self):
         FileUtils.write_output('foobar', self.TEST_OUTPUT)

@@ -8,7 +8,7 @@ from bin.process_surface_typer_results import get_arguments, run,  \
 class TestProcessSurfaceTyperResults(unittest.TestCase):
     TEST_LANE = "26189_8#338"
     TEST_GBS_FULLGENES_RESULTS_FILE = \
-        "test_data/input/" + TEST_LANE + "_SURFACE__fullgenes__GBS_Surface_Gene-DB_Final__results.txt"
+        "tests/test_data/input/" + TEST_LANE + "_SURFACE__fullgenes__GBS_Surface_Gene-DB_Final__results.txt"
 
     MIN_DEPTH = 30
 

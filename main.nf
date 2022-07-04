@@ -118,6 +118,7 @@ results_dir.mkdir()
 params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
 params.variants_out =  "${params.output}_gbs_res_variants.txt"
 params.alleles_variants_out = "${params.output}_drug_cat_alleles_variants.txt"
+params.res_accessions_out = "${params.output}_resfinder_accessions.txt"
 params.existing_pbp_alleles_out = "${params.output}_existing_pbp_alleles.txt"
 params.surface_protein_incidence_out = "${params.output}_surface_protein_incidence.txt"
 params.surface_protein_variants_out = "${params.output}_surface_protein_variants.txt"
@@ -292,10 +293,10 @@ workflow {
             .join(OTHER_RES.out.fullgenes)
             .set { res_files_ch }
 
-            res_typer(res_files_ch, params.restyper_min_read_depth)
+            res_typer(res_files_ch, params.restyper_min_read_depth, file(params.config, checkIfExists: true))
 
             // Combine serotype and resistance type results for each sample
-            sero_res_ch = serotyping.out.join(res_typer.out)
+            sero_res_ch = serotyping.out.join(res_typer.out.res_out)
 
             finalise_sero_res_results(sero_res_ch, file(params.config, checkIfExists: true))
 
@@ -309,6 +310,8 @@ workflow {
             finalise_sero_res_results.out.res_variants
                 .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
 
+            res_typer.out.res_accessions
+                .collectFile(name: file("${results_dir}/${params.res_accessions_out}"))
         }
 
         // MLST
@@ -379,7 +382,7 @@ workflow {
 
             // Combine serotype and resistance type results for each sample
             combined_ch = serotyping.out
-                .join(res_typer.out)
+                .join(res_typer.out.res_out)
                 .join(surface_typer.out)
                 .join(MLST.out.srst2_results)
 

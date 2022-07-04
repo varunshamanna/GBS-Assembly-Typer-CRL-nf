@@ -5,10 +5,10 @@ from unittest.mock import patch, call, ANY
 from bin.get_pbp_alleles import BlastData, SeqData, get_identical_allele, get_imperfect_allele, write_content, get_arguments, main
 
 class TestGetPBPAlleles(unittest.TestCase):
-    TEST_BLAST_DATA = 'test_data/input/test_blast_PBP_alleles.out'
-    TEST_BLAST_IMPERFECT_DATA = 'test_data/input/test_blast_imperfect_PBP_alleles.out'
-    TEST_SEQ_DATA = 'test_data/input/test_GBS1A-1.faa'
-    TEST_OUTPUT_PREFIX = 'test_data/output/GBS1A-1'
+    TEST_BLAST_DATA = 'tests/test_data/input/test_blast_PBP_alleles.out'
+    TEST_BLAST_IMPERFECT_DATA = 'tests/test_data/input/test_blast_imperfect_PBP_alleles.out'
+    TEST_SEQ_DATA = 'tests/test_data/input/test_GBS1A-1.faa'
+    TEST_OUTPUT_PREFIX = 'tests/test_data/output/GBS1A-1'
     TEST_OUTPUT_IDENTICAL_ALLELES = TEST_OUTPUT_PREFIX + '_existing_allele.txt'
     TEST_OUTPUT_NEW_ALLELES = TEST_OUTPUT_PREFIX + '_new_allele.faa'
 
