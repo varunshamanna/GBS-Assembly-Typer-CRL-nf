@@ -1,6 +1,6 @@
 # Runs build related tasks.
 
-name: build
+name: test
 
 on:
   push:
