@@ -139,6 +139,8 @@ def get_arguments():
                         help='Input SRST2 results file of MLST allelic frequency.')
     subparser_combine_all.add_argument('--surface_incidence_results', '-x', dest='surface_inc', required=True,
                         help='Input surface typing incidence results file.')
+    subparser_combine_all.add_argument('--version', '-n', dest='version', required=True,
+                        help='Input file with version of pipeline.')
     subparser_combine_all.add_argument('--output', '-o', dest='output', required=True,
                         help='Output prefix.')
     subparser_combine_all.set_defaults(which='combine_all')
@@ -185,7 +187,7 @@ def main():
 
     elif args.which == "combine_all":
         # Combine ID, serotyping and resistance typing incidence, resistance typing variants, MLST type and allelic frequency, surface protein incidence
-        df_combine_all = create_df(list(header_dict["combine_all"].keys()), id_df, [args.sero, args.inc, args.variants, args.mlst, args.surface_inc])
+        df_combine_all = create_df(list(header_dict["combine_all"].keys()), id_df, [args.sero, args.inc, args.variants, args.mlst, args.surface_inc, args.version])
         df_combine_all = rename_columns(df_combine_all, header_dict["combine_all"], id_df)
         FileUtils.write_pandas_output(df_combine_all, args.output + '_id_combined_output.txt')
 
