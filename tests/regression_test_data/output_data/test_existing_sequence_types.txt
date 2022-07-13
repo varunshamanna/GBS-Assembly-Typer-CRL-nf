@@ -1,2 +1,0 @@
-ID	ST
-test	ST-1

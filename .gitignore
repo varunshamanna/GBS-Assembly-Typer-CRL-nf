@@ -9,5 +9,5 @@ work
 tmp
 data
 tests/test_data/output/*.txt
-regression_test_data/output_data/test_*
+tests/regression_test_data/output_data/test_*
 **/__pycache__
