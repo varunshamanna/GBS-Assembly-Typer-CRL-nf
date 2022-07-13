@@ -15,6 +15,7 @@ include {surface_typer} from './modules/surface_typer.nf'
 include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
 include {get_pbp_genes; get_pbp_alleles} from './modules/pbp_typer.nf'
 include {finalise_sero_res_results; finalise_surface_typer_results; finalise_pbp_existing_allele_results; combine_results} from './modules/combine.nf'
+include {get_version} from './modules/version.nf'
 
 
 // Help message
@@ -380,13 +381,17 @@ workflow {
         // Combine serotype, resistance, allelic profile, surface typer and GBS resistance variants
         if (params.run_sero_res & params.run_surfacetyper & params.run_mlst){
 
+            // Get version of pipeline
+            get_version()
+            version_ch = get_version.out
+
             // Combine serotype and resistance type results for each sample
             combined_ch = serotyping.out
                 .join(res_typer.out.res_out)
                 .join(surface_typer.out)
                 .join(MLST.out.srst2_results)
 
-            combine_results(combined_ch, file(params.config, checkIfExists: true))
+            combine_results(combined_ch, file(params.config, checkIfExists: true), version_ch)
 
             combine_results.out
                 .collectFile(name: file("${results_dir}/${params.gbs_typer_report}"), keepHeader: true, sort: true)

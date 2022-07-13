@@ -81,7 +81,8 @@ class TestCombineResults(unittest.TestCase):
             "23S1_SNP": {0: np.nan},
             "23S3_SNP": {0: np.nan},
             'GYRA_SNP': {0: np.nan},
-            'PARC_SNP': {0: np.nan}
+            'PARC_SNP': {0: np.nan},
+            'version': {0: np.nan}
         }
         self.assertEqual(actual.to_dict(), expected)
 
@@ -147,7 +148,7 @@ class TestCombineResults(unittest.TestCase):
         df_combine_all = df_combine_all.replace(to_replace=['+', '-'], value=['pos', 'neg'])
         df_combine_all = rename_columns(df_combine_all, self.header_dict["combine_all"], self.id_df)
         self.maxDiff = None
-        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS', 'tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO', 'tetOWO', 'tetSM', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
+        self.assertEqual(list(df_combine_all.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS', 'tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO', 'tetOWO', 'tetSM', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP', 'version'])
 
     def test_create_df_for_empty_file(self):
         actual = create_df(self.header_dict["surface_inc"], self.id_df, [self.TEST_DATA_EMPTY_SURFACE_TYPER])
@@ -182,7 +183,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS', 'tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO', 'tetOWO', 'tetSM', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS', 'tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO', 'tetOWO', 'tetSM', 'tetW32O', 'alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP', 'version'])
         os.remove(self.TEST_OUTPUT)
 
     def test_write_pandas_output_for_all_content_and_empty_surface_protein_file(self):
@@ -192,7 +193,7 @@ class TestCombineResults(unittest.TestCase):
         FileUtils.write_pandas_output(df_combine_all, self.TEST_OUTPUT)
         actual = pd.read_csv(self.TEST_OUTPUT, sep="\t")
         self.maxDiff = None
-        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS','tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO','tetOWO','tetSM','tetW32O','alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP'])
+        self.assertEqual(list(actual.to_dict().keys()), ['Sample_id', 'cps_type', 'ST', 'adhP', 'pheS', 'atr', 'glnA', 'sdhA', 'glcK', 'tkt', "aac(6')-aph(2'')", 'ant(6-Ia)', "aph(3'-III)", 'aadE', 'cat(pc194)', 'catQ', 'ermA', 'ermB', 'ermT', 'lnuB', 'lnuC', 'lsaC', 'lsaE', 'mefA', 'msrD', 'tetB', 'tetL', 'tetM', 'tetW', 'tetO', 'tetS','tetO32O', 'tetOW', 'tetOW32O', 'tetOW32OWO','tetOWO','tetSM','tetW32O','alp1', 'alp2/3', 'alpha', 'hvgA', 'PI1', 'PI2A1', 'PI2A2', 'PI2B', 'rib', 'srr1', 'srr2', '23S1_SNP', '23S3_SNP', 'gyrA_SNP', 'parC_SNP', 'version'])
         os.remove(self.TEST_OUTPUT)
 
     @patch('bin.combine_results.get_arguments')
@@ -257,7 +258,7 @@ class TestCombineResults(unittest.TestCase):
         main()
 
         mock_create_df.assert_has_calls([
-            call(list(header_dict["combine_all"].keys()), ANY, [args.sero, args.inc, args.variants, args.mlst, args.surface_inc])], any_order=False)
+            call(list(header_dict["combine_all"].keys()), ANY, [args.sero, args.inc, args.variants, args.mlst, args.surface_inc, args.version])], any_order=False)
         mock_rename_columns.assert_has_calls([
             call('foobar1', header_dict['combine_all'], ANY)
         ])
@@ -317,6 +318,6 @@ class TestCombineResults(unittest.TestCase):
                          argparse.Namespace(which='pbp_typer', id='id', headers='header_file', pbp_allele='pbp_file', output='output_prefix'))
 
     def test_arguments_short_options_combine_all(self):
-        actual = get_arguments().parse_args(['combine_all', '-i', 'id', '-t', 'header_file', '-s', 'sero_file', '-r', 'res_file', '-v', 'variants_file', '-m', 'mlst_file', '-x', 'surface_typer_file', '-o', 'output_prefix'])
+        actual = get_arguments().parse_args(['combine_all', '-i', 'id', '-t', 'header_file', '-s', 'sero_file', '-r', 'res_file', '-v', 'variants_file', '-m', 'mlst_file', '-x', 'surface_typer_file', '-n', 'version', '-o', 'output_prefix'])
         self.assertEqual(actual,
-                         argparse.Namespace(which='combine_all', id='id', headers='header_file', sero='sero_file', inc='res_file', variants='variants_file', mlst='mlst_file', surface_inc='surface_typer_file', output='output_prefix'))
+                         argparse.Namespace(which='combine_all', id='id', headers='header_file', sero='sero_file', inc='res_file', variants='variants_file', mlst='mlst_file', surface_inc='surface_typer_file', output='output_prefix', version='version'))
