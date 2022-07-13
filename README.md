@@ -1,9 +1,11 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/main/LICENSE)
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/sanger-bentley-group/GBS-Typer-sanger-nf)](https://github.com/sanger-bentley-group/GBS-Typer-sanger-nf/releases)
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sanger-bentley-group/GBS-Typer-sanger-nf/test)
+
 # GBS-Typer-sanger-nf
 The GBS Typer is for characterising Group B Strep by serotyping, resistance typing, MLST, surface protein typing and penicillin-binding protein typing. It has been adapted from [Ben Metcalf's GBS Typer pipeline](https://github.com/BenJamesMetcalf/GBS_Scripts_Reference) in Nextflow for portability and reproducibility.
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/main/LICENSE)   
-![build](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/workflows/build/badge.svg)
-[![codecov](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf/branch/main/graph/badge.svg)](https://codecov.io/gh/sanger-pathogens/GBS-Typer-sanger-nf)
 
 ## Contents
 - [ Running the serotyping and resistance typing pipeline on a local machine ](#local)
