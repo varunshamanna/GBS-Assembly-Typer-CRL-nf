@@ -1,4 +1,4 @@
-# Runs build related tasks.
+# Runs test related tasks.
 
 name: test
 
@@ -9,7 +9,7 @@ on:
     branches: [ main, dev ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-18.04
 
