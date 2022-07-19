@@ -39,6 +39,8 @@ def write_outfile(gene_list, out_file):
         value = values[1]
         for key, item in replace_values.items():
             value = value.replace(key, item)
+            if value == '':
+                value = 'NT'
         matched_alleles = matched_alleles + [value]
         match_type = match_type + [value + '=' + status]
         serotype = serotype + [value]
