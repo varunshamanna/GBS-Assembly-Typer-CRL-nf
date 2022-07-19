@@ -32,7 +32,7 @@ class TestProcessResults(unittest.TestCase):
         f = open(self.TEST_OUTPUT, 'r')
         actual = f.readlines()
         self.assertEqual(actual,
-                            ['Matched_Allele\tMatch_Type\tSerotype\tAvgDepth\n','Ia/III\tIa=identical/III=imperfect\tIa/III\t137.929/11.098\n'])
+                            ['Matched_Allele\tMatch_Type\tSerotype\tAvgDepth\n','NT/Ia/III\tNT=imperfect/Ia=identical/III=imperfect\tIa/III\t2.306/137.929/11.098\n'])
         os.remove(self.TEST_OUTPUT)
 
     def test_arguments(self):

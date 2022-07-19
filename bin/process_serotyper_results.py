@@ -23,8 +23,9 @@ def make_gene_list(input_file, depth_threshold):
         next(fg_file) # Skip header row
         for line in fg_file:
             feature = line.split('\t')
-            if float(feature[5]) > depth_threshold:
-                gene_list.append(feature[2:-1])
+            if float(feature[5]) <= depth_threshold:
+                feature[3] = 'NT'
+            gene_list.append(feature[2:-1])
     return gene_list
 
 
@@ -43,6 +44,8 @@ def write_outfile(gene_list, out_file):
         match_type = match_type + [value + '=' + status]
         serotype = serotype + [value]
         avgdepth = avgdepth + [values[3]]
+    if len(serotype) > 1 and 'NT' in serotype:
+        serotype = [x for x in serotype if x != 'NT']
     with open(out_file, 'w') as out:
         out.write('Matched_Allele'+'\t'+'Match_Type'+'\t'+'Serotype'+'\t'+'AvgDepth'+'\n'+'/'.join(matched_alleles)+'\t'+'/'.join(match_type)+'\t'+'/'.join(serotype)+'\t'+'/'.join(avgdepth)+'\n')
 
