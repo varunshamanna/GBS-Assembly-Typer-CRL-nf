@@ -17,8 +17,6 @@ process get_pbp_genes {
 
     # Get BED file of PBP fragments
     get_pbp_genes_from_contigs.py --blast_out_file ${pair_id}_blast_blactam.out --query_fasta ${blactam_ref} --frac_align_len_threshold ${frac_align_len_threshold} --frac_identity_threshold ${frac_identity_len_threshold} --output_prefix ${pair_id}_
-
-    find . \\! -type f \\( -name "${pair_id}_*bed" -o -name ${contigs} \\) -delete
     """
 }
 
@@ -48,7 +46,5 @@ process get_pbp_alleles {
         # Get identical or imperfect hits
         get_pbp_alleles.py --blast_out_file ${pair_id}_blast_${pbp_type}.out --query_fasta ${pair_id}_${pbp_type}.faa --output_prefix ${pair_id}_${pbp_type}_PBP
     fi
-
-    find . \\! -type f \\( -name "${pair_id}_${pbp_type}_PBP_new_allele.faa" -o -name "${pair_id}_${pbp_type}_PBP_existing_allele.txt" \\) -delete
     """
 }
