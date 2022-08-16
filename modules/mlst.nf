@@ -33,11 +33,13 @@ process get_mlst_allele_and_pileup {
     output:
     path(output_new_mlst_alleles_fasta), emit: new_alleles, optional: true
     path(output_new_mlst_pileup), emit: pileup, optional: true
+    path(output_existing_mlst_alleles), emit: existing_alleles, optional: true
     path(output_new_mlst_alleles_log), emit: new_alleles_status
 
     script:
     output_new_mlst_alleles_fasta="${pair_id}_new_mlst_alleles.fasta"
     output_new_mlst_pileup="${pair_id}_new_mlst_pileup.txt"
+    output_existing_mlst_alleles="${pair_id}_existing_mlst_alleles.txt"
     output_new_mlst_alleles_log="${pair_id}_new_mlst_alleles.log"
 
     """
@@ -90,7 +92,7 @@ process get_mlst_allele_and_pileup {
     then
         mv tmp_pileup.txt ${output_new_mlst_pileup}
     fi
-    
+
     mv tmp.log ${output_new_mlst_alleles_log}
 
     find . \\! -type f \\( -name "${pair_id}_new_mlst_alleles.log" -o -name ${output_new_mlst_alleles_fasta} -o -name ${output_new_mlst_pileup} \\) -delete
