@@ -81,8 +81,16 @@ process get_mlst_allele_and_pileup {
         echo "${pair_id}: No new MLST alleles found." > tmp.log
     fi
 
-    mv tmp.fasta ${output_new_mlst_alleles_fasta}
-    mv tmp_pileup.txt ${output_new_mlst_pileup}
+    if [ -f tmp.fasta ]
+    then
+        mv tmp.fasta ${output_new_mlst_alleles_fasta}
+    fi
+
+    if [ -f tmp_pileup.txt ]
+    then
+        mv tmp_pileup.txt ${output_new_mlst_pileup}
+    fi
+    
     mv tmp.log ${output_new_mlst_alleles_log}
 
     find . \\! -type f \\( -name "${pair_id}_new_mlst_alleles.log" -o -name ${output_new_mlst_alleles_fasta} -o -name ${output_new_mlst_pileup} \\) -delete
