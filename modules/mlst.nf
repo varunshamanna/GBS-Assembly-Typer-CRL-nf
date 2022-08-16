@@ -15,10 +15,12 @@ process srst2_for_mlst {
     mlst_name="Streptococcus_agalactiae"
 
     """
-    set +e
+
     getmlst.py --species 'Streptococcus agalactiae'
     srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_db} --mlst_definitions profiles_csv --mlst_delimiter '_' --min_coverage ${min_coverage}
+
     touch ${pair_id}__mlst__${mlst_name}__results.txt
+    find . \\! -type f \\( -name "${pair_id}*.bam" -o -name "${pair_id}__mlst__${mlst_name}__results.txt" -o -name ${mlst_db} \\) -delete
     """
 }
 
@@ -31,17 +33,15 @@ process get_mlst_allele_and_pileup {
     output:
     path(output_new_mlst_alleles_fasta), emit: new_alleles, optional: true
     path(output_new_mlst_pileup), emit: pileup, optional: true
-    path(output_existing_mlst_alleles), emit: existing_alleles, optional: true
     path(output_new_mlst_alleles_log), emit: new_alleles_status
 
     script:
     output_new_mlst_alleles_fasta="${pair_id}_new_mlst_alleles.fasta"
     output_new_mlst_pileup="${pair_id}_new_mlst_pileup.txt"
-    output_existing_mlst_alleles="${pair_id}_existing_mlst_alleles.txt"
     output_new_mlst_alleles_log="${pair_id}_new_mlst_alleles.log"
 
     """
-    set +e
+
     # Get alleles from mismatches in SRST2 MLST results file
     samtools index ${bam_file}
     get_alleles_from_srst2_mlst.py --mlst_results_file ${results_file} --min_read_depth ${min_read_depth} --output_prefix ${pair_id}
@@ -81,11 +81,11 @@ process get_mlst_allele_and_pileup {
         echo "${pair_id}: No new MLST alleles found." > tmp.log
     fi
 
-
-    touch ${pair_id}_new_mlst_alleles.log
     mv tmp.fasta ${output_new_mlst_alleles_fasta}
     mv tmp_pileup.txt ${output_new_mlst_pileup}
     mv tmp.log ${output_new_mlst_alleles_log}
+
+    find . \\! -type f \\( -name "${pair_id}_new_mlst_alleles.log" -o -name ${output_new_mlst_alleles_fasta} -o -name ${output_new_mlst_pileup} \\) -delete
     """
 
 }

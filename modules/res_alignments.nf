@@ -13,9 +13,11 @@ process srst2_for_res_typing {
     script:
     db_name=db.getSimpleName()
     """
-    set +e
+
     srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --log --save_scores --min_coverage ${min_coverage} --max_divergence ${max_divergence} --gene_db ${db}
+
     touch ${pair_id}__fullgenes__${db_name}__results.txt
+    find . \\! -type f \\( -name "${pair_id}*.bam" -o -name "${pair_id}__fullgenes__${db_name}__results.txt" \\) -delete
     """
 }
 
@@ -45,15 +47,17 @@ process split_target_RES_seq_from_sam_file {
     file("*_*_${pair_id}*.bai")
 
     """
-    set +e
+
     samtools view -h ${bam_file} > \$(basename ${bam_file} .bam).sam
     get_targets_from_samfile.py -s \$(basename ${bam_file} .bam).sam -t ${targets_file} -i ${pair_id} -o CHECK_
     for check_sam_file in CHECK_*_${pair_id}*.sam; do
         samtools view -bS \${check_sam_file} > \$(basename \${check_sam_file} .sam).bam
         samtools index \$(basename \${check_sam_file} .sam).bam \$(basename \${check_sam_file} .sam).bai
     done
+
     touch dummy_dummy_${pair_id}_dummy.bam
     touch dummy_dummy_${pair_id}_dummy.bai
+    find . \\! -type f \\( -name "*_*_${pair_id}*.bam" -o -name "*_*_${pair_id}*.bai" \\) -delete
     """
 }
 
@@ -69,7 +73,7 @@ process freebayes {
     tuple val(pair_id), file("${pair_id}_consensus_seq.fna"), emit: consensus
 
     """
-    set +e
+
     for check_bam_file in CHECK_*_${pair_id}*.bam; do
         target=\$(echo \${check_bam_file} | sed 's/CHECK_//g' | sed 's/_${pair_id}.*//g')
         freebayes -q 20 -p 1 -f CHECK_\${target}_ref.fna \${check_bam_file} -v CHECK_\${target}_${pair_id}_seq.vcf
@@ -77,6 +81,8 @@ process freebayes {
         tabix -p vcf CHECK_\${target}_${pair_id}_seq.vcf.gz
         cat CHECK_\${target}_ref.fna | vcf-consensus CHECK_\${target}_${pair_id}_seq.vcf.gz >> ${pair_id}_consensus_seq.fna
     done
+
     touch ${pair_id}_consensus_seq.fna
+    find . \\! -name "${pair_id}_consensus_seq.fna" -delete
     """
 }

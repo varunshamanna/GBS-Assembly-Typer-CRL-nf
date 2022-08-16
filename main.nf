@@ -189,14 +189,12 @@ workflow MLST {
         // Collect outputs
         new_alleles = get_mlst_allele_and_pileup.out.new_alleles
         pileup = get_mlst_allele_and_pileup.out.pileup
-        existing_alleles = get_mlst_allele_and_pileup.out.existing_alleles
         status = get_mlst_allele_and_pileup.out.new_alleles_status
         srst2_results = srst2_for_mlst.out.srst2_results
 
     emit:
         new_alleles
         pileup
-        existing_alleles
         status
         srst2_results
 }
@@ -325,8 +323,6 @@ workflow {
             MLST.out.pileup.subscribe { it ->
                 it.copyTo(file("${results_dir}"))
             }
-            MLST.out.existing_alleles
-                .collectFile(name: file("${results_dir}/${params.existing_mlst_alleles_out}"), keepHeader: true, sort: true)
             MLST.out.status
                 .collectFile(name: file("${results_dir}/${params.new_mlst_alleles_status}"), keepHeader: false, sort: true)
 
