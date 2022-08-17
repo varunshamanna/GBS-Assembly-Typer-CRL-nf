@@ -19,6 +19,15 @@ process combine_results {
         -x "${surface_protein_incidence}" \
         -n "${version}" \
         -o ${pair_id}
+
+    unlink ${sero_results}
+    unlink ${res_incidence}
+    unlink ${res_alleles}
+    unlink ${surface_protein_incidence}
+    unlink ${surface_protein_variants}
+    unlink ${mlst_allelic_frequency}
+    unlink ${version}
+    unlink ${config}
     """
 }
 

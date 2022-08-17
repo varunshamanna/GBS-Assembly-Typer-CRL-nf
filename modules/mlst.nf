@@ -20,7 +20,19 @@ process srst2_for_mlst {
     srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_db} --mlst_definitions profiles_csv --mlst_delimiter '_' --min_coverage ${min_coverage}
 
     touch ${pair_id}__mlst__${mlst_name}__results.txt
-    find . \\! -type f \\( -name "${pair_id}*.bam" -o -name "${pair_id}__mlst__${mlst_name}__results.txt" -o -name ${mlst_db} \\) -delete
+
+    # Clean directory
+    mkdir output
+    mv ${pair_id}*.bam output
+    mv ${pair_id}__mlst__${mlst_name}__results.txt output
+    mv ${mlst_db} output
+    find . -maxdepth 1 -type f -delete
+    unlink ${reads[0]}
+    unlink ${reads[1]}
+    mv output/${pair_id}*.bam .
+    mv output/${pair_id}__mlst__${mlst_name}__results.txt .
+    mv output/${mlst_db} .
+    rm -d output
     """
 }
 
@@ -95,7 +107,10 @@ process get_mlst_allele_and_pileup {
 
     mv tmp.log ${output_new_mlst_alleles_log}
 
-    find . \\! -type f \\( -name "${pair_id}_new_mlst_alleles.log" -o -name ${output_new_mlst_alleles_fasta} -o -name ${output_new_mlst_pileup} \\) -delete
+    # Clean
+    unlink ${bam_file}
+    unlink ${results_file}
+    unlink ${mlst_alleles}
     """
 
 }

@@ -20,6 +20,15 @@ process surface_typer {
 
     touch ${inc_output_file}
     touch ${variants_output_file}
-    find . \\! -type f \\( -name ${inc_output_file} -o -name ${variants_output_file} \\) -delete
+
+    # Clean directory
+    mkdir output
+    mv ${inc_output_file} output
+    mv ${variants_output_file} output
+    find . -maxdepth 1 -type f -delete
+    unlink ${surface_protein_db}
+    mv output/${inc_output_file} .
+    mv output/${variants_output_file} .
+    rm -d output
     """
 }
