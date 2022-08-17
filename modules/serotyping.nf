@@ -12,7 +12,6 @@ process serotyping {
     sero_gene_db="GBS-SBG.fasta"
 
     """
-    set +e
 
     # Get latest version of GBS Serotype Database
     git clone https://github.com/swainechen/GBS-SBG
@@ -22,5 +21,14 @@ process serotyping {
     process_serotyper_results.py --srst2_output SERO_${pair_id} --sero_db ${sero_gene_db} --output ${pair_id}_SeroType_Results.txt --min_read_depth ${min_read_depth}
 
     touch ${output_file}
+
+    # Clean directory
+    mkdir output
+    mv ${output_file} output
+    find . -maxdepth 1 -type f -delete
+    unlink ${reads[0]}
+    unlink ${reads[1]}
+    mv output/${output_file} .
+    rm -d output
     """
 }
