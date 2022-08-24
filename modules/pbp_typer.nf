@@ -18,15 +18,7 @@ process get_pbp_genes {
     # Get BED file of PBP fragments
     get_pbp_genes_from_contigs.py --blast_out_file ${pair_id}_blast_blactam.out --query_fasta ${blactam_ref} --frac_align_len_threshold ${frac_align_len_threshold} --frac_identity_threshold ${frac_identity_len_threshold} --output_prefix ${pair_id}_
 
-    # Clean directory
-    mkdir output
-    mv ${pair_id}_*bed output
-    mv ${contigs} output
-    find . -maxdepth 1 -type f -delete
     unlink ${blactam_ref}
-    mv output/${pair_id}_*bed .
-    mv output/${contigs} .
-    rm -d output
     """
 }
 
