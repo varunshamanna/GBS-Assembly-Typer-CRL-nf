@@ -14,6 +14,7 @@ process surface_typer {
     inc_output_file="${pair_id}_surface_protein_incidence_sample.txt"
     variants_output_file="${pair_id}_surface_protein_variants_sample.txt"
     """
+    set -e
 
     srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id}_SURFACE --log --save_scores --min_coverage ${min_coverage} --max_divergence ${max_divergence} --gene_db ${surface_protein_db}
     process_surface_typer_results.py --srst2_gbs_fullgenes ${pair_id}_SURFACE --surface_db ${surface_protein_db} --output_prefix ${pair_id} --min_read_depth ${min_read_depth}

@@ -15,6 +15,7 @@ process res_typer {
     variants_output_file="${pair_id}_res_gbs_variants.txt"
     alleles_accessions_file="${pair_id}_res_alleles_accessions.txt"
     """
+    set -e
 
     process_res_typer_results.py \
         --srst2_gbs_fullgenes ${gbs_fullgenes} \
