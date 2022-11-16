@@ -15,7 +15,7 @@ process srst2_for_mlst {
     mlst_name="Streptococcus_agalactiae"
 
     """
-    set -e
+    set +e
 
     getmlst.py --species 'Streptococcus agalactiae'
     srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_db} --mlst_definitions profiles_csv --mlst_delimiter '_' --min_coverage ${min_coverage}

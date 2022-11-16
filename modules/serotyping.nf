@@ -12,7 +12,7 @@ process serotyping {
     sero_gene_db="GBS-SBG.fasta"
 
     """
-    set -e
+    set +e
     # Must create an output file (empty if fails)
 
     # Get latest version of GBS Serotype Database
