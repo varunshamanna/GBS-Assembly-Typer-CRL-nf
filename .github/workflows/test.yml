@@ -50,5 +50,4 @@ jobs:
         curl -s https://get.nextflow.io | bash
         sudo mv nextflow /usr/bin
     - name: Regression tests
-      run: ./tests/regression_tests.sh -s
-      shell: bash
+      run: ./tests/regression_tests.sh
