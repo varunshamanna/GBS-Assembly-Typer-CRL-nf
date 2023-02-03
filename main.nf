@@ -36,9 +36,9 @@ if (params.run_sero_res | params.run_mlst | params.run_surfacetyper){
         .set { read_pairs_ch }
 }
 
-// Check if output specified
-if (params.output == ""){
-    println("Please specify and output prefix with --output.")
+// Check if results_dir specified
+if (params.results_dir == ""){
+    println("Please specify the results directory with --results_dir.")
     println("Print help with --help")
     System.exit(1)
 }
@@ -113,19 +113,26 @@ if (params.surfacetyper_min_read_depth < 0){
 
 // Create results directory if it doesn't already exist
 results_dir = file(params.results_dir)
-results_dir.mkdir()
+
+if (results_dir.exists()){
+    println("This results directory already exists. Specify a new --results_dir or remove your existing one.")
+    println("Print help with --help")
+    System.exit(1)
+} else {
+    results_dir.mkdir()
+}
 
 // Output files
-params.sero_res_incidence_out = "${params.output}_serotype_res_incidence.txt"
-params.variants_out =  "${params.output}_gbs_res_variants.txt"
-params.alleles_variants_out = "${params.output}_drug_cat_alleles_variants.txt"
-params.res_accessions_out = "${params.output}_resfinder_accessions.txt"
-params.existing_pbp_alleles_out = "${params.output}_existing_pbp_alleles.txt"
-params.surface_protein_incidence_out = "${params.output}_surface_protein_incidence.txt"
-params.surface_protein_variants_out = "${params.output}_surface_protein_variants.txt"
-params.existing_mlst_alleles_out = "${params.output}_existing_sequence_types.txt"
-params.new_mlst_alleles_status = "${params.output}_new_mlst_alleles.log"
-params.gbs_typer_report = "${params.output}_gbs_typer_report.txt"
+params.sero_res_incidence_out = "serotype_res_incidence.txt"
+params.variants_out =  "gbs_res_variants.txt"
+params.alleles_variants_out = "drug_cat_alleles_variants.txt"
+params.res_accessions_out = "resfinder_accessions.txt"
+params.existing_pbp_alleles_out = "existing_pbp_alleles.txt"
+params.surface_protein_incidence_out = "surface_protein_incidence.txt"
+params.surface_protein_variants_out = "surface_protein_variants.txt"
+params.existing_mlst_alleles_out = "existing_sequence_types.txt"
+params.new_mlst_alleles_status = "new_mlst_alleles.log"
+params.gbs_typer_report = "gbs_typer_report.txt"
 
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
@@ -272,10 +279,6 @@ workflow PBP2X {
 
 // Main Workflow
 workflow {
-
-    // Create new genotypes file
-    Channel.fromPath( params.output )
-        .set { output_ch }
 
     main:
 
