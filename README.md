@@ -15,9 +15,9 @@ The GBS Typer is for characterising Group B Strep by serotyping, resistance typi
 - [ Outputs ](#outputs)
     - [ Main Report ](#main)
     - [ Other Reports ](#other)
-- [ Pencillin-binding protein Typing Output ](#pbp)
 - [ Additional options ](#additional)
 - [ Advanced ](#advanced)
+    - [ Pencillin-binding protein Typing Workflow ](#pbp)
     - [ Other examples of running pipelines ](#examples)
     - [ Troubleshooting for errors](#errors)
     - [ Clean Up ](#cleanup)
@@ -65,7 +65,7 @@ Follow [these](README_sanger.md) instructions.
 
 <a name="main"></a>
 ### Main Report
-Running the command with will generate the main report `gbs_typer_report.txt`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the dictionary for the columns [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing).
+Running the command with will generate the main report `gbs_typer_report.txt`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the description for each of the columns [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing).
 
 <a name="other"></a>
 ### Other Reports
@@ -115,31 +115,7 @@ Sample_id | ALPH | hvgA | PILI | SRR
 :---: | :---: | :---: | :---: | :---:
 26189_8#338 | alp2/3 | neg | PI1:PI2A1 | srr1
 
-<a name="pbp"></a>
-### PBP (Penicillin-binding protein) Typing Workflow
-To enable the PBP typing workflow provide the **--run_pbptyper** command line argument and specify the contig FASTA files using and **--contigs**:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results --run_pbptyper --contigs 'data/*.fa'
-```
-
-If existing PBP alleles are found, a tab-delimited file is created in the results directory. The file contains the sample IDs (that are determined from the contig FASTA file names e.g. 25292_2#85 from data/25292_2#85.fa), the contig identifiers with start, end and forward(+)/reverse(-) positions, and the PBP allele identifier.
-
-Sample_id | Contig | PBP_allele
-:---: | :---: | :---:
-25292_2#85 | .25292_2_85.9:39495-40455(+) | 2\|\|GBS_1A
-26077_6#118 | .26077_6_118.11:39458-40418(+) | 1\|\|GBS_1A
-
-If a new PBP allele is found in a sample, a FASTA file of amino acids is created in the 'results' directory. For example, if contig .25292_2_85.9 from sample 25292_2#85 contained a new PBP-1A allele, then .25292_2_85.9_GBS1A-1_PBP_new_allele.faa is generated with contents:
-
-    >.26077_6_118.11:39458-40418(+)
-    DIYNSDTYIAYPNNELQIASTIMDATNGKVIAQLGGRHQNENISFGTNQSVLTDRDWGST
-    MKPISAYAPAIDSGVYNSTGQSLNDSVYYWPGTSTQLYDWDRQYMGWMSMQTAIQQSRNV
-    PAVRALEAAGLDEAKSFLEKLGIYYPEMNYSNAISSNNSSSDAKYGASSEKMAAAYSAFA
-    NGGTYYKPQYVNKIEFSDGTNDTYAASGSRAMKETTAYMMTDMLKTVLTFGTGTKAAIPG
-    VAQAGKTGTSNYTEDELAKIEATTGIYNSAVGTMAPDENFVGYTSKYTMAIWTGYKNRLT
-    PLYGSQLDIATEVYRAMMSY
-
-    <a name="additional"></a>
+<a name="additional"></a>
 ## Additional options
 ### Inputs
     --contigs                       Path of file containing FASTA contigs. Only use when --run_pbptyper is specified. (Use wildcard '*' to specify multiple files, e.g. 'data/*.fa')
@@ -171,6 +147,32 @@ If a new PBP allele is found in a sample, a FASTA file of amino acids is created
 
 <a name="advanced"></a>
 ## Advanced
+
+<a name="pbp"></a>
+### PBP (Penicillin-binding protein) Typing Workflow
+To enable the PBP typing workflow provide the **--run_pbptyper** command line argument and specify the contig FASTA files using and **--contigs**:
+```
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results --run_pbptyper --contigs 'data/*.fa'
+```
+
+If existing PBP alleles are found, a tab-delimited file is created in the results directory. The file contains the sample IDs (that are determined from the contig FASTA file names e.g. 25292_2#85 from data/25292_2#85.fa), the contig identifiers with start, end and forward(+)/reverse(-) positions, and the PBP allele identifier.
+
+Sample_id | Contig | PBP_allele
+:---: | :---: | :---:
+25292_2#85 | .25292_2_85.9:39495-40455(+) | 2\|\|GBS_1A
+26077_6#118 | .26077_6_118.11:39458-40418(+) | 1\|\|GBS_1A
+
+If a new PBP allele is found in a sample, a FASTA file of amino acids is created in the 'results' directory. For example, if contig .25292_2_85.9 from sample 25292_2#85 contained a new PBP-1A allele, then .25292_2_85.9_GBS1A-1_PBP_new_allele.faa is generated with contents:
+
+    >.26077_6_118.11:39458-40418(+)
+    DIYNSDTYIAYPNNELQIASTIMDATNGKVIAQLGGRHQNENISFGTNQSVLTDRDWGST
+    MKPISAYAPAIDSGVYNSTGQSLNDSVYYWPGTSTQLYDWDRQYMGWMSMQTAIQQSRNV
+    PAVRALEAAGLDEAKSFLEKLGIYYPEMNYSNAISSNNSSSDAKYGASSEKMAAAYSAFA
+    NGGTYYKPQYVNKIEFSDGTNDTYAASGSRAMKETTAYMMTDMLKTVLTFGTGTKAAIPG
+    VAQAGKTGTSNYTEDELAKIEATTGIYNSAVGTMAPDENFVGYTSKYTMAIWTGYKNRLT
+    PLYGSQLDIATEVYRAMMSY
+
+
 <a name="examples"></a>
 ### Other examples of running the pipeline
 It is recommended you use the default parameters for specifying other resistance databases. However, to use different or multiple resistance databases with the GBS-specific resistance database, e.g. ARG-ANNOT and ResFinder in the `db/0.2.1` directory, both with a minimum coverage of 70 and maximum divergence of 30:
