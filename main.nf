@@ -28,7 +28,7 @@ if (params.help){
 if (params.run_sero_res | params.run_mlst | params.run_surfacetyper){
     if (params.reads == ""){
         println("Please specify reads with --reads.")
-        println("Print help with --help")
+        println("Print help with nextflow main.nf --help")
         System.exit(1)
     }
     // Create read pairs channel
@@ -39,13 +39,13 @@ if (params.run_sero_res | params.run_mlst | params.run_surfacetyper){
 // Check if results_dir specified
 if (params.results_dir == ""){
     println("Please specify the results directory with --results_dir.")
-    println("Print help with --help")
+    println("Print help with nextflow main.nf --help")
     System.exit(1)
 }
 
 if (!params.run_sero_res && !params.run_surfacetyper && !params.run_mlst && !params.run_pbptyper){
     println("Please specify one or more pipelines to run.")
-    println("Print help with --help")
+    println("Print help with nextflow main.nf --help")
     System.exit(1)
 }
 
@@ -116,7 +116,7 @@ results_dir = file(params.results_dir)
 
 if (results_dir.exists()){
     println("This results directory already exists. Specify a new --results_dir or remove your existing one.")
-    println("Print help with --help")
+    println("Print help with nextflow main.nf --help")
     System.exit(1)
 } else {
     results_dir.mkdir()
