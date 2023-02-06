@@ -2,7 +2,7 @@
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/sanger-bentley-group/GBS-Typer-sanger-nf)](https://github.com/sanger-bentley-group/GBS-Typer-sanger-nf/releases)
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/sanger-bentley-group/GBS-Typer-sanger-nf/test)
+![GitHub Workflow Status](https://github.com/sanger-bentley-group/GBS-Typer-sanger-nf/actions/workflows/test.yml/badge.svg)
 
 # GBS-Typer-sanger-nf
 The GBS Typer is for characterising Group B Strep by serotyping, resistance typing, MLST, surface protein typing and penicillin-binding protein typing. It has been adapted from [Ben Metcalf's GBS Typer pipeline](https://github.com/BenJamesMetcalf/GBS_Scripts_Reference) in Nextflow for portability and reproducibility.
