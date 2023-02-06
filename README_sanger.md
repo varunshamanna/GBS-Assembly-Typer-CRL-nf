@@ -27,7 +27,7 @@ bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusag
 
 - For multiple samples
 ```
-bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads data/*_{1,2}.fastq.gz --results_dir my_results -profile sanger,lsf"
+bsub -G <your_team> -J <job_name> -o %J.out -e %J.err -R "select[mem>1000] rusage[mem=1000]" -M1000 "nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results -profile sanger,lsf"
 ```
 Specifying `-profile sanger,lsf` will instruct Nextflow to run tasks as separate LSF jobs in parallel and will instruct the pipeline to build a local Singularity image from the [quay.io Docker image](https://quay.io/repository/sangerpathogens/gbs-typer-sanger-nf).
 

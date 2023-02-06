@@ -44,17 +44,17 @@ cd GBS-Typer-sanger-nf
 ### Usage
 Note: Running the pipeline requires an internet connection to allow the pipeline to automatically download its [dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf).
 
-- To run on one sample (replacing `sampleID`)
+- To run on one sample (called `sampleID` in directory `data`)
 ```
 nextflow run main.nf --reads data/sampleID_{1,2}.fastq.gz --results_dir my_results
 ```
 
-- To run on multiple samples in a directory (replacing `my_results` with a desired name)
+- To run on multiple samples in a directory (called `data` and a results directory called `my_results`)
 ```
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results
 ```
 
-This will create a directory called `my_results` containing the following output files.
+This will create a results directory (here called `my_results`) containing output files listed below.
 
 <a name="sanger"></a>
 ### Running the pipeline on Sanger farm
