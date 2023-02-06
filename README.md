@@ -66,7 +66,7 @@ Follow [these](README_sanger.md) instructions.
 
 <a name="main"></a>
 ### Main Report
-Running the command with will generate the main report `gbs_typer_report.txt`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the description for each of the columns in the report [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing).
+Running the command with will generate the main report `gbs_typer_report.txt`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the description for each of the columns in the report [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing) where the `category` column is `in_silico_analysis`.
 
 <a name="other"></a>
 ### Other Reports
