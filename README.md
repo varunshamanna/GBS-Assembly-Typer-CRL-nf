@@ -27,6 +27,8 @@ The GBS Typer is for characterising Group B Strep by serotyping, resistance typi
 
 <a name="local"></a>
 ## Running the pipeline
+- Running the pipeline requires an internet connection
+- Currently it supports only paired-end reads
 
 <a name="localinstall"></a>
 ### Installation
@@ -42,7 +44,6 @@ cd GBS-Typer-sanger-nf
 
 <a name="localusage"></a>
 ### Usage
-Note: Running the pipeline requires an internet connection to allow the pipeline to automatically download its [dependencies image](https://hub.docker.com/repository/docker/sangerpathogens/gbs-typer-sanger-nf).
 
 - To run on one sample (called `sampleID` in directory `data`)
 ```
@@ -65,11 +66,12 @@ Follow [these](README_sanger.md) instructions.
 
 <a name="main"></a>
 ### Main Report
-Running the command with will generate the main report `gbs_typer_report.txt`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the description for each of the columns [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing).
+Running the command with will generate the main report `gbs_typer_report.txt`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the description for each of the columns in the report [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing).
 
 <a name="other"></a>
 ### Other Reports
 1. **serotype_res_incidence.txt**
+
 Gives the serotype and presence/absence (i.e. pos/neg) of antibiotic resistance genes, e.g. Isolate Strep B sample 25292_2#105 has serotype II and have genes: 23S1, 23S3, GYRA, lsaC and tetM
 
 Sample_id | Serotype | 23S1 | 23S3 | CAT | ermB | ermT | FOSA | GYRA | lnuB | lsaC | mefA | MPHC | MSRA | msrD | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4 | SUL2 | tetB | tetL | tetM | tetO | tetS
@@ -77,6 +79,7 @@ Sample_id | Serotype | 23S1 | 23S3 | CAT | ermB | ermT | FOSA | GYRA | lnuB | ls
 25292_2#105 | II | pos | pos | neg | neg | neg | neg | pos | neg | pos | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | neg | pos | neg | neg
 
 2. **gbs_res_variants.txt**
+
 Gives the SNP variants for GBS-specific resistance genes
 e.g. Isolate Strep B sample 25292_2#105 have common variants 23S1, 23S3 and GYRA (shown with *), but replacement of amino acid S by Q in position 17 of the PARC protein sequence
 
@@ -85,6 +88,7 @@ Sample_id | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOB
 25292_2#105 | * | * | * | Q17S | | | | |
 
 3. **drug_cat_alleles_variants.txt**
+
 Gives the GBS-specific variants and other resistance genes and alleles for drug categories: EC (macrolides, lincosamides, streptogramins or oxazolidinones), FQ (fluoroquinolones), OTHER (other antibiotics) and TET (tetracyclines)
 e.g. Isolate Step B sample 25292_2#105 have GBS-specific variants: erythromycin-resistant 23S1 and 23S3, fluoroquinolone-resistant PARC and GYRA, and other resistance allele tetracycline-resistant tet(M)_1 of gene tet(M) (as specified by gene[allele])
 
@@ -93,15 +97,19 @@ Sample_id | EC | FQ | OTHER | TET
 25292_2#105 | 23S1:23S3 | PARC-Q17S:GYRA | neg | tet(M)[tet(M)_1]
 
 4. **new_mlst_alleles.log**
+
 Indicates whether new MLST alleles have been found for each sample (where there are mismatches with sufficient read depth at least the value specified --mlst_min_read_depth [Default: 30]).
 
 5. FASTA file **new_mlst_alleles.fasta** and a pileup file **new_mlst_pileup.txt**
+
 If `new_mlst_alleles.log` includes "New MLST alleles found."
 
 6. **existing_sequence_types.txt**
+
 For other samples that have no new MLST alleles and only have existing sequence types. If "None found" for a sample then no sequence types were found (with sufficient read depth).
 
 7. **surface_protein_incidence.txt**
+
 This shows the incidence of different surface protein alleles in the Strep B sample(s), e.g.
 
 Sample_id | alp1 | alp2/3 | alpha | hvgA | PI1 | PI2A1 | PI2A2 | PI2B | rib | srr1 | srr2
@@ -109,6 +117,7 @@ Sample_id | alp1 | alp2/3 | alpha | hvgA | PI1 | PI2A1 | PI2A2 | PI2B | rib | sr
 26189_8#338 | neg | pos | neg | neg | pos | pos | neg | neg | neg | pos | neg
 
 8. **surface_protein_variants.txt**
+
 This shows all the surface proteins in the Strep B sample(s), e.g.
 
 Sample_id | ALPH | hvgA | PILI | SRR
