@@ -2,6 +2,7 @@
 
 in_dir=tests/regression_test_data/input_data
 out_dir=tests/regression_test_data/output_data
+test_dir=tests/regression_test_data/test_data
 
 SUDO_OPT=
 while getopts ":s" opt; do
@@ -18,9 +19,8 @@ echo "Starting regression tests..."
 echo ""
 
 # Run pipeline on test input data
-output=test
-rm $out_dir/${output}*
-${SUDO_OPT}nextflow -log nextflow_test.log run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$out_dir" --run_surfacetyper --run_pbptyper --run_mlst --contigs "$in_dir/test.fa" --output "$output" --version vtest -resume
+rm -r $test_dir
+${SUDO_OPT}nextflow -log nextflow_test.log run main.nf --reads "$in_dir/test_{1,2}.fastq.gz" --results_dir "$test_dir" --run_surfacetyper --run_pbptyper --run_mlst --contigs "$in_dir/test.fa" --version vtest -resume
 cat nextflow_test.log
 echo ""
 
@@ -49,42 +49,42 @@ function file_diff {
 
 error_status=0
 # Check for test_drug_cat_alleles.txt output
-file_diff "${out_dir}/test_drug_cat_alleles_variants.txt" "${out_dir}/reference_drug_cat_alleles_variants.txt"
+file_diff "${test_dir}/drug_cat_alleles_variants.txt" "${out_dir}/reference_drug_cat_alleles_variants.txt"
 out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_gbs_res_variants.txt output
-file_diff "${out_dir}/test_gbs_res_variants.txt" "${out_dir}/reference_gbs_res_variants.txt"
+file_diff "${test_dir}/gbs_res_variants.txt" "${out_dir}/reference_gbs_res_variants.txt"
 out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_serotype_res_incidence.txt output
-file_diff "${out_dir}/test_serotype_res_incidence.txt" "${out_dir}/reference_serotype_res_incidence.txt"
+file_diff "${test_dir}/serotype_res_incidence.txt" "${out_dir}/reference_serotype_res_incidence.txt"
 out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_surface_protein_incidence.txt output
-file_diff "${out_dir}/test_surface_protein_incidence.txt" "${out_dir}/reference_surface_protein_incidence.txt"
+file_diff "${test_dir}/surface_protein_incidence.txt" "${out_dir}/reference_surface_protein_incidence.txt"
 out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_surface_protein_variants.txt output
-file_diff "${out_dir}/test_surface_protein_variants.txt" "${out_dir}/reference_surface_protein_variants.txt"
+file_diff "${test_dir}/surface_protein_variants.txt" "${out_dir}/reference_surface_protein_variants.txt"
 out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_existing_pbp_alleles.txt output
-sort "${out_dir}/test_existing_pbp_alleles.txt" | file_diff - "${out_dir}/reference_existing_pbp_alleles.txt"
+sort "${test_dir}/existing_pbp_alleles.txt" | file_diff - "${out_dir}/reference_existing_pbp_alleles.txt"
 out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_existing_sequence_types.txt output
-file_diff "${out_dir}/test_existing_sequence_types.txt" "${out_dir}/reference_existing_sequence_types.txt"
+file_diff "${test_dir}/existing_sequence_types.txt" "${out_dir}/reference_existing_sequence_types.txt"
 out=$?
 error_status=$(($error_status | $out))
 
 # Check for test_gbs_typer_report.txt
-file_diff "${out_dir}/test_gbs_typer_report.txt" "${out_dir}/reference_gbs_typer_report.txt"
+file_diff "${test_dir}/gbs_typer_report.txt" "${out_dir}/reference_gbs_typer_report.txt"
 out=$?
 error_status=$(($error_status | $out))
 
