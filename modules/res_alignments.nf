@@ -17,18 +17,6 @@ process srst2_for_res_typing {
     srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --log --save_scores --min_coverage ${min_coverage} --max_divergence ${max_divergence} --gene_db ${db}
 
     touch ${pair_id}__fullgenes__${db_name}__results.txt
-
-    # Clean directory
-    mkdir output
-    mv ${pair_id}*.bam output
-    mv ${pair_id}__fullgenes__${db_name}__results.txt output
-    find . -maxdepth 1 -type f -delete
-    unlink ${reads[0]}
-    unlink ${reads[1]}
-    unlink ${db}
-    mv output/${pair_id}*.bam .
-    mv output/${pair_id}__fullgenes__${db_name}__results.txt .
-    rm -d output
     """
 }
 

@@ -36,7 +36,11 @@ GBS Typer relies on Nextflow and Docker.
 Download:
 1. [Docker](https://www.docker.com/).
 2. [Nextflow](https://www.nextflow.io/).
-3. Clone repository:
+3. Move `nextflow` to your PATH
+```
+mv nextflow /usr/local/bin/
+```
+4. Clone repository:
 ```
 git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
 cd GBS-Typer-sanger-nf
