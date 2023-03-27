@@ -48,4 +48,4 @@ class TestProcessResults(unittest.TestCase):
     def test_arguments_without_depth_threshold(self):
         actual = get_arguments().parse_args(['-s', 'srst2_output_name', '-b', 'sero_db', '-o', 'outfile'])
         self.assertEqual(actual,
-                        argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=30.0))
+                        argparse.Namespace(id='srst2_output_name', db='sero_db', output='outfile', depth=0))

@@ -8,3 +8,4 @@ py==1.10.0
 pyparsing==2.4.7
 pytest==6.2.4
 toml==0.10.2
+pandas==1.5.3
