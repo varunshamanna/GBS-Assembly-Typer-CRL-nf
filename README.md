@@ -141,7 +141,7 @@ Sample_id | ALPH | hvgA | PILI | SRR
     --other_res_min_coverage        Minimum coverage for mapping to other resistance reference database(s). (Default: 70)
     --other_res_max_divergence      Maximum divergence for mapping to other resistance reference database. (Default: 30, i.e. report only hits with <30% divergence)
     --restyper_min_read_depth       Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
-    --serotyper_min_read_depth      Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
+    --serotyper_min_read_depth      Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 0)
 
 ### Other Workflow Options
     --run_sero_res                  Run the main serotyping and resistance workflows. (Default: true)
