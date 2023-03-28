@@ -87,9 +87,9 @@ Sample_id | Serotype | 23S1 | 23S3 | CAT | ermB | ermT | FOSA | GYRA | lnuB | ls
 Gives the SNP variants for GBS-specific resistance genes
 e.g. Isolate Strep B sample 25292_2#105 have common variants 23S1, 23S3 and GYRA (shown with *), but replacement of amino acid S by Q in position 17 of the PARC protein sequence
 
-Sample_id | 23S1 | 23S3 | GYRA | PARC | RPOBGBS-1 | RPOBGBS-2 | RPOBGBS-3 | RPOBGBS-4
-:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
-25292_2#105 | * | * | * | Q17S | | | | |
+Sample_id | 23S1 | 23S3 | GYRA | PARC
+:---: | :---: | :---: | :---: | :---:
+25292_2#105 | * | * | * | Q17S
 
 3. **drug_cat_alleles_variants.txt**
 
@@ -141,14 +141,13 @@ Sample_id | ALPH | hvgA | PILI | SRR
     --other_res_min_coverage        Minimum coverage for mapping to other resistance reference database(s). (Default: 70)
     --other_res_max_divergence      Maximum divergence for mapping to other resistance reference database. (Default: 30, i.e. report only hits with <30% divergence)
     --restyper_min_read_depth       Minimum read depth where mappings to antibiotic resistance genes with fewer reads are excluded. (Default: 30)
-    --serotyper_min_read_depth      Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 30)
+    --serotyper_min_read_depth      Minimum read depth where mappings to serotyping genes with fewer reads are excluded. (Default: 0)
 
 ### Other Workflow Options
     --run_sero_res                  Run the main serotyping and resistance workflows. (Default: true)
-                                    Use '--run_sero_res false' to override the default.
-    --run_surfacetyper              Run the surface protein typing workflow. (Default: false)
+    --run_surfacetyper              Run the surface protein typing workflow. (Default: true)
     --run_mlst                      Run the MLST workflow to query existing sequence types and new MLST alleles. (Default: true)
-    --run_pbptyper                  Run the PBP (Penicillin binding protein) allele typer workflow. Must also specify --contigs input. (Default: true)
+    --run_pbptyper                  Run the PBP (Penicillin binding protein) allele typer workflow. Must also specify --contigs input. (Default: false)
 
 ### Other Parameters
     --mlst_min_read_depth           Minimum read depth where mappings to alleles in MLST with fewer reads are excluded. Only operational with --run_mlst. (Default: 30)
