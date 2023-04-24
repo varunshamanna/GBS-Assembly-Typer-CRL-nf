@@ -50,7 +50,7 @@ process split_target_RES_seq_from_sam_file {
     file("*_*_${pair_id}*.bai")
 
     """
-
+    set +e
     samtools view -h ${bam_file} > \$(basename ${bam_file} .bam).sam
     get_targets_from_samfile.py -s \$(basename ${bam_file} .bam).sam -t ${targets_file} -i ${pair_id} -o CHECK_
     for check_sam_file in CHECK_*_${pair_id}*.sam; do

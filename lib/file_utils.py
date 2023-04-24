@@ -34,7 +34,7 @@ class FileUtils:
     def write_pandas_output(content, output_filename):
         """Write a pandas dataframe to a tab-delimited text file"""
         try:
-            content.to_csv(output_filename, sep='\t', header=True, index=False, line_terminator='\n')
+            content.to_csv(output_filename, sep='\t', header=True, index=False)
         except IOError:
             print('Cannot open filename starting "{}"'.format(output_filename))
             raise
