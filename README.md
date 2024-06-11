@@ -1,17 +1,16 @@
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/sanger-pathogens/GBS-Typer-sanger-nf/blob/main/LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg)](https://github.com/varunshamanna/GBS-Assembly-Typer-CRL-nf/blob/main/LICENSE)
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/sanger-bentley-group/GBS-Typer-sanger-nf)](https://github.com/sanger-bentley-group/GBS-Typer-sanger-nf/releases)
 
-![GitHub Workflow Status](https://github.com/sanger-bentley-group/GBS-Typer-sanger-nf/actions/workflows/test.yml/badge.svg)
+# GBS-Assembly-Typer-CRL-nf
+This pipeline performs assembly and qc of GBS raw reads and also it has integrated GBS Typer from [GBS-typer pipeline](https://github.com/sanger-bentley-group/GBS-Typer-sanger-nf/tree/main?tab=readme-ov-file) which is for characterising Group B Strep by serotyping, resistance typing, MLST, surface protein typing and penicillin-binding protein typing. It has been adapted from [Ben Metcalf's GBS Typer pipeline](https://github.com/BenJamesMetcalf/GBS_Scripts_Reference) in Nextflow for portability and reproducibility.
 
-# GBS-Typer-sanger-nf
-The GBS Typer is for characterising Group B Strep by serotyping, resistance typing, MLST, surface protein typing and penicillin-binding protein typing. It has been adapted from [Ben Metcalf's GBS Typer pipeline](https://github.com/BenJamesMetcalf/GBS_Scripts_Reference) in Nextflow for portability and reproducibility.
+This pipeline is just fusion of [GPS-pipeline](https://github.com/sanger-bentley-group/gps-pipeline/tree/master) and [GBS-Typer pipeline](https://github.com/sanger-bentley-group/GBS-Typer-sanger-nf). Thanks to [@harry](https://github.com/HarryHung) for his excellent pipeline architecture and modular processes and thanks to [@vicky](https://github.com/blue-moon22) for the typer pipeline.
 
 ## Contents
 - [ Running the pipeline ](#local)
-    - [ Installation ](#localinstall)
-    - [ Usage ](#localusage)
-    - [ Running the pipeline on Sanger farm ](#sanger)
+    - [ Installation ](#install)
+    - [ Usage ](#usage)
 - [ Outputs ](#outputs)
     - [ Main Report ](#main)
     - [ Other Reports ](#other)
@@ -27,10 +26,10 @@ The GBS Typer is for characterising Group B Strep by serotyping, resistance typi
 
 <a name="local"></a>
 ## Running the pipeline
-- Running the pipeline requires an internet connection
+- Running the pipeline requires an internet connection. It downloads kraken database which is ~8.5GB in size for the first run.
 - Currently it supports only paired-end reads
 
-<a name="localinstall"></a>
+<a name="install"></a>
 ### Installation
 GBS Typer relies on Nextflow and Docker.
 Download:
@@ -42,35 +41,34 @@ mv nextflow /usr/local/bin/
 ```
 4. Clone repository:
 ```
-git clone https://github.com/sanger-pathogens/GBS-Typer-sanger-nf.git
-cd GBS-Typer-sanger-nf
+git clone https://github.com/varunshamanna/GBS-Assembly-Typer-CRL-nf.git
+cd GBS-Assembly-Typer-CRL-nf
 ```
 
-<a name="localusage"></a>
+<a name="usage"></a>
 ### Usage
 
 - To run on one sample (called `sampleID` in directory `data`)
 ```
-nextflow run main.nf --reads data/sampleID_{1,2}.fastq.gz --results_dir my_results
+nextflow run main.nf --reads data/sampleID_{1,2}.fastq.gz --output my_results
 ```
 
 - To run on multiple samples in a directory (called `data` and a results directory called `my_results`)
 ```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results
+nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --output my_results
 ```
 
 This will create a results directory (here called `my_results`) containing output files listed below.
 
-<a name="sanger"></a>
-### Running the pipeline on Sanger farm
-Follow [these](README_sanger.md) instructions.
 
 <a name="outputs"></a>
 ## Outputs
 
 <a name="main"></a>
 ### Main Report
-Running the command with will generate the main report `gbs_typer_report.txt`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the description for each of the columns in the report [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing) where the `category` column is `in_silico_analysis`.
+This pipeline performs read trimming using fastp, assembly using shovill assembler, taxonomy qc using kraken2 and mapping QC by mapping the reads to reference genome Streptococcus agalactiae NEM316, NCBI Reference Sequence: NC_004368.1. It generates a QC report names GBS_QC_result.tsv with the a column called overall_qc classifying the samples into pass and fail based on QC parameters as defined [here](https://github.com/sanger-bentley-group/GBS_QC_nf/blob/main/nextflow.config#:~:text=Raw-,%2F%2F%20Nextflow%20config%0A%0Amanifest%20%7B%0A%20%20%20%20homePage,%7D,-GBS_QC_nf%2Fnextflow.config) by the Bentley Group.
+
+It also perform typing on the passed reads and it will generate the typing report `GBS_typer_report.tsv`. This will include the serotype, MLST type, allelic frequencies from MLST, resistance gene incidence, surface protein types and GBS-specific resistance variants. You can find the description for each of the columns in the report [here](https://docs.google.com/spreadsheets/d/1R5FFvACC3a6KCKkTiluhTj492-4cCe74HcCoklqX-X0/edit?usp=sharing) where the `category` column is `in_silico_analysis`.
 
 <a name="other"></a>
 ### Other Reports
@@ -131,7 +129,6 @@ Sample_id | ALPH | hvgA | PILI | SRR
 <a name="additional"></a>
 ## Additional options
 ### Inputs
-    --contigs                       Path of file containing FASTA contigs. Only use when --run_pbptyper is specified. (Use wildcard '*' to specify multiple files, e.g. 'data/*.fa')
     --db_version                    Database version. (Default: latest in `db` directory)
     --other_res_dbs                 Path to other resistance reference database. Must be FASTA format. (Default: ResFinder)
 
@@ -191,22 +188,7 @@ It is recommended you use the default parameters for specifying other resistance
 ```
 nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results --other_res_dbs 'db/0.2.1/ARGannot-DB/ARG-ANNOT.fasta db/0.2.1/ResFinder-DB/ResFinder.fasta' --other_res_min_coverage '70 70' --other_res_max_divergence '30 30'
 ```
-To run **only** the surface protein typing workflow, use:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results --run_sero_res false --run_mlst false
-```
-To run **only** the MLST workflow, use:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results --run_sero_res false --run_surfacetyper false
-```
-To run **only** the serotyping and resistance typing workflows, use:
-```
-nextflow run main.nf --reads 'data/*_{1,2}.fastq.gz' --results_dir my_results --run_surfacetyper false --run_mlst false
-```
-To run **only** the PBP typing workflow, use:
-```
-nextflow run main.nf --results_dir my_results --run_sero_res false --run_surfacetyper false --run_mlst false --run_pbptyper --contigs 'data/*.fa'
-```
+
 Note: The **--reads** parameter is not needed for the PBP typing workflow.
 
 <a name="errors"></a>
@@ -221,19 +203,6 @@ The `work` directory keeps the intermediate files of the pipeline. You can use `
 <a name="dependencies"></a>
 ### Software dependencies
 All pipeline dependencies are built into the [quay.io dependencies image](https://quay.io/repository/sangerpathogens/gbs-typer-sanger-nf), used by the pipeline.
-The current program versions in this image are as follows:
-
-Program | Version
-:---: | :---:
-bedtools | 2.29.2
-biopython | 1.78
-bowtie | 2.2.9
-freebayes | 1.3.3+
-prodigal | 1:2.6.3
-python 2 | 2.7
-python 3 | 3.8
-samtools | 0.1.18
-srst2 | 0.2.0
 
 <a name="acknowledge"></a>
 ## Acknowledge us

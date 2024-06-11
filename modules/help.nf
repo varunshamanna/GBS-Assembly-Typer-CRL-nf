@@ -2,14 +2,13 @@
 def printHelp() {
   log.info"""
   Usage:
-    nextflow run main.nf --reads [paired reads] --results_dir [results directory]
+    nextflow run main.nf --reads [paired reads] --output [results directory]
 
   Description:
     Characterisation of Group B Strep.
 
     ## Additional options
     ### Inputs
-        --contigs                       Path of file containing FASTA contigs. Only use when --run_pbptyper is specified. (Use wildcard '*' to specify multiple files, e.g. 'data/*.fa')
         --db_version                    Database version. (Default: latest in `db` directory)
         --other_res_dbs                 Path to other resistance reference database. Must be FASTA format. (Default: ResFinder)
 

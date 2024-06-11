@@ -1,14 +1,16 @@
 process srst2_for_mlst {
 
+    publishDir "${params.output}/mlst_out/${sample_id}", mode: "copy", pattern: '*__mlst__*__results.txt'
+
     input:
-    tuple val(pair_id), file(reads) // ID and paired read files
+    tuple val(sample_id), path(read1), path(read2), path(unpaired) // ID and paired read files
     val(min_coverage) // String of minimum coverage parameter(s) for SRST2
 
-    //publishDir "./${tmp_dir}/${pair_id}", mode: 'move', overwrite: true, pattern: "${pair_id}_${db_name}_*__fullgenes__*__results.txt"
+    //publishDir "./${tmp_dir}/${sample_id}", mode: 'move', overwrite: true, pattern: "${sample_id}_${db_name}_*__fullgenes__*__results.txt"
 
     output:
-    tuple val(pair_id), file("${pair_id}*.bam"), file("${pair_id}__mlst__${mlst_name}__results.txt"), file(mlst_db), emit: bam_and_srst2_results
-    tuple val(pair_id), file("${pair_id}__mlst__${mlst_name}__results.txt"), emit: srst2_results
+    tuple val(sample_id), file("${sample_id}*.bam"), file("${sample_id}__mlst__${mlst_name}__results.txt"), file(mlst_db), emit: bam_and_srst2_results
+    tuple val(sample_id), file("${sample_id}__mlst__${mlst_name}__results.txt"), emit: srst2_results
 
     script:
     mlst_db="Streptococcus_agalactiae.fasta"
@@ -18,20 +20,20 @@ process srst2_for_mlst {
     set +e
 
     getmlst.py --species 'Streptococcus agalactiae'
-    srst2 --samtools_args '\\-A' --input_pe ${reads[0]} ${reads[1]} --output ${pair_id} --save_scores --mlst_db ${mlst_db} --mlst_definitions profiles_csv --mlst_delimiter '_' --min_coverage ${min_coverage}
+    srst2 --samtools_args '\\-A' --input_pe ${read1} ${read2} --output ${sample_id} --save_scores --mlst_db ${mlst_db} --mlst_definitions profiles_csv --mlst_delimiter '_' --min_coverage ${min_coverage}
 
-    touch ${pair_id}__mlst__${mlst_name}__results.txt
+    touch ${sample_id}__mlst__${mlst_name}__results.txt
 
     # Clean directory
     mkdir output
-    mv ${pair_id}*.bam output
-    mv ${pair_id}__mlst__${mlst_name}__results.txt output
+    mv ${sample_id}*.bam output
+    mv ${sample_id}__mlst__${mlst_name}__results.txt output
     mv ${mlst_db} output
     find . -maxdepth 1 -type f -delete
-    unlink ${reads[0]}
-    unlink ${reads[1]}
-    mv output/${pair_id}*.bam .
-    mv output/${pair_id}__mlst__${mlst_name}__results.txt .
+    unlink ${read1}
+    unlink ${read2}
+    mv output/${sample_id}*.bam .
+    mv output/${sample_id}__mlst__${mlst_name}__results.txt .
     mv output/${mlst_db} .
     rm -d output
     """
@@ -39,8 +41,12 @@ process srst2_for_mlst {
 
 process get_mlst_allele_and_pileup {
 
+    tag "$sample_id"
+
+    publishDir "${params.output}/mlst_out/${sample_id}", mode: "copy"
+
     input:
-    tuple val(pair_id), file(bam_file), file(results_file), file(mlst_alleles)
+    tuple val(sample_id), file(bam_file), file(results_file), file(mlst_alleles)
     val(min_read_depth)
 
     output:
@@ -50,19 +56,19 @@ process get_mlst_allele_and_pileup {
     path(output_new_mlst_alleles_log), emit: new_alleles_status
 
     script:
-    output_new_mlst_alleles_fasta="${pair_id}_new_mlst_alleles.fasta"
-    output_new_mlst_pileup="${pair_id}_new_mlst_pileup.txt"
-    output_existing_mlst_alleles="${pair_id}_existing_mlst_alleles.txt"
-    output_new_mlst_alleles_log="${pair_id}_new_mlst_alleles.log"
+    output_new_mlst_alleles_fasta="${sample_id}_new_mlst_alleles.fasta"
+    output_new_mlst_pileup="${sample_id}_new_mlst_pileup.txt"
+    output_existing_mlst_alleles="${sample_id}_existing_mlst_alleles.txt"
+    output_new_mlst_alleles_log="${sample_id}_new_mlst_alleles.log"
 
     """
 
     # Get alleles from mismatches in SRST2 MLST results file
     samtools index ${bam_file}
-    get_alleles_from_srst2_mlst.py --mlst_results_file ${results_file} --min_read_depth ${min_read_depth} --output_prefix ${pair_id}
-    if [[ -f ${pair_id}_new_mlst_alleles.txt ]]
+    get_alleles_from_srst2_mlst.py --mlst_results_file ${results_file} --min_read_depth ${min_read_depth} --output_prefix ${sample_id}
+    if [[ -f ${sample_id}_new_mlst_alleles.txt ]]
     then
-        num_alleles=\$(cat ${pair_id}_new_mlst_alleles.txt | wc -l)
+        num_alleles=\$(cat ${sample_id}_new_mlst_alleles.txt | wc -l)
     else
         num_alleles=0
     fi
@@ -70,10 +76,10 @@ process get_mlst_allele_and_pileup {
     # Get consensus allele and variant pileup for each allele
     if [[ \${num_alleles} -gt 1 ]]
     then
-        echo "${pair_id}: New MLST alleles found." > tmp.log
+        echo "${sample_id}: New MLST alleles found." > tmp.log
         for ((i=2;i<=\${num_alleles};i++)); # Skip first line of alleles file
         do
-            target_allele=\$(sed -n \"\${i}p\" ${pair_id}_new_mlst_alleles.txt)
+            target_allele=\$(sed -n \"\${i}p\" ${sample_id}_new_mlst_alleles.txt)
 
             mlst_bam=\"\${target_allele}_${bam_file}\"
             mlst_vcf=\"\$(basename \${mlst_bam} .bam).vcf\"
@@ -91,9 +97,9 @@ process get_mlst_allele_and_pileup {
         done
     elif [[ \${num_alleles} -eq 1 ]]
     then
-        cat ${pair_id}_new_mlst_alleles.txt > tmp.log
+        cat ${sample_id}_new_mlst_alleles.txt > tmp.log
     else
-        echo "${pair_id}: No new MLST alleles found." > tmp.log
+        echo "${sample_id}: No new MLST alleles found." > tmp.log
     fi
 
     if [ -f tmp.fasta ]

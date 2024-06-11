@@ -6,16 +6,25 @@
 // Enable DSL 2
 nextflow.enable.dsl=2
 
+
+//assembly and qc modules
+include { FILE_VALIDATION; PREPROCESS; READ_QC } from "$projectDir/modules/preprocess"
+include { ASSEMBLY_UNICYCLER; ASSEMBLY_SHOVILL; ASSEMBLY_ASSESS; ASSEMBLY_QC } from "$projectDir/modules/assembly"
+include { GET_REF_GENOME_BWA_DB; MAPPING; SAM_TO_SORTED_BAM; SNP_CALL; HET_SNP_COUNT; MAPPING_QC } from "$projectDir/modules/mapping"
+include { GET_KRAKEN2_DB; TAXONOMY; TAXONOMY_QC } from "$projectDir/modules/taxonomy"
+include { OVERALL_QC } from "$projectDir/modules/overall_qc"
+include { GENERATE_SAMPLE_REPORT; GENERATE_OVERALL_REPORT } from "$projectDir/modules/output"
 // Import modules
-include {printHelp} from './modules/help.nf'
-include {serotyping} from './modules/serotyping.nf'
-include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from './modules/res_alignments.nf'
-include {res_typer} from './modules/res_typer.nf'
-include {surface_typer} from './modules/surface_typer.nf'
-include {srst2_for_mlst; get_mlst_allele_and_pileup} from './modules/mlst.nf'
-include {get_pbp_genes; get_pbp_alleles} from './modules/pbp_typer.nf'
-include {finalise_sero_res_results; finalise_surface_typer_results; finalise_pbp_existing_allele_results; combine_results} from './modules/combine.nf'
-include {get_version} from './modules/version.nf'
+include {printHelp} from "$projectDir/modules/help.nf"
+include {serotyping} from "$projectDir/modules/serotyping.nf"
+include {srst2_for_res_typing; split_target_RES_seq_from_sam_file; split_target_RES_sequences; freebayes} from "$projectDir/modules/res_alignments.nf"
+include {res_typer} from "$projectDir/modules/res_typer.nf"
+include {surface_typer} from "$projectDir/modules/surface_typer.nf"
+include {srst2_for_mlst; get_mlst_allele_and_pileup} from "$projectDir/modules/mlst.nf"
+include {get_pbp_genes; get_pbp_alleles} from "$projectDir/modules/pbp_typer.nf"
+include {finalise_sero_res_results; finalise_surface_typer_results; finalise_pbp_existing_allele_results; combine_results} from "$projectDir/modules/combine.nf"
+include {get_version} from "$projectDir/modules/version.nf"
+
 
 
 // Help message
@@ -24,27 +33,15 @@ if (params.help){
     exit 0
 }
 
-// Check if reads specified
-if (params.run_sero_res | params.run_mlst | params.run_surfacetyper){
-    if (params.reads == ""){
+if (params.reads == ""){
         println("Please specify reads with --reads.")
         println("Print help with nextflow main.nf --help")
         System.exit(1)
-    }
-    // Create read pairs channel
-    Channel.fromFilePairs( params.reads, checkIfExists: true )
-        .set { read_pairs_ch }
 }
 
 // Check if results_dir specified
-if (params.results_dir == ""){
-    println("Please specify the results directory with --results_dir.")
-    println("Print help with nextflow main.nf --help")
-    System.exit(1)
-}
-
-if (!params.run_sero_res && !params.run_surfacetyper && !params.run_mlst && !params.run_pbptyper){
-    println("Please specify one or more pipelines to run.")
+if (params.output == ""){
+    println("Please specify the results directory with --output.")
     println("Print help with nextflow main.nf --help")
     System.exit(1)
 }
@@ -112,14 +109,12 @@ if (params.surfacetyper_min_read_depth < 0){
 }
 
 // Create results directory if it doesn't already exist
-results_dir = file(params.results_dir)
+output_dir = file(params.output)
 
-if (results_dir.exists()){
-    println("This results directory already exists. Specify a new --results_dir or remove your existing one.")
-    println("Print help with nextflow main.nf --help")
-    System.exit(1)
+if (output_dir.exists()){
+    println("The output directory already exists. The results will be written in the existing one.")
 } else {
-    results_dir.mkdir()
+    output_dir.mkdir()
 }
 
 // Output files
@@ -132,7 +127,7 @@ params.surface_protein_incidence_out = "surface_protein_incidence.txt"
 params.surface_protein_variants_out = "surface_protein_variants.txt"
 params.existing_mlst_alleles_out = "existing_sequence_types.txt"
 params.new_mlst_alleles_status = "new_mlst_alleles.log"
-params.gbs_typer_report = "gbs_typer_report.txt"
+params.gbs_typer_report = "GBS_typer_report.tsv"
 
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
@@ -220,7 +215,7 @@ workflow PBP1A {
 
         // Output new PBP alleles to results directory
         get_pbp_alleles.out.new_pbp.subscribe { it ->
-            it.copyTo(file("${results_dir}"))
+            it.copyTo(file("${output_dir}"))
         }
 
         // Combine existing PBP alleles results in one file
@@ -243,7 +238,7 @@ workflow PBP2B {
 
         // Output new PBP alleles to results directory
         get_pbp_alleles.out.new_pbp.subscribe { it ->
-            it.copyTo(file("${results_dir}"))
+            it.copyTo(file("${output_dir}"))
         }
 
         // Combine existing PBP alleles results in one file
@@ -266,7 +261,7 @@ workflow PBP2X {
 
         // Output new PBP alleles to results directory
         get_pbp_alleles.out.new_pbp.subscribe { it ->
-            it.copyTo(file("${results_dir}"))
+            it.copyTo(file("${output_dir}"))
         }
 
         // Combine existing PBP alleles results in one file
@@ -281,122 +276,212 @@ workflow PBP2X {
 workflow {
 
     main:
+         // Get path and prefix of Reference Genome BWA Database, generate from assembly if necessary
+        GET_REF_GENOME_BWA_DB(params.ref_genome, params.db)
 
-        if (params.run_sero_res){
+         // Get path to Kraken2 Database, download if necessary
+        GET_KRAKEN2_DB(params.kraken2_db_remote, params.db)
 
-            // Serotyping Process
-            serotyping(read_pairs_ch, params.serotyper_min_read_depth)
+        // Get read pairs into Channel raw_read_pairs_ch
+        raw_read_pairs_ch = Channel.fromFilePairs("$params.reads/*_{,R}{1,2}{,_001}.{fq,fastq}{,.gz}", checkIfExists: true)
 
-            // Resistance Mapping Workflows
-            GBS_RES(read_pairs_ch)
-            OTHER_RES(read_pairs_ch)
+         // Basic input files validation
+         // Output into Channel FILE_VALIDATION.out.result
+        FILE_VALIDATION(raw_read_pairs_ch)
 
-            // Once GBS or both resistance workflows are complete, trigger resistance typing
-            GBS_RES.out.fullgenes
-            .join(GBS_RES.out.consensus)
-            .join(OTHER_RES.out.fullgenes)
-            .set { res_files_ch }
+        // From Channel raw_read_pairs_ch, only output valid reads of samples based on Channel FILE_VALIDATION.out.result
+        VALID_READS_ch = FILE_VALIDATION.out.result.join(raw_read_pairs_ch, failOnDuplicate: true, failOnMismatch: true)
+                        .filter { it[1] == 'PASS' }
+                        .map { it[0, 2..-1] }
 
-            res_typer(res_files_ch, params.restyper_min_read_depth, file(params.config, checkIfExists: true))
+        
+        // Preprocess valid read pairs
+        // Output into Channels PREPROCESS.out.processed_reads & PREPROCESS.out.json
+        PREPROCESS(VALID_READS_ch)
 
-            // Combine serotype and resistance type results for each sample
-            sero_res_ch = serotyping.out.join(res_typer.out.res_out)
+        // From Channel PREPROCESS.out.json, provide Read QC status
+        // Output into Channels READ_QC.out.bases, READ_QC.out.result, READ_QC.out.report
+        READ_QC(PREPROCESS.out.json, params.length_low, params.depth)
 
-            finalise_sero_res_results(sero_res_ch, file(params.config, checkIfExists: true))
+        // From Channel PREPROCESS.out.processed_reads, only output reads of samples passed Read QC based on Channel READ_QC.out.result
+        READ_QC_PASSED_READS_ch = READ_QC.out.result.join(PREPROCESS.out.processed_reads, failOnDuplicate: true, failOnMismatch: true)
+                        .filter { it[1] == 'PASS' }
+                        .map { it[0, 2..-1] }
 
-            // Combine samples and output results files
-            finalise_sero_res_results.out.sero_res_incidence
-                .collectFile(name: file("${results_dir}/${params.sero_res_incidence_out}"), keepHeader: true)
+        // From Channel READ_QC_PASSED_READS_ch, assemble the preprocess read pairs
+        // Output into Channel ASSEMBLY_ch, and hardlink (default) the assemblies to $params.output directory
+        switch (params.assembler) {
+            case 'shovill':
+                ASSEMBLY_ch = ASSEMBLY_SHOVILL(READ_QC_PASSED_READS_ch, params.min_contig_length, params.assembler_thread)
+            break
 
-            finalise_sero_res_results.out.res_alleles_variants
-                .collectFile(name: file("${results_dir}/${params.alleles_variants_out}"), keepHeader: true)
-
-            finalise_sero_res_results.out.res_variants
-                .collectFile(name: file("${results_dir}/${params.variants_out}"), keepHeader: true)
-
-            res_typer.out.res_accessions
-                .collectFile(name: file("${results_dir}/${params.res_accessions_out}"))
+            case 'unicycler':
+                ASSEMBLY_ch = ASSEMBLY_UNICYCLER(READ_QC_PASSED_READS_ch, params.min_contig_length, params.assembler_thread)
+            break
         }
+
+        // From Channel ASSEMBLY_ch, assess assembly quality
+        // Output into Channel ASSEMBLY_ASSESS.out.report
+        ASSEMBLY_ASSESS(ASSEMBLY_ch)
+
+        // From Channel ASSEMBLY_ASSESS.out.report and Channel READ_QC.out.bases, provide Assembly QC status
+        // Output into Channels ASSEMBLY_QC.out.result & ASSEMBLY_QC.out.report
+        ASSEMBLY_QC(
+            ASSEMBLY_ASSESS.out.report
+            .join(READ_QC.out.bases, failOnDuplicate: true),
+            params.contigs,
+            params.length_low,
+            params.length_high,
+            params.depth
+        )
+
+        // From Channel READ_QC_PASSED_READS_ch map reads to reference
+        // Output into Channel MAPPING.out.sam
+        MAPPING(GET_REF_GENOME_BWA_DB.out.path, GET_REF_GENOME_BWA_DB.out.prefix, READ_QC_PASSED_READS_ch)
+
+        // From Channel MAPPING.out.sam, Convert SAM into sorted BAM and calculate reference coverage
+        // Output into Channels SAM_TO_SORTED_BAM.out.sorted_bam and SAM_TO_SORTED_BAM.out.ref_coverage
+        SAM_TO_SORTED_BAM(MAPPING.out.sam, params.lite)
+
+        // From Channel SAM_TO_SORTED_BAM.out.sorted_bam calculates non-cluster Het-SNP site count
+        // Output into Channel HET_SNP_COUNT.out.result
+        SNP_CALL(params.ref_genome, SAM_TO_SORTED_BAM.out.sorted_bam, params.lite)
+        HET_SNP_COUNT(SNP_CALL.out.vcf)
+
+        // Merge Channels SAM_TO_SORTED_BAM.out.ref_coverage & HET_SNP_COUNT.out.result to provide Mapping QC Status
+        // Output into Channels MAPPING_QC.out.result & MAPPING_QC.out.report
+        MAPPING_QC(
+        SAM_TO_SORTED_BAM.out.ref_coverage
+        .join(HET_SNP_COUNT.out.result, failOnDuplicate: true, failOnMismatch: true),
+        params.ref_coverage,
+        params.het_snp_site
+        )
+
+        // From Channel READ_QC_PASSED_READS_ch assess GBS percentage in reads
+        // Output into Channel TAXONOMY.out.report
+        TAXONOMY(GET_KRAKEN2_DB.out.path, params.kraken2_memory_mapping, READ_QC_PASSED_READS_ch)
+
+        // From Channel TAXONOMY.out.report, provide taxonomy QC status
+         // Output into Channels TAXONOMY_QC.out.result & TAXONOMY_QC.out.report
+        TAXONOMY_QC(TAXONOMY.out.report, params.gbs_percentage, params.non_gbs_percentage)
+
+        // Merge Channels FILE_VALIDATION.out.result & READ_QC.out.result & ASSEMBLY_QC.out.result & MAPPING_QC.out.result & TAXONOMY_QC.out.result to provide Overall QC Status
+        // Output into Channel OVERALL_QC.out.result & OVERALL_QC.out.report
+        OVERALL_QC(
+            raw_read_pairs_ch.map{ it[0] }
+                .join(FILE_VALIDATION.out.result, failOnDuplicate: true, failOnMismatch: true)
+                .join(READ_QC.out.result, failOnDuplicate: true, remainder: true)
+                .join(ASSEMBLY_QC.out.result, failOnDuplicate: true, remainder: true)
+                .join(MAPPING_QC.out.result, failOnDuplicate: true, remainder: true)
+                .join(TAXONOMY_QC.out.result, failOnDuplicate: true, remainder: true)
+        )
+        // Generate sample reports by merging outputs from all result-generating modules
+        GENERATE_SAMPLE_REPORT(
+            raw_read_pairs_ch.map{ it[0] }
+                .join(READ_QC.out.report, failOnDuplicate: true, remainder: true)
+                .join(ASSEMBLY_QC.out.report, failOnDuplicate: true, remainder: true)
+                .join(MAPPING_QC.out.report, failOnDuplicate: true, remainder: true)
+                .join(TAXONOMY_QC.out.report, failOnDuplicate: true, remainder: true)
+                .join(OVERALL_QC.out.report, failOnDuplicate: true, failOnMismatch: true)
+            .map { [it[0], it[1..-1].minus(null)] } // Map Sample_ID to index 0 and all reports (with null entries removed) as a list to index 1
+        )
+
+        // Generate overall report based on sample reports, ARIBA metadata, resistance to MIC lookup table
+        GENERATE_OVERALL_REPORT(GENERATE_SAMPLE_REPORT.out.report.collect())
+        
+        // From Channel READ_QC_PASSED_READS_ch, only output reads of samples passed overall QC based on Channel OVERALL_QC.out.result
+        OVERALL_QC_PASSED_READS_ch = OVERALL_QC.out.result.join(READ_QC_PASSED_READS_ch, failOnDuplicate: true)
+                        .filter { it[1] == 'PASS' }
+                        .map { it[0, 2..-1] }
+
+        // From Channel ASSEMBLY_ch, only output assemblies of samples passed overall QC based on Channel OVERALL_QC.out.result
+        OVERALL_QC_PASSED_ASSEMBLIES_ch = OVERALL_QC.out.result.join(ASSEMBLY_ch, failOnDuplicate: true)
+                            .filter { it[1] == 'PASS' }
+                            .map { it[0, 2..-1] }
+
+        // Serotyping Process
+        serotyping(OVERALL_QC_PASSED_READS_ch, params.serotyper_min_read_depth)
+
+        passed_reads_ch = OVERALL_QC_PASSED_READS_ch.map { sample_id, processed_one, processed_two, processed_unpaired ->  
+        [processed_one, processed_two]
+        }
+
+        // Resistance Mapping Workflows
+        GBS_RES(OVERALL_QC_PASSED_READS_ch)
+        OTHER_RES(OVERALL_QC_PASSED_READS_ch)
+
+        // Once GBS or both resistance workflows are complete, trigger resistance typing
+        GBS_RES.out.fullgenes
+        .join(GBS_RES.out.consensus)
+        .join(OTHER_RES.out.fullgenes)
+        .set { res_files_ch }
+
+        res_typer(res_files_ch, params.restyper_min_read_depth, file(params.config, checkIfExists: true))
+
+        // Combine serotype and resistance type results for each sample
+        sero_res_ch = serotyping.out.join(res_typer.out.res_out)
+
+        finalise_sero_res_results(sero_res_ch, file(params.config, checkIfExists: true))
+
+        // Combine samples and output results files
+        finalise_sero_res_results.out.sero_res_incidence
+            .collectFile(name: file("${output_dir}/resistance_out/${params.sero_res_incidence_out}"), keepHeader: true)
+
+        finalise_sero_res_results.out.res_alleles_variants
+            .collectFile(name: file("${output_dir}/resistance_out/${params.alleles_variants_out}"), keepHeader: true)
+
+        finalise_sero_res_results.out.res_variants
+            .collectFile(name: file("${output_dir}/resistance_out/${params.variants_out}"), keepHeader: true)
+
+        res_typer.out.res_accessions
+                .collectFile(name: file("${output_dir}/resistance_out/${params.res_accessions_out}"))
 
         // MLST
-        if (params.run_mlst){
-
-            MLST(read_pairs_ch)
-            MLST.out.new_alleles.subscribe { it ->
-                it.copyTo(file("${results_dir}"))
-            }
-            MLST.out.pileup.subscribe { it ->
-                it.copyTo(file("${results_dir}"))
-            }
-            MLST.out.existing_alleles
-                .collectFile(name: file("${results_dir}/${params.existing_mlst_alleles_out}"), keepHeader: true, sort: true)
-            MLST.out.status
-                .collectFile(name: file("${results_dir}/${params.new_mlst_alleles_status}"), keepHeader: false, sort: true)
-
-        }
-
+        MLST(OVERALL_QC_PASSED_READS_ch)
+        
         // Surface Typing Process
-        if (params.run_surfacetyper){
+        surface_typer(OVERALL_QC_PASSED_READS_ch, file(params.gbs_surface_typer_db, checkIfExists: true),
+            params.surfacetyper_min_read_depth, params.surfacetyper_min_coverage,
+            params.surfacetyper_max_divergence)
 
-            surface_typer(read_pairs_ch, file(params.gbs_surface_typer_db, checkIfExists: true),
-                params.surfacetyper_min_read_depth, params.surfacetyper_min_coverage,
-                params.surfacetyper_max_divergence)
+        finalise_surface_typer_results(surface_typer.out, file(params.config, checkIfExists: true))
 
-            finalise_surface_typer_results(surface_typer.out, file(params.config, checkIfExists: true))
-
-            // Combine results for surface typing
-            finalise_surface_typer_results.out.surface_protein_incidence
-                .collectFile(name: file("${results_dir}/${params.surface_protein_incidence_out}"), keepHeader: true)
-            finalise_surface_typer_results.out.surface_protein_variants
-                .collectFile(name: file("${results_dir}/${params.surface_protein_variants_out}"), keepHeader: true)
-
-        }
+        // Combine results for surface typing
+        finalise_surface_typer_results.out.surface_protein_incidence
+            .collectFile(name: file("${output_dir}/surface_protein_out/${params.surface_protein_incidence_out}"), keepHeader: true)
+        finalise_surface_typer_results.out.surface_protein_variants
+            .collectFile(name: file("${output_dir}/surface_protein_out/${params.surface_protein_variants_out}"), keepHeader: true)
 
         // PBP Typer
-        if (params.run_pbptyper){
+        contig_paths = OVERALL_QC_PASSED_ASSEMBLIES_ch
 
-            // Check if contigs specified
-            if (params.contigs == ""){
-                println("Please specify contigs with --contigs.")
-                println("Print help with --contigs")
-                System.exit(1)
-            }
+        get_pbp_genes(contig_paths, file(params.gbs_blactam_db, checkIfExists: true), params.pbp_frac_align_threshold, params.pbp_frac_identity_threshold)
 
-            contig_paths = Channel
-                .fromPath(params.contigs, checkIfExists: true)
-                .map { file -> tuple(file.baseName, file) }
+        // Get PBP existing and new alleles
+        PBP1A(get_pbp_genes.out)
+        PBP2B(get_pbp_genes.out)
+        PBP2X(get_pbp_genes.out)
 
-            get_pbp_genes(contig_paths, file(params.gbs_blactam_db, checkIfExists: true), params.pbp_frac_align_threshold, params.pbp_frac_identity_threshold)
+        PBP1A.out
+        .concat(PBP2B.out, PBP2X.out)
+        .set { PBP_all }
 
-            // Get PBP existing and new alleles
-            PBP1A(get_pbp_genes.out)
-            PBP2B(get_pbp_genes.out)
-            PBP2X(get_pbp_genes.out)
+        PBP_all
+        .collectFile(name: file("${output_dir}/pbp_alleles/${params.existing_pbp_alleles_out}"), keepHeader: true, sort: true)
 
-            PBP1A.out
-            .concat(PBP2B.out, PBP2X.out)
-            .set { PBP_all }
+        // Combine serotype, resistance, allelic profile, surface typer and GBS resistance variant
+        // Get version of pipeline
+        get_version()
+        version_ch = get_version.out
 
-            PBP_all
-                .collectFile(name: file("${results_dir}/${params.existing_pbp_alleles_out}"), keepHeader: true, sort: true)
-        }
+        // Combine serotype and resistance type results for each sample
+        combined_ch = serotyping.out
+            .join(res_typer.out.res_out)
+            .join(surface_typer.out)
+            .join(MLST.out.srst2_results)
 
-        // Combine serotype, resistance, allelic profile, surface typer and GBS resistance variants
-        if (params.run_sero_res & params.run_surfacetyper & params.run_mlst){
+        combine_results(combined_ch, file(params.config, checkIfExists: true), version_ch)
 
-            // Get version of pipeline
-            get_version()
-            version_ch = get_version.out
-
-            // Combine serotype and resistance type results for each sample
-            combined_ch = serotyping.out
-                .join(res_typer.out.res_out)
-                .join(surface_typer.out)
-                .join(MLST.out.srst2_results)
-
-            combine_results(combined_ch, file(params.config, checkIfExists: true), version_ch)
-
-            combine_results.out
-                .collectFile(name: file("${results_dir}/${params.gbs_typer_report}"), keepHeader: true, sort: true)
-        }
+        combine_results.out
+            .collectFile(name: file("${output_dir}/${params.gbs_typer_report}"), keepHeader: true, sort: true)
 }
