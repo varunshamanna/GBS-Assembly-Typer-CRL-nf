@@ -117,18 +117,6 @@ if (output_dir.exists()){
     output_dir.mkdir()
 }
 
-// Output files
-params.sero_res_incidence_out = "serotype_res_incidence.txt"
-params.variants_out =  "gbs_res_variants.txt"
-params.alleles_variants_out = "drug_cat_alleles_variants.txt"
-params.res_accessions_out = "resfinder_accessions.txt"
-params.existing_pbp_alleles_out = "existing_pbp_alleles.txt"
-params.surface_protein_incidence_out = "surface_protein_incidence.txt"
-params.surface_protein_variants_out = "surface_protein_variants.txt"
-params.existing_mlst_alleles_out = "existing_sequence_types.txt"
-params.new_mlst_alleles_status = "new_mlst_alleles.log"
-params.gbs_typer_report = "GBS_typer_report.tsv"
-
 // Resistance mapping with the GBS resistance database
 workflow GBS_RES {
 
